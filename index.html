@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+<head>
+
+<title>Handles Web Editor</title>
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="default.css" />
+</head>
+<body>
+
+<div id="handles-root">
+
+<div ng-controller="MainCtrl">
+	<ul class="tabs">
+		<li ng-click="tabId = 1" ng-class="{active:tabId==1}">Box</li>
+		<li ng-click="tabId = 2" ng-class="{active:tabId==2}">Dimension</li>
+		<li ng-click="tabId = 3" ng-class="{active:tabId==3}">Position</li>
+		<li ng-click="tabId = 4" ng-class="{active:tabId==4}">Decoration</li>
+		<li ng-click="tabId = 5" ng-class="{active:tabId==5}">Effects</li>
+		<li ng-click="tabId = 6" ng-class="{active:tabId==6}">Text</li>
+		<li ng-click="tabId = 7" ng-class="{active:tabId==7}">Columns</li>
+		<li ng-click="tabId = 8" ng-class="{active:tabId==8}">Filters</li>
+		<li ng-click="tabId = 9" ng-class="{active:tabId==9}">Transform</li>
+		<li ng-click="tabId = 10" ng-class="{active:tabId==10}">Transform3D</li>
+	</ul>
+	<ul class="tabs rules">
+		<li ng-repeat="rule in rules" ng-class="{active: rule == activeRule}" ng-click="toggleRule(rule)">
+			<i ng-class="'dot color'+rule.index"></i> {{rule.selectorText}}
+			<ul><li ng-repeat="style in rule.style">{{style}}: {{rule.style[style]}}</li></ul>
+		</li>
+	</ul>
+	
+	<div class="handles" ng-class="'rule'+activeRule.index" ng-show="isSelected">
+		
+		<div class="curProp" ng-show="showCurProp" ng-style="{
+			left: (paddingLeft+width+paddingRight)/2 + offset.left,
+			top: (paddingTop+height+paddingBottom)/2 + offset.top
+		}">
+			<div class="propName">{{propName}}</div>
+			<div class="propVal">{{propVal}}</div>
+		</div>
+	
+		<div ng-show="tabId == 1">
+			<handle class="s-resize" prop="padding-top" 
+				dir="vert" 
+				unit="px" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					top: borderTop + paddingTop + offset.top
+				}">
+			</handle>
+			<handle class="w-resize" prop="padding-right" 
+				dir="-horiz" 
+				unit="px" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				ng-style="{
+					left: paddingLeft+width + offset.left, 
+					top: height/2 + paddingTop + offset.top
+				}">
+			</handle>
+			<handle class="n-resize" prop="padding-bottom" 
+				dir="-vert" 
+				unit="px" 
+				allownegative="false" 
+				ng-style="{
+					left: width/2 + paddingLeft + offset.left, 
+					top: height + paddingTop + offset.top
+				}">
+			</handle>
+			<handle class="e-resize" prop="padding-left" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="false" 
+				ng-style="{
+					left: paddingLeft + offset.left, 
+					top: height/2 + paddingTop + offset.top
+				}">
+			</handle>
+			<handle class="n-resize" prop="margin-top" 
+				dir="-vert" 
+				unit="px" 
+				allownegative="true" 
+				ng-style="{
+					left: width/2 + paddingLeft + offset.left,
+					top: offset.top - marginTop
+				}">
+			</handle>
+			<handle class="e-resize" prop="margin-right" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="true" 
+				ng-style="{
+					left: offset.left + paddingLeft + width + paddingRight + marginRight, 
+					top: height/2 + paddingTop + offset.top
+				}">
+			</handle>
+			<handle class="s-resize" prop="margin-bottom" 
+				dir="vert" 
+				unit="px" 
+				allownegative="true" 
+				ng-style="{
+					left: width/2 + paddingLeft + offset.left, 
+					top: offset.top + paddingTop + height + paddingBottom + marginBottom
+				}">
+			</handle>
+			<handle class="w-resize" prop="margin-left" 
+				dir="-horiz" 
+				unit="px" 
+				allownegative="true" 
+				ng-style="{
+					left: offset.left - marginLeft, 
+					top: height/2 + paddingTop + offset.top
+				}">
+			</handle>
+		</div>
+		
+		<div ng-show="tabId == 3">
+			<handle class="ns-resize" prop="top" 
+				dir="vert" 
+				unit="px" 
+				allownegative="true" 
+				ng-style="{
+					left: (paddingLeft+width+paddingRight)/2 + offset.left, 
+					top: offset.top
+				}">
+			</handle>
+			<handle class="ew-resize" prop="right" 
+				dir="-horiz" 
+				unit="px" 
+				allownegative="true" 
+				ng-style="{
+					left: paddingLeft+width+paddingRight + offset.left, 
+					top: (paddingTop+height+paddingBottom)/2 + offset.top
+				}">
+			</handle>
+			<handle class="ns-resize" prop="bottom" 
+				dir="-vert" 
+				unit="px" 
+				allownegative="true" 
+				ng-style="{
+					left: (paddingLeft+width+paddingRight)/2 + offset.left, 
+					top: paddingTop+height+paddingBottom + offset.top
+				}">
+			</handle>
+			<handle class="ew-resize" prop="left" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="true" 
+				ng-style="{
+					left: offset.left, 
+					top: (paddingTop+height+paddingBottom)/2 + offset.top
+				}">
+			</handle>
+		</div>
+	
+	</div>
+</div>
+
+
+</div>
+
+
+<div class="doc">
+	<div class="box box1">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
+	<div class="box box2">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
+	<div class="box box3">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
+	<div class="box box4">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
+	<div class="bigFont">
+		<div class="box box5">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
+	</div>
+</div>
+
+<script src="jquery.js"></script>
+<script src="angular.js"></script>
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>-->
+<script type="text/javascript" src="default.js"></script>
+
+</body>
+</html>

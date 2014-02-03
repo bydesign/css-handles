@@ -1,0 +1,160 @@
+body {
+	font-family: 'Lato', sans-serif;
+	font-weight: 300;
+}
+p {
+	font-weight: bold;
+}
+.myclass {
+	color: #ccc;
+}
+
+.tabs {
+	overflow: hidden;
+	list-style: none;
+	padding: 0;
+}
+.tabs > li {
+	float: left;
+	padding: .3em .6em;
+}
+.tabs > .active {
+	font-weight: bold;
+}
+.rules > .active {
+	font-weight: bold;
+}
+.curProp {
+	position: absolute;
+	background-color:#fff;
+	border-radius: 100%;
+	text-shadow: 0 0 3px #fff, 0 0 5px #fff;
+	color: #00ADEF;
+	z-index: 1000;
+	width: 100px;
+	height: 100px;
+	margin-left: -50px;
+	margin-top: -50px;
+	opacity: .9;
+	text-align: center;
+	pointer-events: none;
+	box-sizing: border-box;
+	padding-top: 15px;
+	line-height: 170%;
+}
+.propVal {
+	font-size: 2.5em;
+	font-weight: bolder;
+}
+
+handle {
+	margin-left: -18px;
+	margin-top: -18px;
+	display: block;
+	position: absolute;
+	z-index: 999;
+}
+.handleCt {
+	width: 36px;
+	height: 36px;
+	border-radius: 100%;
+	background-color: #fff;
+	opacity: .3;
+	border: solid 1px #00ADEF;
+	overflow: hidden;
+	box-sizing: border-box;
+	color: #00ADEF;
+	cursor: pointer;
+}
+.handleCt:hover {
+	opacity: 1;
+}
+.handleColor0, .handleColor1, .handleColor2, .handleColor3, .handleColor4 {
+	color: #fff;
+	opacity: 1;
+	border: none;
+}
+.handleColor1 { background-color: #00ADEF; }
+.handleColor2 { background-color: #00D96D; }
+.handleColor3 { background-color: #A3D900; }
+.handleColor4 { background-color: #DC0000; }
+.handleColor5 { background-color: #A300D9; }
+
+handle.dragging > .handleCt {
+	background-color: #fff;
+	opacity: 1;
+	border: solid 2px #00ADEF;
+}
+handle.dragging > .handleColor1 { border-color: #00ADEF; color: #00ADEF; }
+handle.dragging > .handleColor2 { border-color: #00D96D; color: #00D96D; }
+handle.dragging > .handleColor3 { border-color: #A3D900; color: #A3D900; }
+handle.dragging > .handleColor4 { border-color: #DC0000; color: #DC0000; }
+handle.dragging > .handleColor5 { border-color: #A300D9; color: #A300D9; }
+
+.n-resize > .handleCt { cursor: n-resize; }
+.s-resize > .handleCt { cursor: s-resize; }
+.e-resize > .handleCt { cursor: e-resize; }
+.w-resize > .handleCt { cursor: w-resize; }
+.ns-resize > .handleCt { cursor: ns-resize; }
+.ew-resize > .handleCt { cursor: ew-resize; }
+
+.dot {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	border-radius: 100%;
+	background-color: #ccc;
+}
+.color1 { background-color: #00ADEF; }
+.color2 { background-color: #00D96D; }
+.color3 { background-color: #A3D900; }
+.color4 { background-color: #DC0000; }
+.color5 { background-color: #A300D9; }
+
+
+/**** TEMPORARY PAGE STYLES ****/
+.box {
+	position: absolute;
+	width: 100px;
+	height: 100px;
+	top: 100px;
+	left: 100px;
+	background-color: #ccc;
+	overflow: hidden;
+	padding-top: 1em;
+}
+
+.box1 {
+	top: auto;
+	left: auto;
+	bottom: 50px;
+	right: 50px;
+}
+.box2 {
+	padding: 5%;
+	background-color: #eee;
+	left: 500px;
+}
+.box3 {
+	top: 350px;
+	width: 500px;
+	padding: 5%;
+	background-color: #666;
+	border: solid 10px #ccc;
+	color: #fff;
+	box-sizing: border-box;
+}
+.box4 {
+	margin: 1em;
+	background-color: #cc0000;
+	border: solid 10px #ccc;
+}
+.box5 {
+	padding: 3em;
+	left: 800px;
+	top: 150px;
+	width: 10em;
+}
+.bigFont {
+	font-size: 200%;
+}

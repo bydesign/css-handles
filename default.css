@@ -17,6 +17,7 @@ p {
 .tabs > li {
 	float: left;
 	padding: .3em .6em;
+	cursor: pointer;
 }
 .tabs > .active {
 	font-weight: bold;
@@ -69,7 +70,11 @@ handle {
 .handleCt:hover {
 	opacity: 1;
 }
-.handleColor0, .handleColor1, .handleColor2, .handleColor3, .handleColor4 {
+.handleColor0, 
+.handleColor1, 
+.handleColor2, 
+.handleColor3, 
+.handleColor4 {
 	color: #fff;
 	opacity: 1;
 	border: none;

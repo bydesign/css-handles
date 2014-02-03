@@ -81,7 +81,11 @@ app.controller('MainCtrl', function($scope, dataService) {
 			
 			// size based on box-sizing
 			$scope.width = this.getComputedNum( selected.css('width') );
+			$scope.minWidth = this.getComputedNum(computed['min-width'], $scope.width);
+			$scope.maxWidth = this.getComputedNum(computed['max-width'], $scope.width);
 			$scope.height = this.getComputedNum( selected.css('height') );
+			$scope.minHeight = this.getComputedNum(computed['min-height']);
+			$scope.maxHeight = this.getComputedNum(computed['max-height']);
 			
 			// paddings
 			$scope.paddingTop = this.getComputedNum(computed['padding-top']);
@@ -109,7 +113,10 @@ app.controller('MainCtrl', function($scope, dataService) {
 		$scope.$apply();
 	};
 	
-	this.getComputedNum = function(prop) {
+	this.getComputedNum = function(prop, fallbackNum) {
+		if (prop == 'none' && fallbackNum != undefined) {
+			return fallbackNum;
+		}
 		return Number(prop.replace('px',''));
 	};
 	

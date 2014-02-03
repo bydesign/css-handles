@@ -180,7 +180,7 @@ app.factory('dataService', [function(){
 				angular.forEach(rule.style, function(style) {
 					var str = rule.style[style],
 						val = Number(str.replace(/[a-zA-Z%]/g, '')),
-						unit = str.replace(/[0-9]/g, ''),
+						unit = str.replace(/[0-9\.-]/g, ''),
 						props = {
 							name: style,
 							value: val,

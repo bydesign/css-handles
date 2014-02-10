@@ -1,7 +1,7 @@
 var app = angular.module('cssHandles', []);
-var pageRoot = $('body');
+//var pageRoot = $('body');
 
-app.controller('MainCtrl', function($scope, dataService) {
+app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 	$scope.name = 'World';
 	$scope.tabId = 1;
 	$scope.isSelected = false;
@@ -10,16 +10,82 @@ app.controller('MainCtrl', function($scope, dataService) {
 	$scope.dragging = false;
 	$scope.propName = '';
 	$scope.propVal = '';
+	$rootScope.pan = false;
+	$rootScope.zoom = 1;
+	$rootScope.originX = 0;
+	$rootScope.originY = 0;
+	$rootScope.panX = 0;
+	$rootScope.panY = 0;
+	$rootScope.zoomLevels = [1, 1.5, 2, 3, 4];
+	this.keys = {
+		PLUS: 187,
+		MINUS: 189,
+		SPACE: 32,
+		CMDL: 91,
+		CMDR: 93,
+		CTRL: 17,
+		ZERO: 48,
+	};
+	
+	var that = this;
+	angular.element($window).on('keydown', function(e) {
+		var key = e.keyCode;
+		if (key == that.keys.SPACE) {
+			$rootScope.pan = true;
+			e.preventDefault();
+		} else if (key == that.keys.PLUS) {
+			that.zoomIn();
+		} else if (key == that.keys.MINUS) {
+			that.zoomOut()
+		} else if (key == that.keys.ZERO) {
+			that.zoom(1);
+			$rootScope.panX = 0;
+			$rootScope.panY = 0;
+		}
+		$rootScope.$apply();
+		
+	}).on('keyup', function(e) {
+		var key = e.keyCode;
+		if (key == that.keys.SPACE) {
+			$rootScope.pan = false;
+		}
+		$rootScope.$apply();
+    });
 	
 	// handle selection of any element in the original page
-	var that = this;
-	pageRoot.click(function(evt) {
-		evt.preventDefault();
-		var target = $(evt.target);
+	$rootScope.selectElement = function($event) {
+		//$event.preventDefault();
+		var target = $($event.target);
 		if (target.parents('#handles-root').length == 0) {
 			that.select(target);
 		}
-	});
+	};
+	
+	this.zoomIn = function() {
+		var zoom = $rootScope.zoom;
+		if (zoom <= 4) {
+			this.zoom(zoom + 1);
+		}
+	};
+	
+	this.zoomOut = function() {
+		var zoom = $rootScope.zoom;
+		if (zoom > 1) {
+			this.zoom($rootScope.zoom - 1);
+		}
+	};
+	
+	this.zoom = function(level) {
+		if ($scope.offset == undefined) {
+			$rootScope.originX = '50%';
+			$rootScope.originY = '50%';
+		} else {
+			$rootScope.originX = $scope.offset.left + $scope.paddingLeft + $scope.borderLeft + $scope.width/2 + 'px';
+			$rootScope.originY = $scope.offset.top + $scope.paddingTop + $scope.borderTop + $scope.height/2 + 'px';
+		}
+		$rootScope.zoom = level;
+		dataService.zoomNotify(level, $rootScope.zoomLevels);
+	};
 	
 	$scope.$on('styleModified', function(evt, prop) {
 		that.update();
@@ -65,7 +131,14 @@ app.controller('MainCtrl', function($scope, dataService) {
 	// handle positions are updated in the main control
 	// because performance is better and handles need access to
 	// all the computed properties
-	this.update = function() {
+	this.update = function(skipApply) {
+		var zoomTmp = $rootScope.zoom,
+			panX = $rootScope.panX,
+			panY = $rootScope.panY;
+		$rootScope.zoom = 1;
+		$rootScope.panX = 0;
+		$rootScope.panY = 0;
+		$rootScope.$apply();
 		var selected = that.selected;
 		if (selected != undefined) {
 			// local variables
@@ -78,14 +151,6 @@ app.controller('MainCtrl', function($scope, dataService) {
 			// doesn't include padding or border
 			$scope.contentWidth = selected.width();
 			$scope.contentHeight = selected.height();
-			
-			// size based on box-sizing
-			$scope.width = this.getComputedNum( selected.css('width') );
-			$scope.minWidth = this.getComputedNum(computed['min-width'], $scope.width);
-			$scope.maxWidth = this.getComputedNum(computed['max-width'], $scope.width);
-			$scope.height = this.getComputedNum( selected.css('height') );
-			$scope.minHeight = this.getComputedNum(computed['min-height']);
-			$scope.maxHeight = this.getComputedNum(computed['max-height']);
 			
 			// paddings
 			$scope.paddingTop = this.getComputedNum(computed['padding-top']);
@@ -105,12 +170,36 @@ app.controller('MainCtrl', function($scope, dataService) {
 			$scope.borderBottom = this.getComputedNum(computed['border-bottom-width']);
 			$scope.borderLeft = this.getComputedNum(computed['border-left-width']);
 			
+			// size based on box-sizing
+			$scope.width = this.getComputedNum( selected.css('width') );
+			$scope.minWidth = this.getComputedNum(computed['min-width'], $scope.width);
+			$scope.maxWidth = this.getComputedNum(computed['max-width'], $scope.width);
+			$scope.height = this.getComputedNum( selected.css('height') );
+			$scope.minHeight = this.getComputedNum(computed['min-height']);
+			$scope.maxHeight = this.getComputedNum(computed['max-height']);
+			
+			if (computed['box-sizing'] != 'border-box') {
+				var borderPadding = $scope.paddingLeft + $scope.paddingRight + $scope.borderLeft + $scope.borderRight;
+				$scope.minWidth += borderPadding;
+				$scope.maxWidth += borderPadding;
+				var borderPadding = $scope.paddingTop + $scope.paddingBottom + $scope.borderTop + $scope.borderBottom;
+				$scope.minHeight += borderPadding;
+				$scope.maxHeight += borderPadding;
+			}
+			
 			// parent attributes for calculation ratios
 			$scope.parentWidth = this.getComputedNum(parent.css('width'));
 			$scope.parentHeight = this.getComputedNum(parent.css('height'));
 			$scope.parentFontSize = this.getComputedNum(parentComputed['font-size']);
 		}
-		$scope.$apply();
+		// set root scope properties
+		$rootScope.zoom = zoomTmp;
+		$rootScope.panX = panX;
+		$rootScope.panY = panY;
+		
+		if (!skipApply) {
+			$scope.$apply();
+		}
 	};
 	
 	this.getComputedNum = function(prop, fallbackNum) {
@@ -127,7 +216,7 @@ app.controller('MainCtrl', function($scope, dataService) {
 		$scope.rules = dataService.getRules(element);
 		dataService.setRule(undefined);
 		
-		this.update();
+		this.update(true);
 		$scope.$emit('selectElement');
 	};
 	
@@ -146,6 +235,12 @@ app.factory('dataService', [function(){
 		element: undefined,
 		
 		rules: [],
+		
+		zoomFactor: 1,
+		
+		zoomNotify: function(zoom, factors) {
+			this.zoomFactor = 1 / factors[zoom-1];
+		},
 		
 		getComputedStyle: function(element) {
 			return window.getComputedStyle(element);
@@ -228,6 +323,10 @@ app.factory('dataService', [function(){
 				val = val / percentDenom * 100;
 			} else if (rule.unit == 'em') {
 				val = val / emDenom;
+			}
+			val *= this.zoomFactor;
+			if (rule.unit == 'px') {
+				val = Math.round(val);
 			}
 			
 			// assign new value to CSS rule
@@ -367,8 +466,40 @@ app.directive('handle', function(dataService, $document, $rootScope){
   };
 });
 
+app.directive('pannable', function(dataService, $document, $rootScope){
+  return {
+    link: function($scope, element, attr, ctrl) {
+		// track drag-n-drop
+		var startX = 0, startY = 0, x = 0, y = 0, panX = 0, panY = 0;
+		
+		element.on('mousedown', function(event) {
+			// Prevent default dragging of selected content
+			event.preventDefault();
+			panX = $rootScope.panX;
+			panY = $rootScope.panY;
+			startX = event.pageX;
+			startY = event.pageY;
+			$document.on('mousemove', mousemove);
+			$document.on('mouseup', mouseup);
+		});
+		
+		function mousemove(event) {
+			y = event.pageY - startY;
+			x = event.pageX - startX;
+			$rootScope.panX = panX + x;
+			$rootScope.panY = panY + y;
+		}
+		
+		function mouseup() {
+			$document.unbind('mousemove', mousemove);
+			$document.unbind('mouseup', mouseup);
+		}
+    },
+  };
+});
 
-angular.bootstrap(document.getElementById('handles-root'), ['cssHandles']);
+
+angular.bootstrap(document, ['cssHandles']);
 
 
 

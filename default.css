@@ -1,28 +1,45 @@
 body {
 	font-family: 'Lato', sans-serif;
 	font-weight: 300;
+	margin: 0;
 }
 p {
 	font-weight: bold;
 }
-.myclass {
-	color: #ccc;
-}
+/*.zoom2 { -webkit-transform: scale(1.5); }
+.zoom3 { -webkit-transform: scale(2); }
+.zoom4 { -webkit-transform: scale(3); }
+.zoom5 { -webkit-transform: scale(4); }*/
 
+.panHandle {
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 2000px;
+	left: 0;
+	cursor: move;
+	z-index: 1000000;
+}
+.handlesControls {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	font-size: 16px;
+	line-height: 18px;
+	overflow: visible;
+}
 .tabs {
-	overflow: hidden;
 	list-style: none;
 	padding: 0;
+	margin: 0;
 }
 .tabs > li {
-	float: left;
-	padding: .3em .6em;
+	display: inline-block;
+	padding: 4px 8px;
 	cursor: pointer;
 }
 .tabs > .active {
-	font-weight: bold;
-}
-.rules > .active {
 	font-weight: bold;
 }
 .curProp {
@@ -41,7 +58,6 @@ p {
 	pointer-events: none;
 	box-sizing: border-box;
 	padding-top: 15px;
-	line-height: 170%;
 }
 .propVal {
 	font-size: 2.5em;
@@ -49,19 +65,19 @@ p {
 }
 
 handle {
-	margin-left: -18px;
-	margin-top: -18px;
+	margin-left: -1em;
+	margin-top: -1em;
 	display: block;
 	position: absolute;
 	z-index: 999;
 }
 .handleCt {
-	width: 36px;
-	height: 36px;
+	width: 2em;
+	height: 2em;
 	border-radius: 100%;
 	background-color: #fff;
 	opacity: .3;
-	border: solid 1px #00ADEF;
+	border: solid .08em #00ADEF;
 	overflow: hidden;
 	box-sizing: border-box;
 	color: #00ADEF;
@@ -70,6 +86,65 @@ handle {
 .handleCt:hover {
 	opacity: 1;
 }
+
+
+/* zoom level 2 */
+.zoom2 handle {
+	margin-left: -.6666em;
+	margin-top: -.6666em;
+}
+.zoom2 .handleCt {
+	width: 1.3333em;
+	height: 1.3333em;
+}
+.zoom2 .curProp {
+	width: 66px;
+	height: 66px;
+	margin-left: -33px;
+	margin-top: -33px;
+	font-size: 66%;
+	padding-top: 11px;
+}
+.zoom2 .tabs { -webkit-transform: scale(.6666); }
+.zoom3 .tabs { -webkit-transform: scale(.5); }
+.zoom4 .tabs { -webkit-transform: scale(.3333); }
+.zoom5 .tabs { -webkit-transform: scale(.25); }
+
+.zoom3 handle {
+	margin-left: -.5em;
+	margin-top: -.5em;
+}
+.zoom3 .handleCt {
+	width: 1em;
+	height: 1em;
+}
+.zoom3 .curProp, .zoom4 .curProp, .zoom5 .curProp {
+	width: 50px;
+	height: 50px;
+	margin-left: -25px;
+	margin-top: -25px;
+	font-size: 50%;
+	padding-top: 7px;
+}
+
+.zoom4 handle {
+	margin-left: -.3333em;
+	margin-top: -.3333em;
+}
+.zoom4 .handleCt {
+	width: .6666em;
+	height: .6666em;
+}
+
+.zoom5 handle {
+	margin-left: -.25em;
+	margin-top: -.25em;
+}
+.zoom5 .handleCt {
+	width: .5em;
+	height: .5em;
+}
+
 .handleColor0, 
 .handleColor1, 
 .handleColor2, 
@@ -88,7 +163,7 @@ handle {
 handle.dragging > .handleCt {
 	background-color: #fff;
 	opacity: 1;
-	border: solid 2px #00ADEF;
+	border: solid .166em #00ADEF;
 }
 handle.dragging > .handleColor1 { border-color: #00ADEF; color: #00ADEF; }
 handle.dragging > .handleColor2 { border-color: #00D96D; color: #00D96D; }

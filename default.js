@@ -10,6 +10,7 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 	$scope.dragging = false;
 	$scope.propName = '';
 	$scope.propVal = '';
+	$scope.showControls = true;
 	$rootScope.pan = false;
 	$rootScope.zoom = 1;
 	$rootScope.originX = 0;
@@ -25,6 +26,7 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 		CMDR: 93,
 		CTRL: 17,
 		ZERO: 48,
+		TAB: 9,
 	};
 	
 	var that = this;
@@ -41,6 +43,8 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 			that.zoom(1);
 			$rootScope.panX = 0;
 			$rootScope.panY = 0;
+		} else if (key == that.keys.TAB) {
+			$scope.showControls = !$scope.showControls;
 		}
 		$rootScope.$apply();
 		

@@ -10,9 +10,8 @@
 
 <div id="handles-root">
 
-<div class="panHandle" ng-show="pan" pannable></div>
 <div ng-controller="MainCtrl">
-	<div class="handlesControls" ng-style="{webkitTransformOrigin: originX+' '+originY}">
+	<div class="handlesControls" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'scale('+(1/zoomLevels[zoom-1])+') translate('+(-panX)+'px,'+(-panY)+'px)'}" ng-show="showControls">
 		<ul class="tabs">
 			<li ng-click="tabId = 1" ng-class="{active:tabId==1}">Box</li>
 			<li ng-click="tabId = 2" ng-class="{active:tabId==2}">Dimension</li>
@@ -28,9 +27,9 @@
 		<ul class="tabs rules">
 			<li ng-repeat="rule in rules" ng-class="{active: rule == activeRule}" ng-click="toggleRule(rule)">
 				<i ng-class="'dot color'+rule.index"></i> {{rule.selectorText}}
-				<ul><li ng-repeat="style in rule.style">{{style}}: {{rule.style[style]}}</li></ul>
 			</li>
 		</ul>
+		<div class="panHandle" ng-show="pan" pannable></div>
 	</div>
 	
 	<div class="handles" ng-class="'rule'+activeRule.index" ng-show="isSelected">

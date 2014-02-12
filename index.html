@@ -11,28 +11,30 @@
 <div id="handles-root">
 
 <div ng-controller="MainCtrl">
-	<div class="handlesControls" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'scale('+(1/zoomLevels[zoom-1])+') translate('+(-panX)+'px,'+(-panY)+'px)'}" ng-show="showControls">
-		<ul class="tabs">
-			<li ng-click="tabId = 1" ng-class="{active:tabId==1}">Box</li>
-			<li ng-click="tabId = 2" ng-class="{active:tabId==2}">Dimension</li>
-			<li ng-click="tabId = 3" ng-class="{active:tabId==3}">Position</li>
-			<li ng-click="tabId = 4" ng-class="{active:tabId==4}">Decoration</li>
-			<li ng-click="tabId = 5" ng-class="{active:tabId==5}">Effects</li>
-			<li ng-click="tabId = 6" ng-class="{active:tabId==6}">Text</li>
-			<li ng-click="tabId = 7" ng-class="{active:tabId==7}">Columns</li>
-			<li ng-click="tabId = 8" ng-class="{active:tabId==8}">Filters</li>
-			<li ng-click="tabId = 9" ng-class="{active:tabId==9}">Transform</li>
-			<li ng-click="tabId = 10" ng-class="{active:tabId==10}">Transform3D</li>
-		</ul>
-		<ul class="tabs rules">
-			<li ng-repeat="rule in rules" ng-class="{active: rule == activeRule}" ng-click="toggleRule(rule)">
-				<i ng-class="'dot color'+rule.index"></i> {{rule.selectorText}}
-			</li>
-		</ul>
+	<div class="handlesControls" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'scale('+(1/zoomLevels[zoom-1])+') translate('+(-panX)+'px,'+(-panY)+'px)'}">
+		<div class="controlBtns" ng-show="showControls">
+			<ul class="tabs">
+				<li ng-click="tabId = 1" ng-class="{active:tabId==1}"><u>B</u>ox</li>
+				<li ng-click="tabId = 2" ng-class="{active:tabId==2}">Di<u>m</u>ension</li>
+				<li ng-click="tabId = 3" ng-class="{active:tabId==3}"><u>P</u>osition</li>
+				<li ng-click="tabId = 4" ng-class="{active:tabId==4}"><u>D</u>ecoration</li>
+				<li ng-click="tabId = 5" ng-class="{active:tabId==5}"><u>E</u>ffects</li>
+				<li ng-click="tabId = 6" ng-class="{active:tabId==6}"><u>T</u>ext</li>
+				<li ng-click="tabId = 7" ng-class="{active:tabId==7}"><u>C</u>olumns</li>
+				<li ng-click="tabId = 8" ng-class="{active:tabId==8}"><u>F</u>ilters</li>
+				<li ng-click="tabId = 9" ng-class="{active:tabId==9}">T<u>r</u>ansform</li>
+				<li ng-click="tabId = 10" ng-class="{active:tabId==10}">Transform<u>3</u>D</li>
+			</ul>
+			<ul class="tabs rules">
+				<li ng-repeat="rule in rules" ng-class="{active: rule == activeRule}" ng-click="toggleRule(rule)">
+					<i ng-class="'dot color'+rule.index"></i> {{rule.selectorText}}
+				</li>
+			</ul>
+		</div>
 		<div class="panHandle" ng-show="pan" pannable></div>
 	</div>
 	
-	<div class="handles" ng-class="'rule'+activeRule.index" ng-show="isSelected">
+	<div class="handles" ng-class="'rule'+activeRule.index" ng-show="isSelected && showControls">
 		
 		<div class="curProp" ng-show="showCurProp" ng-style="{
 			left: (paddingLeft+width+paddingRight)/2 + offset.left,

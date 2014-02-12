@@ -27,7 +27,18 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 		CTRL: 17,
 		ZERO: 48,
 		TAB: 9,
+		B: 66,
+		M: 77,
+		P: 80,
+		D: 68,
+		E: 69,
+		C: 67,
+		T: 84,
+		R: 82,
+		F: 70,
+		THREE: 51,
 	};
+	$(document).focus();
 	
 	var that = this;
 	angular.element($window).on('keydown', function(e) {
@@ -45,6 +56,27 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 			$rootScope.panY = 0;
 		} else if (key == that.keys.TAB) {
 			$scope.showControls = !$scope.showControls;
+			e.preventDefault();
+		} else if (key == that.keys.B) {
+			$scope.tabId = 1;
+		} else if (key == that.keys.M) {
+			$scope.tabId = 2;
+		} else if (key == that.keys.P) {
+			$scope.tabId = 3;
+		} else if (key == that.keys.D) {
+			$scope.tabId = 4;
+		} else if (key == that.keys.E) {
+			$scope.tabId = 5;
+		} else if (key == that.keys.T) {
+			$scope.tabId = 6;
+		} else if (key == that.keys.C) {
+			$scope.tabId = 7;
+		} else if (key == that.keys.F) {
+			$scope.tabId = 8;
+		} else if (key == that.keys.R) {
+			$scope.tabId = 9;
+		} else if (key == that.keys.THREE) {
+			$scope.tabId = 10;
 		}
 		$rootScope.$apply();
 		
@@ -81,8 +113,8 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 	
 	this.zoom = function(level) {
 		if ($scope.offset == undefined) {
-			$rootScope.originX = '50%';
-			$rootScope.originY = '50%';
+			$rootScope.originX = $(window).width() / 2 + 'px';
+			$rootScope.originY = $(window).height() / 2 + 'px';
 		} else {
 			$rootScope.originX = $scope.offset.left + $scope.paddingLeft + $scope.borderLeft + $scope.width/2 + 'px';
 			$rootScope.originY = $scope.offset.top + $scope.paddingTop + $scope.borderTop + $scope.height/2 + 'px';

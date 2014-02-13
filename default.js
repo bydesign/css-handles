@@ -1,7 +1,7 @@
 var app = angular.module('cssHandles', []);
 //var pageRoot = $('body');
 
-app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
+app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $timeout) {
 	$scope.name = 'World';
 	$scope.tabId = 1;
 	$scope.isSelected = false;
@@ -18,6 +18,7 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 	$rootScope.panX = 0;
 	$rootScope.panY = 0;
 	$rootScope.zoomLevels = [1, 1.5, 2, 3, 4];
+	this.timeout;
 	this.keys = {
 		PLUS: 187,
 		MINUS: 189,
@@ -136,11 +137,11 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 	
 	$scope.$on('handleStopDrag', function(evt, prop) {
 		$scope.dragging = false;
-		$scope.showCurProp = false;
 		$scope.$apply();
 	});
 	
 	$scope.$on('handleMouseOver', function(evt, prop) {
+		$timeout.cancel(that.timeout);
 		$scope.showCurProp = true;
 		$scope.propName = prop;
 		$scope.propVal = dataService.getStyle(prop);
@@ -149,12 +150,23 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope) {
 	
 	$scope.$on('handleMouseOut', function(evt, prop) {
 		if (!$scope.dragging) {
-			$scope.showCurProp = false;
-			$scope.$apply();
+			that.timeout = $timeout(function() {
+				$scope.showCurProp = false;
+			}, 1500);
 		}
-		//$scope.propName = '';
-		//$scope.propVal = '';
 	});
+	$scope.keepVisible = function() {
+		$timeout.cancel(that.timeout);
+	};
+	$scope.timeoutHide = function() {
+		that.timeout = $timeout(function() {
+			$scope.showCurProp = false;
+		}, 1500);
+	};
+	$scope.deleteProperty = function(prop) {
+		dataService.deleteProperty(prop);
+		that.update();
+	};
 	
 	// selects or deselects the current rule
 	$scope.toggleRule = function(rule) {
@@ -291,6 +303,11 @@ app.factory('dataService', [function(){
 		
 		getProperty: function(prop) {
 			return this.properties[prop];
+		},
+		
+		deleteProperty: function(prop) {
+			this.properties[prop].style.removeProperty(prop);
+			delete this.properties[prop];
 		},
 		
 		// sets active and selected rules

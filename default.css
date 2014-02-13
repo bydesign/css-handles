@@ -59,13 +59,32 @@ p {
 	margin-top: -50px;
 	opacity: .9;
 	text-align: center;
-	pointer-events: none;
 	box-sizing: border-box;
 	padding-top: 20px;
 }
 .propVal {
 	font-size: 2.5em;
 	font-weight: bolder;
+}
+.propDel {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	z-index: 200;
+	background-color: rgba(0,0,0,.1);
+	padding: 3px;
+	border-radius: 100%;
+	height: 20px;
+	width: 20px;
+	margin-left: -10px;
+	cursor: pointer;
+	display: none;
+}
+.curProp:hover .propDel {
+	display: block;
+}
+.propDel:hover {
+	background-color: rgba(0,0,0,.2);
 }
 
 handle {

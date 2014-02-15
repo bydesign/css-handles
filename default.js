@@ -37,7 +37,9 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 		T: 84,
 		R: 82,
 		F: 70,
-		THREE: 51,
+		S: 83,
+		G: 71,
+		Z: 90,
 	};
 	$(document).focus();
 	
@@ -58,25 +60,25 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 		} else if (key == that.keys.TAB) {
 			$scope.showControls = !$scope.showControls;
 			e.preventDefault();
-		} else if (key == that.keys.B) {
+		} else if (key == that.keys.S) {
 			$scope.tabId = 1;
-		} else if (key == that.keys.M) {
+		} else if (key == that.keys.Z) {
 			$scope.tabId = 2;
 		} else if (key == that.keys.P) {
 			$scope.tabId = 3;
-		} else if (key == that.keys.D) {
+		} else if (key == that.keys.B) {
 			$scope.tabId = 4;
-		} else if (key == that.keys.E) {
+		} else if (key == that.keys.G) {
 			$scope.tabId = 5;
 		} else if (key == that.keys.T) {
 			$scope.tabId = 6;
 		} else if (key == that.keys.C) {
 			$scope.tabId = 7;
-		} else if (key == that.keys.F) {
+		} else if (key == that.keys.E) {
 			$scope.tabId = 8;
 		} else if (key == that.keys.R) {
 			$scope.tabId = 9;
-		} else if (key == that.keys.THREE) {
+		} else if (key == that.keys.D) {
 			$scope.tabId = 10;
 		}
 		$rootScope.$apply();
@@ -152,7 +154,7 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 		if (!$scope.dragging) {
 			that.timeout = $timeout(function() {
 				$scope.showCurProp = false;
-			}, 1500);
+			}, 700);
 		}
 	});
 	$scope.keepVisible = function() {
@@ -161,7 +163,7 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 	$scope.timeoutHide = function() {
 		that.timeout = $timeout(function() {
 			$scope.showCurProp = false;
-		}, 1500);
+		}, 700);
 	};
 	$scope.deleteProperty = function(prop) {
 		dataService.deleteProperty(prop);
@@ -223,8 +225,15 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 			$scope.minWidth = this.getComputedNum(computed['min-width'], $scope.width);
 			$scope.maxWidth = this.getComputedNum(computed['max-width'], $scope.width);
 			$scope.height = this.getComputedNum( selected.css('height') );
-			$scope.minHeight = this.getComputedNum(computed['min-height']);
-			$scope.maxHeight = this.getComputedNum(computed['max-height']);
+			$scope.minHeight = this.getComputedNum(computed['min-height'], $scope.height);
+			$scope.maxHeight = this.getComputedNum(computed['max-height'], $scope.height);
+			
+			// fonts
+			$scope.fontSize = this.getComputedNum(computed['font-size']);
+			$scope.lineHeight = this.getComputedNum(computed['line-height'], $scope.fontSize * 1.2);
+			$scope.textIndent = this.getComputedNum(computed['text-indent']);
+			$scope.letterSpacing = this.getComputedNum(computed['letter-spacing'], 0);
+			$scope.wordSpacing = this.getComputedNum(computed['word-spacing'], 0);
 			
 			if (computed['box-sizing'] != 'border-box') {
 				var borderPadding = $scope.paddingLeft + $scope.paddingRight + $scope.borderLeft + $scope.borderRight;
@@ -251,7 +260,7 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 	};
 	
 	this.getComputedNum = function(prop, fallbackNum) {
-		if (prop == 'none' && fallbackNum != undefined) {
+		if ((prop == 'none' || prop == 'normal') && fallbackNum != undefined) {
 			return fallbackNum;
 		}
 		return Number(prop.replace('px',''));
@@ -617,33 +626,43 @@ $('body').click(function(evt) {
 // loosely based on w3schools list
 
 
-// BOX
-//	box-sizing, margin, padding, column (count, fill, gap, rule, span, width, etc.), 
+// SPACING
+//	box-sizing, margin, padding, 
 
-// DIMENSION
+// SIZE
 //	width, height, min-width, max-width, min-height, max-height
 
 // POSITION
 //	position, top, left, right, bottom, float, clip, overflow, z-index, clear, display, visibility
 
-// TRANSFORM
-//	translate, scale, rotate, skew, 3d transform, perspective, rotation?, rotation-point?
+// BORDER
+//	border, border-radius
+//  outline, outline-offset, border-image, opacity
 
-// DECORATION
-//	border, border-radius, outline, outline-offset, border-image, opacity
-
-// FILTERS
-//	blur, grayscale, dropshadow, sepia, brightness, contrast, hue-rotate, invert, saturate, opacity
-
-// EFFECTS
-//	box-shadow, backgrounds (images, gradients, repeat, position, attachment, clip, origin, size, etc.), text-shadow
+// BACKGROUNDS
+//	background-position, size, gradients
+//  backgrounds (images, repeat, origin, attachment, clip, etc.)
 
 // TEXT
-//	font-family, size, style, weight, color, line-height, text-indent, alignment, letter-spacing, word-spacing, white-space, text-transform, text-decoration, variant, size-adjust, stretch, direction, vertical-align, punctuation, text-wrap, word-break, word-wrap, 
+//	size, text-indent, line-height, letter-spacing, word-spacing
+//  size-adjust, font-family, style, weight, stretch, color, alignment, white-space, text-transform, text-decoration, variant, direction, vertical-align, punctuation, text-wrap, word-break, word-wrap, 
+
+// COLUMNS
+// column-count, fill, gap, rule, span, width
+
+// EFFECTS
+//	box-shadow, text-shadow, blur, grayscale, dropshadow, sepia, brightness, contrast, hue-rotate, invert, saturate, opacity
+
+// TRANSFORM
+//	translate, scale, rotate, skew, rotation?, rotation-point?
+
+// TRANSFORM 3D
+//  translate3D, scale3D, rotate3D, perspective
 
 
 // HANDLE CONCEPT
-/*- bind direction to value (vertical, horizontal, diagonal)
+/*
+- bind direction to value (vertical, horizontal, diagonal)
 - direction of handle is constrained
 - hover on handle shows its value and property name
 - while dragging handle, value is visible
@@ -669,11 +688,18 @@ $('body').click(function(evt) {
 
 // MONETIZATION
 - save to server option
+- group pages into projects
+- full project history with save points
 - realtime multi-device updates
-- save to third-party cms integration
+- design review workflow with annotations
+- collaborative editing
+- save & share code snippets
+- make cross-browser function
 - font service affiliation
+- save to third-party cms integration
 - stock photo service affiliation
-- addon sales?*/
+- addon sales? (svg editor, image editor, animation editor, etc.)
+*/
 
 // FUTURE POSSIBILITIES
 

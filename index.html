@@ -14,16 +14,16 @@
 	<div class="handlesControls" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'scale('+(1/zoomLevels[zoom-1])+') translate('+(-panX)+'px,'+(-panY)+'px)'}">
 		<div class="controlBtns" ng-show="showControls">
 			<ul class="tabs">
-				<li ng-click="tabId = 1" ng-class="{active:tabId==1}"><u>B</u>ox</li>
-				<li ng-click="tabId = 2" ng-class="{active:tabId==2}">Di<u>m</u>ension</li>
+				<li ng-click="tabId = 1" ng-class="{active:tabId==1}"><u>S</u>pacing</li>
+				<li ng-click="tabId = 2" ng-class="{active:tabId==2}">Si<u>z</u>e</li>
 				<li ng-click="tabId = 3" ng-class="{active:tabId==3}"><u>P</u>osition</li>
-				<li ng-click="tabId = 4" ng-class="{active:tabId==4}"><u>D</u>ecoration</li>
-				<li ng-click="tabId = 5" ng-class="{active:tabId==5}"><u>E</u>ffects</li>
+				<li ng-click="tabId = 4" ng-class="{active:tabId==4}"><u>B</u>order</li>
+				<li ng-click="tabId = 5" ng-class="{active:tabId==5}">Back<u>g</u>rounds</li>
 				<li ng-click="tabId = 6" ng-class="{active:tabId==6}"><u>T</u>ext</li>
 				<li ng-click="tabId = 7" ng-class="{active:tabId==7}"><u>C</u>olumns</li>
-				<li ng-click="tabId = 8" ng-class="{active:tabId==8}"><u>F</u>ilters</li>
+				<li ng-click="tabId = 8" ng-class="{active:tabId==8}"><u>E</u>ffects</li>
 				<li ng-click="tabId = 9" ng-class="{active:tabId==9}">T<u>r</u>ansform</li>
-				<li ng-click="tabId = 10" ng-class="{active:tabId==10}">Transform<u>3</u>D</li>
+				<li ng-click="tabId = 10" ng-class="{active:tabId==10}">3<u>D</u></li>
 			</ul>
 			<ul class="tabs rules">
 				<li ng-repeat="rule in rules" ng-class="{active: rule == activeRule}" ng-click="toggleRule(rule)">
@@ -174,6 +174,40 @@
 					top: contentHeight/2 + handleSize + borderTop + paddingTop + offset.top
 				}">
 			</handle>
+			
+			<handle class="ns-resize" prop="min-height" 
+				dir="vert" 
+				unit="px" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					top: minHeight + offset.top, 
+					left: contentWidth/2 - handleSize + borderLeft + paddingLeft + offset.left
+				}">
+			</handle>
+			<handle class="ns-resize" prop="height" 
+				dir="vert" 
+				unit="px" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					top: borderTop+paddingTop+contentHeight+paddingBottom+borderBottom + offset.top, 
+					left: contentWidth/2 + borderLeft + paddingLeft + offset.left
+				}">
+			</handle>
+			<handle class="ns-resize" prop="max-height" 
+				dir="vert" 
+				unit="px" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					top: maxHeight + offset.top, 
+					left: contentWidth/2 + handleSize + borderLeft + paddingLeft + offset.left
+				}">
+			</handle>
 		</div>
 		
 		<div ng-show="tabId == 3">
@@ -224,6 +258,65 @@
 		</div>
 		
 		<div ng-show="tabId == 4">
+			<handle class="ns-resize" prop="border-top-width" 
+				dir="-vert" 
+				unit="px" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					top: offset.top
+				}">
+			</handle>
+			<handle class="ew-resize" prop="border-right-width" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: borderLeft+paddingLeft+contentWidth+paddingRight+borderRight + offset.left, 
+					top: contentHeight/2 + borderTop + paddingTop + offset.top
+				}">
+			</handle>
+			<handle class="ns-resize" prop="border-bottom-width" 
+				dir="vert" 
+				unit="px" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					top: borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top
+				}">
+			</handle>
+			<handle class="ew-resize" prop="border-left-width" 
+				dir="-horiz" 
+				unit="px" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: offset.left, 
+					top: contentHeight/2 + borderTop + paddingTop + offset.top
+				}">
+			</handle>
+			
+			<handle class="ns-resize" prop="border-radius" 
+				dir="vert" 
+				unit="px" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: borderLeft + paddingLeft + contentWidth + borderRight + paddingRight + offset.left, 
+					top: offset.top
+				}">
+			</handle>
+		</div>
+		
+		<div ng-show="tabId == 5">
 			<handle class="ns-resize" prop="top" 
 				dir="vert" 
 				unit="px" 
@@ -235,37 +328,62 @@
 					top: offset.top
 				}">
 			</handle>
-			<handle class="ew-resize" prop="right" 
-				dir="-horiz" 
-				unit="px" 
-				allownegative="true" 
+		</div>
+		
+		<div ng-show="tabId == 6">
+			<handle class="ns-resize" prop="font-size" 
+				dir="vert" 
+				unit="em" 
+				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="{
-					left: borderLeft+paddingLeft+width+paddingRight+borderRight + offset.left, 
-					top: contentHeight/2 + borderTop + paddingTop + offset.top
+					left: borderLeft + paddingLeft - handleSize/2 + offset.left, 
+					top: handleSize/2 + fontSize + borderTop + paddingTop + offset.top
 				}">
 			</handle>
-			<handle class="ns-resize" prop="bottom" 
-				dir="-vert" 
-				unit="px" 
-				allownegative="true" 
+			<handle class="ns-resize" prop="line-height" 
+				dir="vert" 
+				unit="em" 
+				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="{
-					left: contentWidth/2 + borderLeft + paddingLeft + offset.left, 
-					top: borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top
+					left: borderLeft + paddingLeft - handleSize/2 + offset.left, 
+					top: handleSize*2 + lineHeight + borderTop + paddingTop + offset.top
 				}">
 			</handle>
-			<handle class="ew-resize" prop="left" 
+			<handle class="ew-resize" prop="text-indent" 
 				dir="horiz" 
-				unit="px" 
+				unit="em" 
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="{
-					left: offset.left, 
-					top: contentHeight/2 + borderTop + paddingTop + offset.top
+					left: textIndent + borderLeft + paddingLeft - handleSize/2 + offset.left, 
+					top: borderTop + paddingTop + - handleSize/2 + offset.top
+				}">
+			</handle>
+			<handle class="ew-resize" prop="letter-spacing" 
+				dir="horiz" 
+				unit="em" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: handleSize + letterSpacing + textIndent + borderLeft + paddingLeft + offset.left, 
+					top: borderTop + paddingTop + - handleSize/2 + offset.top
+				}">
+			</handle>
+			<handle class="ew-resize" prop="word-spacing" 
+				dir="horiz" 
+				unit="em" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: handleSize*2.5 + wordSpacing + letterSpacing + textIndent + borderLeft + paddingLeft + offset.left, 
+					top: borderTop + paddingTop + - handleSize/2 + offset.top
 				}">
 			</handle>
 		</div>

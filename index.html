@@ -19,10 +19,10 @@
 				<li ng-click="tabId = 3" ng-class="{active:tabId==3}"><u>P</u>osition</li>
 				<li ng-click="tabId = 4" ng-class="{active:tabId==4}"><u>B</u>order</li>
 				<li ng-click="tabId = 5" ng-class="{active:tabId==5}">Back<u>g</u>rounds</li>
-				<li ng-click="tabId = 6" ng-class="{active:tabId==6}"><u>T</u>ext</li>
+				<li ng-click="tabId = 6" ng-class="{active:tabId==6}"><u>F</u>ont</li>
 				<li ng-click="tabId = 7" ng-class="{active:tabId==7}"><u>C</u>olumns</li>
 				<li ng-click="tabId = 8" ng-class="{active:tabId==8}"><u>E</u>ffects</li>
-				<li ng-click="tabId = 9" ng-class="{active:tabId==9}">T<u>r</u>ansform</li>
+				<li ng-click="tabId = 9" ng-class="{active:tabId==9}"><u>T</u>ransform</li>
 				<li ng-click="tabId = 10" ng-class="{active:tabId==10}">3<u>D</u></li>
 			</ul>
 			<ul class="tabs rules">
@@ -350,7 +350,7 @@
 				emdenom="fontSize" 
 				ng-style="{
 					left: borderLeft + paddingLeft - handleSize/2 + offset.left, 
-					top: handleSize*2 + lineHeight + borderTop + paddingTop + offset.top
+					top: handleSize*1.5 + fontSize + lineHeight + borderTop + paddingTop + offset.top
 				}">
 			</handle>
 			<handle class="ew-resize" prop="text-indent" 
@@ -384,6 +384,99 @@
 				ng-style="{
 					left: handleSize*2.5 + wordSpacing + letterSpacing + textIndent + borderLeft + paddingLeft + offset.left, 
 					top: borderTop + paddingTop + - handleSize/2 + offset.top
+				}">
+			</handle>
+		</div>
+		
+		<div ng-show="tabId == 7">
+			<handle class="ew-resize" prop="-webkit-column-count" 
+				dir="-horiz" 
+				unit="" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: borderLeft + paddingLeft + contentWidth/columnCount + offset.left, 
+					top: borderTop + paddingTop - handleSize/2 + offset.top
+				}">
+			</handle>
+			<handle class="ew-resize" prop="-webkit-column-width" 
+				dir="horiz" 
+				unit="em" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: borderLeft + paddingLeft + columnWidth + offset.left, 
+					top: borderTop + paddingTop + handleSize/2 + offset.top
+				}">
+			</handle>
+			<handle class="ew-resize" prop="-webkit-column-gap" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: borderLeft + paddingLeft + columnGap/2 + contentWidth/columnCount + offset.left, 
+					top: borderTop + paddingTop + handleSize/2 + offset.top
+				}">
+			</handle>
+		</div>
+		
+		<div ng-show="tabId == 8">
+			<handle class="ew-resize" prop="-webkit-column-count" 
+				dir="-horiz" 
+				unit="" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: borderLeft + paddingLeft + contentWidth/columnCount + offset.left, 
+					top: borderTop + paddingTop - handleSize/2 + offset.top
+				}">
+			</handle>
+		</div>
+		
+		<div ng-show="tabId == 9">
+			<handle class="ew-resize" prop="transform:scaleX(#)" 
+				dir="horiz" 
+				unit="" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: borderLeft + paddingLeft + contentWidth + paddingRight + borderRight + offset.left, 
+					top: borderTop + paddingTop + contentHeight/2 + offset.top
+				}">
+			</handle>
+			<handle class="ns-resize" prop="transform:scaleY(#)" 
+				dir="vert" 
+				unit="" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: borderLeft + paddingLeft + contentWidth/2 + offset.left, 
+					top: borderTop + paddingTop + contentHeight + paddingBottom + borderBottom + offset.top
+				}">
+			</handle>
+			<handle class="ew-resize" prop="transform:skewX(#)" 
+				dir="horiz" 
+				unit="deg" 
+				allownegative="true" 
+				ng-style="{
+					left: borderLeft + paddingLeft + contentWidth/2 + offset.left, 
+					top: offset.top
+				}">
+			</handle>
+			<handle class="ns-resize" prop="transform:skewY(#)" 
+				dir="vert" 
+				unit="deg" 
+				allownegative="true" 
+				ng-style="{
+					left: offset.left, 
+					top: borderTop + paddingTop + contentHeight/2 + offset.top
 				}">
 			</handle>
 		</div>

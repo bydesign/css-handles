@@ -40,12 +40,14 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 		S: 83,
 		G: 71,
 		Z: 90,
+		F: 70,
 	};
 	$(document).focus();
 	
 	var that = this;
 	angular.element($window).on('keydown', function(e) {
 		var key = e.keyCode;
+		console.log(key);
 		if (key == that.keys.SPACE) {
 			$rootScope.pan = true;
 			e.preventDefault();
@@ -70,13 +72,13 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 			$scope.tabId = 4;
 		} else if (key == that.keys.G) {
 			$scope.tabId = 5;
-		} else if (key == that.keys.T) {
+		} else if (key == that.keys.F) {
 			$scope.tabId = 6;
 		} else if (key == that.keys.C) {
 			$scope.tabId = 7;
 		} else if (key == that.keys.E) {
 			$scope.tabId = 8;
-		} else if (key == that.keys.R) {
+		} else if (key == that.keys.T) {
 			$scope.tabId = 9;
 		} else if (key == that.keys.D) {
 			$scope.tabId = 10;
@@ -235,6 +237,21 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 			$scope.letterSpacing = this.getComputedNum(computed['letter-spacing'], 0);
 			$scope.wordSpacing = this.getComputedNum(computed['word-spacing'], 0);
 			
+			// columns
+			$scope.columnCount = this.getComputedNum(computed['-webkit-column-count'], 1);
+			$scope.columnWidth = this.getComputedNum(computed['-webkit-column-width'], 0);
+			$scope.columnGap = this.getComputedNum(computed['-webkit-column-gap'], 0);
+			$scope.columnRuleWidth = this.getComputedNum(computed['-webkit-column-rule-width'], 0);
+			
+			// transforms
+			var transform = this.getComputedTransform(computed['-webkit-transform']);
+			$scope.scaleX = transform.scaleX;
+			$scope.scaleY = transform.scaleY;
+			$scope.skewX = transform.skewX;
+			$scope.skewY = transform.skewY;
+			
+			
+			
 			if (computed['box-sizing'] != 'border-box') {
 				var borderPadding = $scope.paddingLeft + $scope.paddingRight + $scope.borderLeft + $scope.borderRight;
 				$scope.minWidth += borderPadding;
@@ -260,10 +277,14 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 	};
 	
 	this.getComputedNum = function(prop, fallbackNum) {
-		if ((prop == 'none' || prop == 'normal') && fallbackNum != undefined) {
+		if ((prop == undefined || prop == 'none' || prop == 'normal' || prop == 'auto') && fallbackNum != undefined) {
 			return fallbackNum;
 		}
 		return Number(prop.replace('px',''));
+	};
+	
+	this.getComputedTransform = function(str) {
+		console.log(str);
 	};
 	
 	// set the currently selected item for editing 
@@ -657,7 +678,7 @@ $('body').click(function(evt) {
 //	translate, scale, rotate, skew, rotation?, rotation-point?
 
 // TRANSFORM 3D
-//  translate3D, scale3D, rotate3D, perspective
+//  translate3D, scale3D, rotate3D, perspective, perspective-origin
 
 
 // HANDLE CONCEPT

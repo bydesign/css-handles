@@ -439,7 +439,7 @@
 		</div>
 		
 		<div ng-show="tabId == 9">
-			<handle class="ew-resize" prop="transform:scaleX(#)" 
+			<handle class="ew-resize" prop="-webkit-transform:scaleX(#)" 
 				dir="horiz" 
 				unit="" 
 				allownegative="true" 
@@ -450,7 +450,7 @@
 					top: borderTop + paddingTop + contentHeight/2 + offset.top
 				}">
 			</handle>
-			<handle class="ns-resize" prop="transform:scaleY(#)" 
+			<handle class="ns-resize" prop="-webkit-transform:scaleY(#)" 
 				dir="vert" 
 				unit="" 
 				allownegative="true" 
@@ -461,17 +461,17 @@
 					top: borderTop + paddingTop + contentHeight + paddingBottom + borderBottom + offset.top
 				}">
 			</handle>
-			<handle class="ew-resize" prop="transform:skewX(#)" 
-				dir="horiz" 
+			<handle class="ew-resize" prop="-webkit-transform:skewX(#)" 
+				dir="-horiz" 
 				unit="deg" 
 				allownegative="true" 
-				ng-style="{
-					left: borderLeft + paddingLeft + contentWidth/2 + offset.left, 
-					top: offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft + contentWidth/2 + offset.left, 
+					offset.top
+				)">
 			</handle>
-			<handle class="ns-resize" prop="transform:skewY(#)" 
-				dir="vert" 
+			<handle class="ns-resize" prop="-webkit-transform:skewY(#)" 
+				dir="-vert" 
 				unit="deg" 
 				allownegative="true" 
 				ng-style="{

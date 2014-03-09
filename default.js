@@ -47,7 +47,6 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 	var that = this;
 	angular.element($window).on('keydown', function(e) {
 		var key = e.keyCode;
-		console.log(key);
 		if (key == that.keys.SPACE) {
 			$rootScope.pan = true;
 			e.preventDefault();
@@ -244,13 +243,37 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 			$scope.columnRuleWidth = this.getComputedNum(computed['-webkit-column-rule-width'], 0);
 			
 			// transforms
-			var transform = this.getComputedTransform(computed['-webkit-transform']);
-			$scope.scaleX = transform.scaleX;
-			$scope.scaleY = transform.scaleY;
-			$scope.skewX = transform.skewX;
-			$scope.skewY = transform.skewY;
+			$scope.transformMatrix = new WebKitCSSMatrix(computed.webkitTransform);
+			console.log(computed.webkitTransform);
+			console.log(computed['-webkit-transform-origin']);
+			var transformOrigin = this.getComputedNum(computed['-webkit-transform-origin']);
 			
-			
+			$scope.transform = function(x, y) {
+				// subtract page offset (use local coordinates)
+				x -= $scope.offset.left;
+				y -= $scope.offset.top;
+				
+				// convert vector to matrix
+				var matrix = new WebKitCSSMatrix('matrix(1, 0, 0, 1, '+x+', '+y+')');
+				
+				// multiply matrix by transform
+				var result = $scope.transformMatrix.multiply(matrix);
+				console.log(result);
+				
+				console.log(result);
+				
+				// extract new position
+				var newX = result.e + $scope.offset.left;
+				var newY = result.f + $scope.offset.top;
+				console.log(newX);
+				console.log(newY);
+				
+				// return object with new CSS values
+				return {
+					left: newX,
+					top: newY,
+				};
+			};
 			
 			if (computed['box-sizing'] != 'border-box') {
 				var borderPadding = $scope.paddingLeft + $scope.paddingRight + $scope.borderLeft + $scope.borderRight;
@@ -281,10 +304,6 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 			return fallbackNum;
 		}
 		return Number(prop.replace('px',''));
-	};
-	
-	this.getComputedTransform = function(str) {
-		console.log(str);
 	};
 	
 	// set the currently selected item for editing 
@@ -382,7 +401,7 @@ app.factory('dataService', [function(){
 			return this.rules;
 		},
 		
-		proposePixelMove: function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom) {
+		proposePixelMove: function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
 			// add grid/object snapping
 			
 			// determine active rule
@@ -419,6 +438,12 @@ app.factory('dataService', [function(){
 			}
 			newNum = Math.round(newNum * 1000) / 1000;
 			var newVal = newNum + rule.unit;
+			
+			if (valWrapper != undefined) {
+				newVal = valWrapper.replace('#', newVal);
+				console.log(prop);
+				console.log(newVal);
+			}
 			
 			var style = rule.style;
 			if (this.selectedRule) {
@@ -493,7 +518,13 @@ app.directive('handle', function(dataService, $document, $rootScope){
     link: function($scope, element, attr, ctrl) {
 		// track drag-n-drop
 		var startX = 0, startY = 0, x = 0, y = 0,
-			prop = $scope.prop;
+			prop = $scope.prop, valWrapper;
+			
+		if (prop.indexOf(':') != -1) {
+			var parts = prop.split(':');
+			prop = parts[0];
+			valWrapper = parts[1];
+		}
 		
 		$scope.getRuleIndex = function() {
 			return dataService.getRuleIndex(prop);
@@ -534,7 +565,7 @@ app.directive('handle', function(dataService, $document, $rootScope){
 			if (dir.charAt(0) == '-') {
 				val = -val;
 			}
-			dataService.proposePixelMove(prop, val, $scope.unit, $scope.allownegative, $scope.percentdenom, $scope.emdenom);
+			dataService.proposePixelMove(prop, val, $scope.unit, $scope.allownegative, $scope.percentdenom, $scope.emdenom, valWrapper);
 			$scope.$emit('styleModified', $scope.prop);
 		}
 		

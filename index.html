@@ -55,10 +55,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: contentWidth/2 + handleSize/2 + borderLeft + paddingLeft + offset.left, 
-					top: borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					contentWidth/2 + handleSize/2 + borderLeft + paddingLeft + offset.left, 
+					borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="w-resize" prop="padding-right" 
 				dir="-horiz" 
@@ -66,10 +66,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft+paddingLeft+contentWidth + offset.left, 
-					top: height/2 + handleSize/2 + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					borderLeft+paddingLeft+contentWidth + offset.left, 
+					height/2 + handleSize/2 + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="n-resize" prop="padding-bottom" 
 				dir="-vert" 
@@ -77,10 +77,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: contentWidth/2 + handleSize/2 + borderLeft + paddingLeft + offset.left, 
-					top: contentHeight + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					contentWidth/2 + handleSize/2 + borderLeft + paddingLeft + offset.left, 
+					contentHeight + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="e-resize" prop="padding-left" 
 				dir="horiz" 
@@ -88,10 +88,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft + offset.left, 
-					top: contentHeight/2 + handleSize/2 + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft + offset.left, 
+					contentHeight/2 + handleSize/2 + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			
 			<handle class="n-resize" prop="margin-top" 
@@ -100,10 +100,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: contentWidth/2 - handleSize/2 + borderLeft + paddingLeft + offset.left,
-					top: offset.top - marginTop
-				}">
+				ng-style="transform(
+					contentWidth/2 - handleSize/2 + borderLeft + paddingLeft + offset.left,
+					offset.top - marginTop
+				)">
 			</handle>
 			<handle class="e-resize" prop="margin-right" 
 				dir="horiz" 
@@ -111,10 +111,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: offset.left + borderLeft + paddingLeft + contentWidth + paddingRight + borderRight + marginRight, 
-					top: contentHeight/2 - handleSize/2 + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					offset.left + borderLeft + paddingLeft + contentWidth + paddingRight + borderRight + marginRight, 
+					contentHeight/2 - handleSize/2 + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="s-resize" prop="margin-bottom" 
 				dir="vert" 
@@ -122,10 +122,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: contentWidth/2 - handleSize/2 + borderLeft + paddingLeft + offset.left, 
-					top: offset.top + borderTop + paddingTop + height + paddingBottom + borderBottom + marginBottom
-				}">
+				ng-style="transform(
+					contentWidth/2 - handleSize/2 + borderLeft + paddingLeft + offset.left, 
+					offset.top + borderTop + paddingTop + height + paddingBottom + borderBottom + marginBottom
+				)">
 			</handle>
 			<handle class="w-resize" prop="margin-left" 
 				dir="-horiz" 
@@ -133,10 +133,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: offset.left - marginLeft, 
-					top: contentHeight/2 - handleSize/2 + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					offset.left - marginLeft, 
+					contentHeight/2 - handleSize/2 + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 		</div>
 		
@@ -147,10 +147,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: minWidth + offset.left, 
-					top: contentHeight/2 - handleSize + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					minWidth + offset.left, 
+					contentHeight/2 - handleSize + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="width" 
 				dir="horiz" 
@@ -158,10 +158,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft+paddingLeft+contentWidth+paddingRight+borderRight + offset.left, 
-					top: contentHeight/2 + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					borderLeft+paddingLeft+contentWidth+paddingRight+borderRight + offset.left, 
+					contentHeight/2 + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="max-width" 
 				dir="horiz" 
@@ -169,10 +169,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: maxWidth + offset.left, 
-					top: contentHeight/2 + handleSize + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					maxWidth + offset.left, 
+					contentHeight/2 + handleSize + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			
 			<handle class="ns-resize" prop="min-height" 
@@ -181,10 +181,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					top: minHeight + offset.top, 
-					left: contentWidth/2 - handleSize + borderLeft + paddingLeft + offset.left
-				}">
+				ng-style="transform(
+					minHeight + offset.top, 
+					contentWidth/2 - handleSize + borderLeft + paddingLeft + offset.left
+				)">
 			</handle>
 			<handle class="ns-resize" prop="height" 
 				dir="vert" 
@@ -192,10 +192,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					top: borderTop+paddingTop+contentHeight+paddingBottom+borderBottom + offset.top, 
-					left: contentWidth/2 + borderLeft + paddingLeft + offset.left
-				}">
+				ng-style="transform(
+					borderTop+paddingTop+contentHeight+paddingBottom+borderBottom + offset.top, 
+					contentWidth/2 + borderLeft + paddingLeft + offset.left
+				)">
 			</handle>
 			<handle class="ns-resize" prop="max-height" 
 				dir="vert" 
@@ -203,10 +203,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					top: maxHeight + offset.top, 
-					left: contentWidth/2 + handleSize + borderLeft + paddingLeft + offset.left
-				}">
+				ng-style="transform(
+					maxHeight + offset.top, 
+					contentWidth/2 + handleSize + borderLeft + paddingLeft + offset.left
+				)">
 			</handle>
 		</div>
 		
@@ -217,10 +217,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: contentWidth/2 + borderLeft + paddingLeft + offset.left, 
-					top: offset.top
-				}">
+				ng-style="transform(
+					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="right" 
 				dir="-horiz" 
@@ -228,10 +228,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft+paddingLeft+width+paddingRight+borderRight + offset.left, 
-					top: contentHeight/2 + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					borderLeft+paddingLeft+width+paddingRight+borderRight + offset.left, 
+					contentHeight/2 + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="ns-resize" prop="bottom" 
 				dir="-vert" 
@@ -239,10 +239,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: contentWidth/2 + borderLeft + paddingLeft + offset.left, 
-					top: borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top
-				}">
+				ng-style="transform(
+					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="left" 
 				dir="horiz" 
@@ -250,10 +250,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: offset.left, 
-					top: contentHeight/2 + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					offset.left, 
+					contentHeight/2 + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 		</div>
 		
@@ -264,10 +264,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: contentWidth/2 + borderLeft + paddingLeft + offset.left, 
-					top: offset.top
-				}">
+				ng-style="transform(
+					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="border-right-width" 
 				dir="horiz" 
@@ -275,10 +275,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft+paddingLeft+contentWidth+paddingRight+borderRight + offset.left, 
-					top: contentHeight/2 + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					borderLeft+paddingLeft+contentWidth+paddingRight+borderRight + offset.left, 
+					contentHeight/2 + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="ns-resize" prop="border-bottom-width" 
 				dir="vert" 
@@ -286,10 +286,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: contentWidth/2 + borderLeft + paddingLeft + offset.left, 
-					top: borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top
-				}">
+				ng-style="transform(
+					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="border-left-width" 
 				dir="-horiz" 
@@ -297,10 +297,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: offset.left, 
-					top: contentHeight/2 + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					offset.left, 
+					contentHeight/2 + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			
 			<handle class="ns-resize" prop="border-radius" 
@@ -309,10 +309,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft + contentWidth + borderRight + paddingRight + offset.left, 
-					top: offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft + contentWidth + borderRight + paddingRight + offset.left, 
+					offset.top
+				)">
 			</handle>
 		</div>
 		
@@ -323,10 +323,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: contentWidth/2 + borderLeft + paddingLeft + offset.left, 
-					top: offset.top
-				}">
+				ng-style="transform(
+					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					offset.top
+				)">
 			</handle>
 		</div>
 		
@@ -337,10 +337,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft - handleSize/2 + offset.left, 
-					top: handleSize/2 + fontSize + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft - handleSize/2 + offset.left, 
+					handleSize/2 + fontSize + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="ns-resize" prop="line-height" 
 				dir="vert" 
@@ -348,10 +348,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="fontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft - handleSize/2 + offset.left, 
-					top: handleSize*1.5 + fontSize + lineHeight + borderTop + paddingTop + offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft - handleSize/2 + offset.left, 
+					handleSize*1.5 + fontSize + lineHeight + borderTop + paddingTop + offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="text-indent" 
 				dir="horiz" 
@@ -359,10 +359,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="fontSize" 
-				ng-style="{
-					left: textIndent + borderLeft + paddingLeft - handleSize/2 + offset.left, 
-					top: borderTop + paddingTop + - handleSize/2 + offset.top
-				}">
+				ng-style="transform(
+					textIndent + borderLeft + paddingLeft - handleSize/2 + offset.left, 
+					borderTop + paddingTop + - handleSize/2 + offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="letter-spacing" 
 				dir="horiz" 
@@ -370,10 +370,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="fontSize" 
-				ng-style="{
-					left: handleSize + letterSpacing + textIndent + borderLeft + paddingLeft + offset.left, 
-					top: borderTop + paddingTop + - handleSize/2 + offset.top
-				}">
+				ng-style="transform(
+					handleSize + letterSpacing + textIndent + borderLeft + paddingLeft + offset.left, 
+					borderTop + paddingTop + - handleSize/2 + offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="word-spacing" 
 				dir="horiz" 
@@ -381,10 +381,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="fontSize" 
-				ng-style="{
-					left: handleSize*2.5 + wordSpacing + letterSpacing + textIndent + borderLeft + paddingLeft + offset.left, 
-					top: borderTop + paddingTop + - handleSize/2 + offset.top
-				}">
+				ng-style="transform(
+					handleSize*2.5 + wordSpacing + letterSpacing + textIndent + borderLeft + paddingLeft + offset.left, 
+					borderTop + paddingTop + - handleSize/2 + offset.top
+				)">
 			</handle>
 		</div>
 		
@@ -395,10 +395,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft + contentWidth/columnCount + offset.left, 
-					top: borderTop + paddingTop - handleSize/2 + offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft + contentWidth/columnCount + offset.left, 
+					borderTop + paddingTop - handleSize/2 + offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="-webkit-column-width" 
 				dir="horiz" 
@@ -406,10 +406,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft + columnWidth + offset.left, 
+				ng-style="transform(
+					borderLeft + paddingLeft + columnWidth + offset.left, 
 					top: borderTop + paddingTop + handleSize/2 + offset.top
-				}">
+				)">
 			</handle>
 			<handle class="ew-resize" prop="-webkit-column-gap" 
 				dir="horiz" 
@@ -417,10 +417,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft + columnGap/2 + contentWidth/columnCount + offset.left, 
-					top: borderTop + paddingTop + handleSize/2 + offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft + columnGap/2 + contentWidth/columnCount + offset.left, 
+					borderTop + paddingTop + handleSize/2 + offset.top
+				)">
 			</handle>
 		</div>
 		
@@ -431,10 +431,10 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft + contentWidth/columnCount + offset.left, 
-					top: borderTop + paddingTop - handleSize/2 + offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft + contentWidth/columnCount + offset.left, 
+					borderTop + paddingTop - handleSize/2 + offset.top
+				)">
 			</handle>
 		</div>
 		
@@ -445,10 +445,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft + contentWidth + paddingRight + borderRight + offset.left, 
-					top: borderTop + paddingTop + contentHeight/2 + offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft + contentWidth + paddingRight + borderRight + offset.left, 
+					borderTop + paddingTop + contentHeight/2 + offset.top
+				)">
 			</handle>
 			<handle class="ns-resize" prop="-webkit-transform:scaleY(#)" 
 				dir="vert" 
@@ -456,10 +456,10 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				ng-style="{
-					left: borderLeft + paddingLeft + contentWidth/2 + offset.left, 
-					top: borderTop + paddingTop + contentHeight + paddingBottom + borderBottom + offset.top
-				}">
+				ng-style="transform(
+					borderLeft + paddingLeft + contentWidth/2 + offset.left, 
+					borderTop + paddingTop + contentHeight + paddingBottom + borderBottom + offset.top
+				)">
 			</handle>
 			<handle class="ew-resize" prop="-webkit-transform:skewX(#)" 
 				dir="-horiz" 
@@ -474,10 +474,10 @@
 				dir="-vert" 
 				unit="deg" 
 				allownegative="true" 
-				ng-style="{
-					left: offset.left, 
-					top: borderTop + paddingTop + contentHeight/2 + offset.top
-				}">
+				ng-style="transform(
+					offset.left, 
+					borderTop + paddingTop + contentHeight/2 + offset.top
+				)">
 			</handle>
 		</div>
 	

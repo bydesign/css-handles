@@ -172,7 +172,7 @@ handle.dragging > .handleColor5 { border-color: #A300D9; color: #A300D9; }
 	background-color: #ccc;
 	overflow: hidden;
 	padding-top: 1em;
-	-webkit-transform: skewX(10deg);
+	-webkit-transform: skewX(10deg) scale(.75) translate(25px, 25px);
 }
 
 .box1 {

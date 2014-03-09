@@ -244,29 +244,33 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 			
 			// transforms
 			$scope.transformMatrix = new WebKitCSSMatrix(computed.webkitTransform);
-			console.log(computed.webkitTransform);
-			console.log(computed['-webkit-transform-origin']);
-			var transformOrigin = this.getComputedNum(computed['-webkit-transform-origin']);
+			//console.log(computed.webkitTransform);
+			//console.log(computed['-webkit-transform-origin']);
+			var transformOrigin = this.getComputedNumPair(computed['-webkit-transform-origin']);
+			console.log(transformOrigin);
 			
 			$scope.transform = function(x, y) {
 				// subtract page offset (use local coordinates)
-				x -= $scope.offset.left;
-				y -= $scope.offset.top;
+				x -= $scope.offset.left + transformOrigin.x;
+				y -= $scope.offset.top + transformOrigin.y;
+				console.log(x);
+				console.log(y);
 				
 				// convert vector to matrix
 				var matrix = new WebKitCSSMatrix('matrix(1, 0, 0, 1, '+x+', '+y+')');
+				//console.log(matrix);
 				
 				// multiply matrix by transform
 				var result = $scope.transformMatrix.multiply(matrix);
-				console.log(result);
+				//console.log(result);
 				
-				console.log(result);
+				//console.log(result);
 				
 				// extract new position
-				var newX = result.e + $scope.offset.left;
-				var newY = result.f + $scope.offset.top;
-				console.log(newX);
-				console.log(newY);
+				var newX = result.e + $scope.offset.left + transformOrigin.x;
+				var newY = result.f + $scope.offset.top + transformOrigin.y;
+				//console.log(newX);
+				//console.log(newY);
 				
 				// return object with new CSS values
 				return {
@@ -296,6 +300,16 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 		
 		if (!skipApply) {
 			$scope.$apply();
+		}
+	};
+	
+	this.getComputedNumPair = function(str) {
+		console.log(str);
+		var parts = str.replace('px','').replace('px','').split(' ');
+		console.log(parts);
+		return {
+			x: Number(parts[0]),
+			y: Number(parts[1]),
 		}
 	};
 	

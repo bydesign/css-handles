@@ -147,6 +147,7 @@ handle.dragging > .handleColor5 { border-color: #A300D9; color: #A300D9; }
 .w-resize > .handleCt { cursor: w-resize; }
 .ns-resize > .handleCt { cursor: ns-resize; }
 .ew-resize > .handleCt { cursor: ew-resize; }
+.move > .handleCt { cursor: move; }
 
 .dot {
 	display: inline-block;
@@ -172,7 +173,7 @@ handle.dragging > .handleColor5 { border-color: #A300D9; color: #A300D9; }
 	background-color: #ccc;
 	overflow: hidden;
 	padding-top: 1em;
-	-webkit-transform: skewX(10deg) scale(.75) translate(25px, 25px);
+	/*-webkit-transform-origin: 100% 100%;*/
 }
 
 .box1 {
@@ -207,6 +208,20 @@ handle.dragging > .handleColor5 { border-color: #A300D9; color: #A300D9; }
 	top: 150px;
 	width: 10em;
 }
+
+.box2 {
+	-webkit-transform: translateX(50px) translateY(-50px);
+}
+.box3 {
+	-webkit-transform: skew(15deg);
+}
+.box4 {
+	-webkit-transform: scale(0.5);
+}
+.box5 {
+	-webkit-transform: rotate(45deg);
+}
+
 .bigFont {
 	font-size: 200%;
 }

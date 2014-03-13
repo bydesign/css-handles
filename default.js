@@ -197,7 +197,9 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 			var parent = selected.parent();
 			var parentComputed = dataService.getComputedStyle(parent[0]);
 			
+			selected.css('-webkit-transform', 'translateX(0) translateY(0) rotate(0) scale(1)');
 			$scope.offset = selected.offset();
+			selected.css('-webkit-transform','');
 			
 			// doesn't include padding or border
 			$scope.contentWidth = selected.width();
@@ -246,15 +248,17 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 			$scope.transformMatrix = new WebKitCSSMatrix(computed.webkitTransform);
 			//console.log(computed.webkitTransform);
 			//console.log(computed['-webkit-transform-origin']);
-			var transformOrigin = this.getComputedNumPair(computed['-webkit-transform-origin']);
-			console.log(transformOrigin);
+			$scope.transformOrigin = this.getComputedNumPair(computed['-webkit-transform-origin']);
+			console.log($scope.transformOrigin);
 			
 			$scope.transform = function(x, y) {
 				// subtract page offset (use local coordinates)
-				x -= $scope.offset.left + transformOrigin.x;
-				y -= $scope.offset.top + transformOrigin.y;
-				console.log(x);
-				console.log(y);
+				x -= $scope.offset.left + $scope.transformOrigin.x;
+				y -= $scope.offset.top + $scope.transformOrigin.y;
+				//x -= $scope.offset.left + $scope.transformMatrix.e;
+				//y -= $scope.offset.top + $scope.transformMatrix.f;
+				//x -= $scope.offset.left;
+				//y -= $scope.offset.top;
 				
 				// convert vector to matrix
 				var matrix = new WebKitCSSMatrix('matrix(1, 0, 0, 1, '+x+', '+y+')');
@@ -267,8 +271,10 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 				//console.log(result);
 				
 				// extract new position
-				var newX = result.e + $scope.offset.left + transformOrigin.x;
-				var newY = result.f + $scope.offset.top + transformOrigin.y;
+				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x;
+				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y;
+				//var newX = result.e + $scope.offset.left;
+				//var newY = result.f + $scope.offset.top;
 				//console.log(newX);
 				//console.log(newY);
 				
@@ -304,9 +310,7 @@ app.controller('MainCtrl', function($scope, dataService, $window, $rootScope, $t
 	};
 	
 	this.getComputedNumPair = function(str) {
-		console.log(str);
 		var parts = str.replace('px','').replace('px','').split(' ');
-		console.log(parts);
 		return {
 			x: Number(parts[0]),
 			y: Number(parts[1]),

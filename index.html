@@ -439,6 +439,17 @@
 		</div>
 		
 		<div ng-show="tabId == 9">
+			<handle class="move originHandle" prop="-webkit-transform-origin" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="{
+					left: transformOrigin.x + offset.left, 
+					top: transformOrigin.y + offset.top
+				}">
+			</handle>
 			<handle class="ew-resize" prop="-webkit-transform:scaleX(#)" 
 				dir="horiz" 
 				unit="" 
@@ -447,7 +458,7 @@
 				emdenom="parentFontSize" 
 				ng-style="transform(
 					borderLeft + paddingLeft + contentWidth + paddingRight + borderRight + offset.left, 
-					borderTop + paddingTop + contentHeight/2 + offset.top
+					borderTop + (paddingTop + contentHeight + paddingBottom)/2 + offset.top
 				)">
 			</handle>
 			<handle class="ns-resize" prop="-webkit-transform:scaleY(#)" 
@@ -457,7 +468,7 @@
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="transform(
-					borderLeft + paddingLeft + contentWidth/2 + offset.left, 
+					borderLeft + (paddingLeft + contentWidth + paddingRight)/2 + offset.left, 
 					borderTop + paddingTop + contentHeight + paddingBottom + borderBottom + offset.top
 				)">
 			</handle>
@@ -466,7 +477,7 @@
 				unit="deg" 
 				allownegative="true" 
 				ng-style="transform(
-					borderLeft + paddingLeft + contentWidth/2 + offset.left, 
+					borderLeft + (paddingLeft + contentWidth + paddingRight)/2 + offset.left, 
 					offset.top
 				)">
 			</handle>
@@ -476,7 +487,7 @@
 				allownegative="true" 
 				ng-style="transform(
 					offset.left, 
-					borderTop + paddingTop + contentHeight/2 + offset.top
+					borderTop + (paddingTop + contentHeight + paddingBottom)/2 + offset.top
 				)">
 			</handle>
 		</div>

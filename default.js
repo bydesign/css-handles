@@ -577,6 +577,8 @@ app.directive('handle', function(dataService, $document, $rootScope){
 				val = x;
 			} else if (dir == 'diagL' || dir == 'diagR') {
 				val = y;
+			} else if (dir == 'both') {
+				
 			} else {
 				val = y;
 			}
@@ -689,6 +691,11 @@ $('body').click(function(evt) {
 	});
 });*/
 
+
+// THIRD PARTY LIBRARIES TO INTEGRATE
+// http://csslint.net/ (builtin to codemirror)
+// http://codemirror.net/
+// https://github.com/medialize/sass.js
 
 
 

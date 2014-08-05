@@ -1,0 +1,62 @@
+/**** TEMPORARY PAGE STYLES ****/
+.box {
+	position: absolute;
+	width: 100px;
+	height: 100px;
+	top: 100px;
+	left: 100px;
+	background-color: #ccc;
+	overflow: hidden;
+	padding-top: 1em;
+	/*-webkit-transform-origin: 100% 100%;*/
+}
+
+.box1 {
+	top: auto;
+	left: auto;
+	bottom: 50px;
+	right: 50px;
+}
+.box2 {
+	padding: 5%;
+	background-color: #eee;
+	left: 500px;
+	margin-left: -2.55%;
+}
+.box3 {
+	top: 350px;
+	width: 600px;
+	padding: 5%;
+	background-color: #666;
+	border: solid 10px #ccc;
+	color: #fff;
+	box-sizing: border-box;
+}
+.box4 {
+	margin: 1em;
+	background-color: #cc0000;
+	border: solid 10px #ccc;
+}
+.box5 {
+	padding: 3em;
+	left: 800px;
+	top: 150px;
+	width: 10em;
+}
+
+.box2 {
+	-webkit-transform: translateX(50px) translateY(-50px);
+}
+.box3 {
+	-webkit-transform: skew(15deg);
+}
+.box4 {
+	-webkit-transform: scale(0.5);
+}
+.box5 {
+	-webkit-transform: rotate(45deg);
+}
+
+.bigFont {
+	font-size: 200%;
+}

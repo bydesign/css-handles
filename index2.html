@@ -4,9 +4,12 @@
 
 <title>Web Handles</title>
 <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="codemirror-4.4/lib/codemirror.css">
+<link rel="stylesheet" href="codemirror-4.4/addon/lint/lint.css">
+<link rel="stylesheet" href="codemirror-4.4/addon/fold/foldgutter.css" />
 <link rel="stylesheet" href="default.css" />
 </head>
-<body ng-click="selectElement($event)" ng-class="'zoom'+zoom" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}">
+<body>
 
 <div id="handles-root">
 
@@ -498,22 +501,49 @@
 
 </div>
 
+<div class="editor">
+	<textarea class="editCss" ng-model="css" ui-codemirror="{
+	      lineNumbers: true,
+	      styleActiveLine: true,
+	      matchBrackets: true,
+	      foldGutter: true,
+	      gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+	      lint: true,
+	      mode: 'css'
+	    }"></textarea>
+	<textarea class="editHtml" ng-model="html" ui-codemirror="{
+	      lineNumbers: true,
+	      styleActiveLine: true,
+	      mode: 'text/html',
+          foldGutter: true,
+          gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
+	    }"></textarea>
+</div>
 
-<div class="doc">
-	<div class="box box1">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
-	<div class="box box2">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
-	<div class="box box3">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
-	<div class="box box4">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
-	<div class="bigFont">
-		<div class="box box5">Bacon ipsum dolor sit amet cow jerky meatloaf rump, shankle tenderloin short loin boudin turducken porchetta leberkas biltong fatback kielbasa tail. Pancetta fatback venison ham hock, jerky shankle landjaeger. Chuck kielbasa hamburger pig. Drumstick kevin ribeye cow chicken shank, corned beef tri-tip sausage pork belly capicola. Tail kevin short ribs venison swine, pig rump ribeye tenderloin. Chuck meatloaf jowl doner beef ribs beef. Kevin porchetta chicken pork loin short loin fatback corned beef hamburger bresaola.</div>
-	</div>
+<div class="page" ng-class="'zoom'+zoom" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}">
+	<iframe ng-src="{{pageSrc}}" id="page" iframe-onload="pageLoaded()"></iframe>
 </div>
 
 <script src="jquery.js"></script>
 <script src="angular.js"></script>
 <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>-->
-<script type="text/javascript" src="default.js"></script>
+<script src="https://rawgit.com/stubbornella/csslint/master/release/csslint.js"></script>
+<script src="codemirror-4.4/lib/codemirror.js"></script>
+<script src="codemirror-4.4/mode/css/css.js"></script>
+<script src="codemirror-4.4/mode/xml/xml.js"></script>
+<script src="codemirror-4.4/mode/javascript/javascript.js"></script>
+<script src="codemirror-4.4/mode/htmlmixed/htmlmixed.js"></script>
+<script src="codemirror-4.4/addon/selection/active-line.js"></script>
+<script src="codemirror-4.4/addon/lint/lint.js"></script>
+<script src="codemirror-4.4/addon/lint/css-lint.js"></script>
+<script src="codemirror-4.4/addon/fold/foldcode.js"></script>
+<script src="codemirror-4.4/addon/fold/foldgutter.js"></script>
+<script src="codemirror-4.4/addon/fold/brace-fold.js"></script>
+<script src="codemirror-4.4/addon/fold/xml-fold.js"></script>
+<script src="codemirror-4.4/addon/fold/comment-fold.js"></script>
+<script src="ui-codemirror.js"></script>
+<script type="text/javascript" src="default2.js"></script>
 
 </body>
 </html>

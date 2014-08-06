@@ -11,9 +11,9 @@
 </head>
 <body>
 
-<div id="handles-root">
+<div id="handles-root" ng-controller="MainCtrl">
 
-<div ng-controller="MainCtrl">
+<div>
 	<div class="handlesControls" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'scale('+(1/zoomLevels[zoom-1])+') translate('+(-panX)+'px,'+(-panY)+'px)'}">
 		<div class="controlBtns" ng-show="showControls">
 			<ul class="tabs">
@@ -498,9 +498,6 @@
 	</div>
 </div>
 
-
-</div>
-
 <div class="editor">
 	<textarea class="editCss" ng-model="css" ui-codemirror="{
 	      lineNumbers: true,
@@ -522,6 +519,9 @@
 
 <div class="page" ng-class="'zoom'+zoom" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}">
 	<iframe ng-src="{{pageSrc}}" id="page" iframe-onload="pageLoaded()"></iframe>
+	<div class="dragCover" ng-show="dragging"></div>
+</div>
+
 </div>
 
 <script src="jquery.js"></script>

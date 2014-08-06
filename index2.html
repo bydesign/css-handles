@@ -39,7 +39,7 @@
 	
 	<div class="handles" ng-class="'rule'+activeRule.index" ng-show="isSelected && showControls">
 		
-		<div class="curProp" ng-mouseover="keepVisible()" ng-mouseout="timeoutHide()" ng-show="showCurProp" ng-style="{
+		<!--<div class="curProp" ng-mouseover="keepVisible()" ng-mouseout="timeoutHide()" ng-show="showCurProp" ng-style="{
 			left: (paddingLeft+width+paddingRight)/2 + offset.left,
 			top: (paddingTop+height+paddingBottom)/2 + offset.top
 		}">
@@ -49,7 +49,7 @@
 				<span class="changeUnit(2)">{{propVal2}}</span> <span ng-click="changeUnit(3)">{{propVal3}}</span>
 			</div>
 			<div class="propDel" ng-click="deleteProperty(propName)" ng-hide="propVal==undefined">x</div>
-		</div>
+		</div>-->
 	
 		<div ng-show="tabId == 1">
 			<handle class="s-resize" prop="padding-top" 

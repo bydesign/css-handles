@@ -23,6 +23,8 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 	$rootScope.panY = 0;
 	$rootScope.zoomLevels = [1, 1.5, 2, 3, 4];
 	this.iframe = $('#page')[0];
+	this.iframeOffset = $('#page').offset();
+	console.log(this.iframeOffset);
 	this.timeout;
 	this.keys = {
 		PLUS: 187,
@@ -102,13 +104,12 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 		$event.preventDefault();
 		var target = $($event.target);
 		that.select(target);
+		$scope.$apply();
 	};
 	
 	$rootScope.pageLoaded = function() {
 		$.get(that.iframe.contentWindow.document.styleSheets[0].href, function(data) {
-			//console.log(data);
 			$rootScope.css = data;
-			console.log(that.iframe.contentWindow.document.body);
 			$(that.iframe.contentWindow.document.body).click($rootScope.selectElement);
 			$scope.$apply();
 		});
@@ -262,7 +263,7 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 			//console.log(computed.webkitTransform);
 			//console.log(computed['-webkit-transform-origin']);
 			$scope.transformOrigin = this.getComputedNumPair(computed['-webkit-transform-origin']);
-			console.log($scope.transformOrigin);
+			//console.log($scope.transformOrigin);
 			
 			$scope.transform = function(x, y) {
 				// subtract page offset (use local coordinates)
@@ -284,8 +285,8 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 				//console.log(result);
 				
 				// extract new position
-				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x;
-				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y;
+				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x + that.iframeOffset.left;
+				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y + that.iframeOffset.top;
 				//var newX = result.e + $scope.offset.left;
 				//var newY = result.f + $scope.offset.top;
 				//console.log(newX);

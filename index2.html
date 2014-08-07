@@ -34,7 +34,6 @@
 				</li>
 			</ul>
 		</div>
-		<div class="panHandle" ng-show="pan" pannable></div>
 	</div>
 	
 	<div class="handles" ng-class="'rule'+activeRule.index" ng-show="isSelected && showControls">
@@ -500,26 +499,30 @@
 
 <div class="editor">
 	<textarea class="editCss" ng-model="css" ui-codemirror="{
+	      onLoad : cssChanged,
 	      lineNumbers: true,
 	      styleActiveLine: true,
 	      matchBrackets: true,
 	      foldGutter: true,
 	      gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
 	      lint: true,
-	      mode: 'css'
+	      mode: 'css',
+	      profile: 'css'
 	    }"></textarea>
 	<textarea class="editHtml" ng-model="html" ui-codemirror="{
+	      onLoad : htmlChanged,
 	      lineNumbers: true,
 	      styleActiveLine: true,
 	      mode: 'text/html',
           foldGutter: true,
+          profile: 'html',
           gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
 	    }"></textarea>
 </div>
 
-<div class="page" ng-class="'zoom'+zoom" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}">
-	<iframe ng-src="{{pageSrc}}" id="page" iframe-onload="pageLoaded()"></iframe>
-	<div class="dragCover" ng-show="dragging"></div>
+<div class="page" pannable>
+	<iframe ng-src="{{pageSrc}}" id="page" iframe-onload="pageLoaded()" ng-class="'zoom'+zoom" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}" ></iframe>
+	<div class="dragCover" ng-show="dragging" ng-show="pan"></div>
 </div>
 
 </div>
@@ -543,6 +546,8 @@
 <script src="codemirror-4.4/addon/fold/xml-fold.js"></script>
 <script src="codemirror-4.4/addon/fold/comment-fold.js"></script>
 <script src="ui-codemirror.js"></script>
+<script src="emmet/emmet.min.js"></script>
+<script src="lorem.js"></script>
 <script type="text/javascript" src="default2.js"></script>
 
 </body>

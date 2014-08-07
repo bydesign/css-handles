@@ -1,10 +1,10 @@
 var app = angular.module('cssHandles', ['ui.codemirror']);
 //var pageRoot = $('body');
 
-app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootScope, $timeout) {
-	$rootScope.pageSrc = $sce.trustAsResourceUrl('page.html');
+app.controller('MainCtrl', function($scope, $sce, dataService, $window, $timeout) {
+	$scope.pageSrc = $sce.trustAsResourceUrl('page.html');
 	$.get($scope.pageSrc, function(data) {
-		$rootScope.html = data;
+		$scope.html = data;
 	});
 	$scope.name = 'World';
 	$scope.tabId = 1;
@@ -15,16 +15,15 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 	$scope.propName = '';
 	$scope.propVal = '';
 	$scope.showControls = true;
-	$rootScope.pan = false;
-	$rootScope.zoom = 1;
-	$rootScope.originX = 0;
-	$rootScope.originY = 0;
-	$rootScope.panX = 0;
-	$rootScope.panY = 0;
-	$rootScope.zoomLevels = [1, 1.5, 2, 3, 4];
+	$scope.pan = false;
+	$scope.zoom = 1;
+	$scope.originX = 0;
+	$scope.originY = 0;
+	$scope.panX = 0;
+	$scope.panY = 0;
+	$scope.zoomLevels = [1, 1.5, 2, 3, 4];
 	this.iframe = $('#page')[0];
 	this.iframeOffset = $('#page').offset();
-	console.log(this.iframeOffset);
 	this.timeout;
 	this.keys = {
 		PLUS: 187,
@@ -55,7 +54,7 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 	angular.element($window).on('keydown', function(e) {
 		var key = e.keyCode;
 		if (key == that.keys.SPACE) {
-			$rootScope.pan = true;
+			$scope.pan = true;
 			e.preventDefault();
 		} else if (key == that.keys.PLUS) {
 			that.zoomIn();
@@ -63,8 +62,8 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 			that.zoomOut()
 		} else if (key == that.keys.ZERO) {
 			that.zoom(1);
-			$rootScope.panX = 0;
-			$rootScope.panY = 0;
+			$scope.panX = 0;
+			$scope.panY = 0;
 		} else if (key == that.keys.TAB) {
 			$scope.showControls = !$scope.showControls;
 			e.preventDefault();
@@ -89,56 +88,74 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 		} else if (key == that.keys.D) {
 			$scope.tabId = 10;
 		}
-		$rootScope.$apply();
+		$scope.$apply();
 		
 	}).on('keyup', function(e) {
 		var key = e.keyCode;
 		if (key == that.keys.SPACE) {
-			$rootScope.pan = false;
+			$scope.pan = false;
 		}
-		$rootScope.$apply();
+		$scope.$apply();
     });
 	
 	// handle selection of any element in the original page
-	$rootScope.selectElement = function($event) {
+	$scope.selectElement = function($event) {
 		$event.preventDefault();
 		var target = $($event.target);
 		that.select(target);
 		$scope.$apply();
 	};
 	
-	$rootScope.pageLoaded = function() {
-		$.get(that.iframe.contentWindow.document.styleSheets[0].href, function(data) {
-			$rootScope.css = data;
-			$(that.iframe.contentWindow.document.body).click($rootScope.selectElement);
-			$scope.$apply();
+	$scope.pageLoaded = function() {
+		if ($scope.css == undefined) {
+			console.log('first iframe load')
+			$.get(that.iframe.contentWindow.document.styleSheets[0].href, function(data) {
+				$scope.css = data;
+				$(that.iframe.contentWindow.document.body).click($scope.selectElement);
+				$scope.$apply();
+			});
+		}
+	};
+	
+	$scope.cssChanged = function(editor) {
+		editor.on("change", function(instance, changeObj){
+			var doc = that.iframe.contentWindow.document;
+		});
+	};
+	
+	$scope.htmlChanged = function(editor) {
+		editor.on("change", function(instance, changeObj){
+			var doc = that.iframe.contentWindow.document;
+			doc.open();
+			doc.write(instance.getValue());
+			doc.close();
 		});
 	};
 	
 	this.zoomIn = function() {
-		var zoom = $rootScope.zoom;
+		var zoom = $scope.zoom;
 		if (zoom <= 4) {
 			this.zoom(zoom + 1);
 		}
 	};
 	
 	this.zoomOut = function() {
-		var zoom = $rootScope.zoom;
+		var zoom = $scope.zoom;
 		if (zoom > 1) {
-			this.zoom($rootScope.zoom - 1);
+			this.zoom($scope.zoom - 1);
 		}
 	};
 	
 	this.zoom = function(level) {
 		if ($scope.offset == undefined) {
-			$rootScope.originX = $(window).width() / 2 + 'px';
-			$rootScope.originY = $(window).height() / 2 + 'px';
+			$scope.originX = $(window).width() / 2 + 'px';
+			$scope.originY = $(window).height() / 2 + 'px';
 		} else {
-			$rootScope.originX = $scope.offset.left + $scope.paddingLeft + $scope.borderLeft + $scope.width/2 + 'px';
-			$rootScope.originY = $scope.offset.top + $scope.paddingTop + $scope.borderTop + $scope.height/2 + 'px';
+			$scope.originX = $scope.offset.left + $scope.paddingLeft + $scope.borderLeft + $scope.width/2 + 'px';
+			$scope.originY = $scope.offset.top + $scope.paddingTop + $scope.borderTop + $scope.height/2 + 'px';
 		}
-		$rootScope.zoom = level;
-		dataService.zoomNotify(level, $rootScope.zoomLevels);
+		$scope.zoom = level;
+		dataService.zoomNotify(level, $scope.zoomLevels);
 	};
 	
 	$scope.$on('styleModified', function(evt, prop) {
@@ -197,13 +214,13 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 	// because performance is better and handles need access to
 	// all the computed properties
 	this.update = function(skipApply) {
-		var zoomTmp = $rootScope.zoom,
-			panX = $rootScope.panX,
-			panY = $rootScope.panY;
-		$rootScope.zoom = 1;
-		$rootScope.panX = 0;
-		$rootScope.panY = 0;
-		$rootScope.$apply();
+		var zoomTmp = $scope.zoom,
+			panX = $scope.panX,
+			panY = $scope.panY;
+		$scope.zoom = 1;
+		$scope.panX = 0;
+		$scope.panY = 0;
+		$scope.$apply();
 		var selected = that.selected;
 		if (selected != undefined) {
 			// local variables
@@ -314,9 +331,9 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $rootSco
 			$scope.parentFontSize = this.getComputedNum(parentComputed['font-size']);
 		}
 		// set root scope properties
-		$rootScope.zoom = zoomTmp;
-		$rootScope.panX = panX;
-		$rootScope.panY = panY;
+		$scope.zoom = zoomTmp;
+		$scope.panX = panX;
+		$scope.panY = panY;
 		
 		if (!skipApply) {
 			$scope.$apply();
@@ -411,6 +428,10 @@ app.factory('dataService', [function(){
 			this.properties = {};
 			var frameWindow = document.getElementById('page').contentWindow;
 			this.rules = frameWindow.getMatchedCSSRules(element[0]);
+			
+			if (this.rules == undefined) {
+				return [];
+			}
 			
 			var that = this;
 			var len = this.rules.length;
@@ -536,7 +557,7 @@ app.factory('dataService', [function(){
 // the handle directive only displays a handle
 // and directs events to the dataService for action
 // no data model logic should be performed inside this directive
-app.directive('handle', function(dataService, $document, $rootScope){
+app.directive('handle', function(dataService, $document){
   return {
     restrict: 'E',
     templateUrl: 'handle.html',
@@ -553,6 +574,7 @@ app.directive('handle', function(dataService, $document, $rootScope){
     },
     link: function($scope, element, attr, ctrl) {
 		// track drag-n-drop
+		
 		var startX = 0, startY = 0, x = 0, y = 0,
 			prop = $scope.prop, valWrapper;
 			
@@ -631,7 +653,7 @@ app.directive('iframeOnload', [function(){
 	};
 }]);
 
-app.directive('pannable', function(dataService, $document, $rootScope){
+app.directive('pannable', function(dataService){
   return {
     link: function($scope, element, attr, ctrl) {
 		// track drag-n-drop
@@ -640,8 +662,8 @@ app.directive('pannable', function(dataService, $document, $rootScope){
 		element.on('mousedown', function(event) {
 			// Prevent default dragging of selected content
 			event.preventDefault();
-			panX = $rootScope.panX;
-			panY = $rootScope.panY;
+			panX = $scope.panX;
+			panY = $scope.panY;
 			startX = event.pageX;
 			startY = event.pageY;
 			$document.on('mousemove', mousemove);
@@ -651,8 +673,8 @@ app.directive('pannable', function(dataService, $document, $rootScope){
 		function mousemove(event) {
 			y = event.pageY - startY;
 			x = event.pageX - startX;
-			$rootScope.panX = panX + x;
-			$rootScope.panY = panY + y;
+			$scope.panX = panX + x;
+			$scope.panY = panY + y;
 		}
 		
 		function mouseup() {

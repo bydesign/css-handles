@@ -653,7 +653,7 @@ app.directive('iframeOnload', [function(){
 	};
 }]);
 
-app.directive('pannable', function(dataService){
+app.directive('pannable', function($document, dataService){
   return {
     link: function($scope, element, attr, ctrl) {
 		// track drag-n-drop

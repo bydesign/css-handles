@@ -113,11 +113,13 @@ angular.module('ui.codemirror', [])
               throw new Error('the CodeMirror event requires a callback function');
             }
           });
-
+          
+          var styleSheet = opts.styleSheet;
+          opts.styleSheet = undefined;
 
           // onLoad callback
           if (angular.isFunction(opts.onLoad)) {
-            opts.onLoad(codeMirror);
+            opts.onLoad(codeMirror, styleSheet);
           }
 
         };

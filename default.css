@@ -166,15 +166,18 @@ handle.dragging > .handleColor5 { border-color: #A300D9; color: #A300D9; }
 .color4 { background-color: #DC0000; }
 .color5 { background-color: #A300D9; }
 
-.editor, .page, .page iframe {
+.editors, .page, .page iframe, .textEditor {
 	position: absolute;
 	top: 32px;
 	left: 0;
 	right: 0;
 	bottom: 0;
 }
-.editor {
+.editors {
 	right: 67%;
+}
+.textEditor {
+	top: 20px;
 }
 .page {
 	left: 33%;
@@ -194,8 +197,20 @@ handle.dragging > .handleColor5 { border-color: #A300D9; color: #A300D9; }
 	bottom: 0;
 	z-index: 1000;
 }
+.editor {
+	position: relative;
+}
+.editor h3 {
+	height: 20px;
+	line-height: 20px;
+	margin: 0;
+	padding: 0 .5em;
+	color: #fff;
+	background-color: #ccc;
+	font-size: .8em;
+}
 .CodeMirror {
-	height: 50%;
+	height: 100%;
 	overflow-y: auto;
 	overflow-x: auto;
 	border-top: solid 1px #ccc;

@@ -497,30 +497,41 @@
 	</div>
 </div>
 
-<div class="editor">
-	<textarea class="editCss" ng-model="css" ui-codemirror="{
-	      onLoad : cssChanged,
-	      lineNumbers: true,
-	      styleActiveLine: true,
-	      matchBrackets: true,
-	      foldGutter: true,
-	      gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-	      lint: true,
-	      mode: 'css',
-	      profile: 'css'
-	    }"></textarea>
-	<textarea class="editHtml" ng-model="html" ui-codemirror="{
-	      onLoad : htmlChanged,
-	      lineNumbers: true,
-	      styleActiveLine: true,
-	      mode: 'text/html',
-          foldGutter: true,
-          profile: 'html',
-          gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
-	    }"></textarea>
+<div class="editors">
+	<div class="editor editHtml" ng-style="{height: 100/(sheets.length+1)+'%'}">
+		<h3>HTML</h3>
+		<div class="textEditor">
+			<textarea ng-model="html" ui-codemirror="{
+			      onLoad : htmlLoaded,
+			      lineNumbers: true,
+			      styleActiveLine: true,
+			      mode: 'text/html',
+		          foldGutter: true,
+		          profile: 'html',
+		          gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
+			    }"></textarea>
+		</div>
+	</div>
+	<div class="editor" ng-repeat="sheet in sheets" ng-style="{height: 100/(sheets.length+1)+'%'}">
+		<h3>{{sheet.filename}}</h3>
+		<div class="textEditor">
+			<textarea ng-model="sheet.text" ui-codemirror="{
+			      onLoad : cssLoaded,
+			      lineNumbers: true,
+			      styleActiveLine: true,
+			      matchBrackets: true,
+			      foldGutter: true,
+			      gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+			      lint: true,
+			      mode: 'css',
+			      styleSheet: sheet,
+			      profile: 'css'
+			    }"></textarea>
+		</div>
+	</div>
 </div>
 
-<div class="page" pannable>
+<div class="page" pannable id="pageHolder">
 	<iframe ng-src="{{pageSrc}}" id="page" iframe-onload="pageLoaded()" ng-class="'zoom'+zoom" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}" ></iframe>
 	<div class="dragCover" ng-show="dragging" ng-show="pan"></div>
 </div>

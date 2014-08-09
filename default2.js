@@ -22,6 +22,8 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $timeout
 	$scope.panX = 0;
 	$scope.panY = 0;
 	$scope.zoomLevels = [1, 1.5, 2, 3, 4];
+	$scope.sheets = [];
+	this.sheetsDict = {};
 	this.iframe = $('#page')[0];
 	this.iframeOffset = $('#page').offset();
 	this.timeout;
@@ -51,7 +53,8 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $timeout
 	$(document).focus();
 	
 	var that = this;
-	angular.element($window).on('keydown', function(e) {
+	angular.element(this.iframe.contentDocument).on('keydown', function(e) {
+		console.log('key down: ' + e.keyCode);
 		var key = e.keyCode;
 		if (key == that.keys.SPACE) {
 			$scope.pan = true;
@@ -108,26 +111,67 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $timeout
 	
 	$scope.pageLoaded = function() {
 		if ($scope.css == undefined) {
-			console.log('first iframe load')
-			$.get(that.iframe.contentWindow.document.styleSheets[0].href, function(data) {
-				$scope.css = data;
-				$(that.iframe.contentWindow.document.body).click($scope.selectElement);
-				$scope.$apply();
-			});
+			var doc = that.iframe.contentWindow.document;
+			$(doc.body).click($scope.selectElement);
+			
+			that.replaceStyleSheets();
 		}
 	};
 	
-	$scope.cssChanged = function(editor) {
-		editor.on("change", function(instance, changeObj){
-			var doc = that.iframe.contentWindow.document;
+	this.replaceStyleSheets = function() {
+		var doc = that.iframe.contentWindow.document;
+		var sheetNum = doc.styleSheets.length;
+		var sheetsLoaded = 0;
+		$scope.sheets = [];
+		angular.forEach(doc.styleSheets, function(styleSheet) {
+			var href = styleSheet.href;
+			var sheet = that.sheetsDict[href];
+			var styleId = 'styleSheet' + sheetsLoaded;
+			if (sheet != undefined) {
+				sheet.elementId = styleId;
+				$scope.sheets.push(sheet);
+				that.replaceStyleNode(styleSheet.ownerNode, styleId, sheet.text);
+				
+			} else {
+				$.get(href, function(data) {
+					var hrefParts = href.split('/');
+					var sheet = {
+						filename: hrefParts[hrefParts.length-1],
+						href: href,
+						text: data,
+						elementId: styleId
+					};
+					$scope.sheets.push(sheet);
+					that.sheetsDict[href] = sheet;
+					that.replaceStyleNode(styleSheet.ownerNode, styleId, data);
+					$scope.$apply();
+				});
+			}
+			sheetsLoaded++;
+			$scope.$apply();
 		});
 	};
 	
-	$scope.htmlChanged = function(editor) {
+	this.replaceStyleNode = function(sheetElement, styleId, data) {
+		var element = $('<style type="text/css" id="'+styleId+'">'+data+'</style>');
+		$(sheetElement).after(element).remove();
+	};
+	
+	$scope.cssLoaded = function(editor, styleSheet) {
+		var doc = that.iframe.contentWindow.document;
+		var $style = $(doc).find('#'+styleSheet.elementId);
 		editor.on("change", function(instance, changeObj){
+			$style.html(instance.getValue());
+		});
+	};
+	
+	$scope.htmlLoaded = function(editor) {
+		editor.on("change", function(instance, changeObj) {
 			var doc = that.iframe.contentWindow.document;
+			var html = instance.getValue();
+			
 			doc.open();
-			doc.write(instance.getValue());
+			doc.write(html);
 			doc.close();
 		});
 	};

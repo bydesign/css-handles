@@ -1,33 +1,308 @@
-var app = angular.module('cssHandles', ['ui.codemirror']);
-//var pageRoot = $('body');
+var app = angular.module('cssHandles', ['ui.codemirror', 'handle', 'page']);
 
-app.controller('MainCtrl', function($scope, $sce, dataService, $window, $timeout) {
+var css = {
+	parse: module.exports
+};
+
+app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 	$scope.pageSrc = $sce.trustAsResourceUrl('page.html');
 	$.get($scope.pageSrc, function(data) {
 		$scope.html = data;
 	});
-	$scope.name = 'World';
 	$scope.tabId = 1;
-	$scope.isSelected = false;
 	$scope.handleSize = 36;	// used for centering and shifting handles
-	$scope.showCurProp = false;
-	$scope.dragging = false;
-	$scope.propName = '';
-	$scope.propVal = '';
 	$scope.showControls = true;
-	$scope.pan = false;
+	$scope.isSelected = false;
 	$scope.zoom = 1;
-	$scope.originX = 0;
-	$scope.originY = 0;
-	$scope.panX = 0;
-	$scope.panY = 0;
 	$scope.zoomLevels = [1, 1.5, 2, 3, 4];
 	$scope.sheets = [];
 	this.sheetsDict = {};
-	this.iframe = $('#page')[0];
-	this.iframeOffset = $('#page').offset();
-	this.timeout;
-	this.keys = {
+	this.selected;
+	var that = this;
+	
+	$scope.selectElement = function(element) {
+		console.log(element);
+		$scope.isSelected = true;
+		that.getRules(element);
+		that.update(element);
+	};
+	
+	$scope.onChangeHtml = function(sheets) {
+		$scope.sheets = sheets;
+	};
+	
+	this.getRules = function(element) {
+		// new method for getting rules
+		var $element = $(element);
+		this.properties = {};
+		this.rules = [];
+		this.parsedSheets = [];
+		
+		// find rules that apply to element
+		var that = this;
+		angular.forEach($scope.sheets, function(sheet) {
+			var parsedSheet = css.parse(sheet.text);
+			that.parsedSheets.push(parsedSheet);
+			angular.forEach(parsedSheet.stylesheet.rules, function(rule) {
+				if (rule.type == "rule" && $element.is(rule.selectors.join(', '))) {
+					that.rules.push(rule);
+					
+					angular.forEach(rule.declarations, function(dec) {
+						if (dec.type == "declaration") {
+							// need to move this logic into CSS parser to parse property values
+							/*var str = dec.value,
+								val = Number(str.replace(/[a-zA-Z%]/g, '')),
+								unit = str.replace(/[0-9\.-]/g, ''),
+								props = {
+									name: dec.property,
+									value: val,
+									unit: unit,
+									//style: rule.style,
+									dec: dec,
+									rule: rule,
+								};*/
+							that.properties[dec.property] = dec.value;
+						}
+					});
+					
+				} else if (rule.type == "media") {
+					// loop over sub-rules for responsive rule modification?
+					console.log('media rule found');
+				}
+			});
+		});
+		
+		// select active rule
+		// need to improve this later with rule trumping logic
+		this.activeRule = this.rules[this.rules.length-1];
+		console.log(this.rules);
+		
+		return this.rules;
+	};
+	
+	
+	// handle positions are updated in the main control
+	// because performance is better and handles need access to
+	// all the computed properties
+	this.update = function(element, skipApply) {
+		var zoomTmp = $scope.zoom,
+			panX = $scope.panX,
+			panY = $scope.panY;
+		$scope.zoom = 1;
+		$scope.panX = 0;
+		$scope.panY = 0;
+		$scope.$apply();
+		var selected = $(element);
+		if (element != undefined) {
+			// local variables
+			var computed = window.getComputedStyle(element);
+			var parent = selected.parent();
+			var iframeOffset = $('#page').offset();
+			var parentComputed = window.getComputedStyle(parent[0]);
+			
+			selected.css('-webkit-transform', 'translateX(0) translateY(0) rotate(0) scale(1)');
+			$scope.offset = selected.offset();
+			selected.css('-webkit-transform','');
+			
+			// doesn't include padding or border
+			$scope.contentWidth = selected.width();
+			$scope.contentHeight = selected.height();
+			
+			// paddings
+			$scope.paddingTop = this.getComputedNum(computed['padding-top']);
+			$scope.paddingRight = this.getComputedNum(computed['padding-right']);
+			$scope.paddingBottom = this.getComputedNum(computed['padding-bottom']);
+			$scope.paddingLeft = this.getComputedNum(computed['padding-left']);
+			
+			// margins
+			$scope.marginTop = this.getComputedNum(computed['margin-top']);
+			$scope.marginRight = this.getComputedNum(computed['margin-right']);
+			$scope.marginBottom = this.getComputedNum(computed['margin-bottom']);
+			$scope.marginLeft = this.getComputedNum(computed['margin-left']);
+			
+			// borders
+			$scope.borderTop = this.getComputedNum(computed['border-top-width']);
+			$scope.borderRight = this.getComputedNum(computed['border-right-width']);
+			$scope.borderBottom = this.getComputedNum(computed['border-bottom-width']);
+			$scope.borderLeft = this.getComputedNum(computed['border-left-width']);
+			
+			// size based on box-sizing
+			$scope.width = this.getComputedNum( selected.css('width') );
+			$scope.minWidth = this.getComputedNum(computed['min-width'], $scope.width);
+			$scope.maxWidth = this.getComputedNum(computed['max-width'], $scope.width);
+			$scope.height = this.getComputedNum( selected.css('height') );
+			$scope.minHeight = this.getComputedNum(computed['min-height'], $scope.height);
+			$scope.maxHeight = this.getComputedNum(computed['max-height'], $scope.height);
+			
+			// fonts
+			$scope.fontSize = this.getComputedNum(computed['font-size']);
+			$scope.lineHeight = this.getComputedNum(computed['line-height'], $scope.fontSize * 1.2);
+			$scope.textIndent = this.getComputedNum(computed['text-indent']);
+			$scope.letterSpacing = this.getComputedNum(computed['letter-spacing'], 0);
+			$scope.wordSpacing = this.getComputedNum(computed['word-spacing'], 0);
+			
+			// columns
+			$scope.columnCount = this.getComputedNum(computed['-webkit-column-count'], 1);
+			$scope.columnWidth = this.getComputedNum(computed['-webkit-column-width'], 0);
+			$scope.columnGap = this.getComputedNum(computed['-webkit-column-gap'], 0);
+			$scope.columnRuleWidth = this.getComputedNum(computed['-webkit-column-rule-width'], 0);
+			
+			// transforms
+			$scope.transformMatrix = new WebKitCSSMatrix(computed.webkitTransform);
+			//console.log(computed.webkitTransform);
+			//console.log(computed['-webkit-transform-origin']);
+			$scope.transformOrigin = this.getComputedNumPair(computed['-webkit-transform-origin']);
+			//console.log($scope.transformOrigin);
+			
+			$scope.transform = function(x, y) {
+				// subtract page offset (use local coordinates)
+				x -= $scope.offset.left + $scope.transformOrigin.x;
+				y -= $scope.offset.top + $scope.transformOrigin.y;
+				//x -= $scope.offset.left + $scope.transformMatrix.e;
+				//y -= $scope.offset.top + $scope.transformMatrix.f;
+				//x -= $scope.offset.left;
+				//y -= $scope.offset.top;
+				
+				// convert vector to matrix
+				var matrix = new WebKitCSSMatrix('matrix(1, 0, 0, 1, '+x+', '+y+')');
+				//console.log(matrix);
+				
+				// multiply matrix by transform
+				var result = $scope.transformMatrix.multiply(matrix);
+				//console.log(result);
+				
+				//console.log(result);
+				
+				// extract new position
+				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x + iframeOffset.left;
+				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y + iframeOffset.top;
+				//var newX = result.e + $scope.offset.left;
+				//var newY = result.f + $scope.offset.top;
+				//console.log(newX);
+				//console.log(newY);
+				
+				// return object with new CSS values
+				return {
+					left: newX,
+					top: newY,
+				};
+			};
+			
+			if (computed['box-sizing'] != 'border-box') {
+				var borderPadding = $scope.paddingLeft + $scope.paddingRight + $scope.borderLeft + $scope.borderRight;
+				$scope.minWidth += borderPadding;
+				$scope.maxWidth += borderPadding;
+				var borderPadding = $scope.paddingTop + $scope.paddingBottom + $scope.borderTop + $scope.borderBottom;
+				$scope.minHeight += borderPadding;
+				$scope.maxHeight += borderPadding;
+			}
+			
+			// parent attributes for calculation ratios
+			$scope.parentWidth = this.getComputedNum(parent.css('width'));
+			$scope.parentHeight = this.getComputedNum(parent.css('height'));
+			$scope.parentFontSize = this.getComputedNum(parentComputed['font-size']);
+		}
+		// set root scope properties
+		$scope.zoom = zoomTmp;
+		$scope.panX = panX;
+		$scope.panY = panY;
+		
+		if (!skipApply) {
+			$scope.$apply();
+		}
+	};
+	
+	this.getComputedNumPair = function(str) {
+		var parts = str.replace('px','').replace('px','').split(' ');
+		return {
+			x: Number(parts[0]),
+			y: Number(parts[1]),
+		}
+	};
+	
+	this.getComputedNum = function(prop, fallbackNum) {
+		if ((prop == undefined || prop == 'none' || prop == 'normal' || prop == 'auto') && fallbackNum != undefined) {
+			return fallbackNum;
+		}
+		return Number(prop.replace('px',''));
+	};
+	
+	proposePixelMove = function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
+		// add grid/object snapping
+		
+		// determine active rule
+		var activeRule = this.activeRule;
+		var rule = this.properties[prop];
+		
+		// define new style if property isn't defined yet
+		if (rule == undefined) {
+			rule = {
+				name: prop,
+				value: 0,
+				unit: defaultUnit,
+				style: activeRule.style,
+				rule: activeRule,
+			}
+			this.properties[prop] = rule;
+		}
+		
+		// convert pixels to %, em, etc. when needed
+		if (rule.unit == '%') {
+			val = val / percentDenom * 100;
+		} else if (rule.unit == 'em') {
+			val = val / emDenom;
+		}
+		val *= this.zoomFactor;
+		if (rule.unit == 'px') {
+			val = Math.round(val);
+		}
+		
+		// assign new value to CSS rule
+		var newNum = rule.value + val;
+		if (!allowNegative && newNum < 0) {
+			newNum = 0;
+		}
+		newNum = Math.round(newNum * 1000) / 1000;
+		var newVal = newNum + rule.unit;
+		
+		if (valWrapper != undefined) {
+			newVal = valWrapper.replace('#', newVal);
+		}
+		
+		var style = rule.style;
+		/*if (this.selectedRule) {
+			style = this.selectedRule.style;
+		}
+		style[prop] = newVal;*/
+		
+		// return text change object
+		return {
+			property: prop,
+			value: newVal,
+			position: rule.dec.position,
+		};
+		
+	};
+	
+	finalizePixelMove = function(prop) {
+		var rule = this.properties[prop];
+		rule.value = Number( rule.style[prop].replace(rule.unit, '') );
+		if (this.selectedRule) {
+			rule.rule = this.selectedRule;
+			rule.style = this.selectedRule.style;
+		}
+	};
+	
+	// used for cancelling a handle drag before release
+	cancelPixelMove = function(prop) {
+		var rule = this.properties[prop];
+		if (rule != undefined) {
+			rule.style[prop] = rule.value + rule.unit;
+		}
+	};
+	
+	
+	/*this.keys = {
 		PLUS: 187,
 		MINUS: 189,
 		SPACE: 32,
@@ -52,7 +327,6 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $timeout
 	};
 	$(document).focus();
 	
-	var that = this;
 	angular.element(this.iframe.contentDocument).on('keydown', function(e) {
 		console.log('key down: ' + e.keyCode);
 		var key = e.keyCode;
@@ -99,65 +373,9 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $timeout
 			$scope.pan = false;
 		}
 		$scope.$apply();
-    });
+    });*/
 	
-	// handle selection of any element in the original page
-	$scope.selectElement = function($event) {
-		$event.preventDefault();
-		var target = $($event.target);
-		that.select(target);
-		$scope.$apply();
-	};
-	
-	$scope.pageLoaded = function() {
-		if ($scope.css == undefined) {
-			var doc = that.iframe.contentWindow.document;
-			$(doc.body).click($scope.selectElement);
-			
-			that.replaceStyleSheets();
-		}
-	};
-	
-	this.replaceStyleSheets = function() {
-		var doc = that.iframe.contentWindow.document;
-		var sheetNum = doc.styleSheets.length;
-		var sheetsLoaded = 0;
-		$scope.sheets = [];
-		angular.forEach(doc.styleSheets, function(styleSheet) {
-			var href = styleSheet.href;
-			var sheet = that.sheetsDict[href];
-			var styleId = 'styleSheet' + sheetsLoaded;
-			if (sheet != undefined) {
-				sheet.elementId = styleId;
-				$scope.sheets.push(sheet);
-				that.replaceStyleNode(styleSheet.ownerNode, styleId, sheet.text);
-				
-			} else {
-				$.get(href, function(data) {
-					var hrefParts = href.split('/');
-					var sheet = {
-						filename: hrefParts[hrefParts.length-1],
-						href: href,
-						text: data,
-						elementId: styleId
-					};
-					$scope.sheets.push(sheet);
-					that.sheetsDict[href] = sheet;
-					that.replaceStyleNode(styleSheet.ownerNode, styleId, data);
-					$scope.$apply();
-				});
-			}
-			sheetsLoaded++;
-			$scope.$apply();
-		});
-	};
-	
-	this.replaceStyleNode = function(sheetElement, styleId, data) {
-		var element = $('<style type="text/css" id="'+styleId+'">'+data+'</style>');
-		$(sheetElement).after(element).remove();
-	};
-	
-	$scope.cssLoaded = function(editor, styleSheet) {
+	/*$scope.cssLoaded = function(editor, styleSheet) {
 		var doc = that.iframe.contentWindow.document;
 		var $style = $(doc).find('#'+styleSheet.elementId);
 		editor.on("change", function(instance, changeObj){
@@ -253,168 +471,23 @@ app.controller('MainCtrl', function($scope, $sce, dataService, $window, $timeout
 		}
 		$scope.activeRule = dataService.setRule(rule);
 	};
-	
-	// handle positions are updated in the main control
-	// because performance is better and handles need access to
-	// all the computed properties
-	this.update = function(skipApply) {
-		var zoomTmp = $scope.zoom,
-			panX = $scope.panX,
-			panY = $scope.panY;
-		$scope.zoom = 1;
-		$scope.panX = 0;
-		$scope.panY = 0;
-		$scope.$apply();
-		var selected = that.selected;
-		if (selected != undefined) {
-			// local variables
-			var computed = dataService.getComputedStyle(selected[0]);
-			var parent = selected.parent();
-			var parentComputed = dataService.getComputedStyle(parent[0]);
-			
-			selected.css('-webkit-transform', 'translateX(0) translateY(0) rotate(0) scale(1)');
-			$scope.offset = selected.offset();
-			selected.css('-webkit-transform','');
-			
-			// doesn't include padding or border
-			$scope.contentWidth = selected.width();
-			$scope.contentHeight = selected.height();
-			
-			// paddings
-			$scope.paddingTop = this.getComputedNum(computed['padding-top']);
-			$scope.paddingRight = this.getComputedNum(computed['padding-right']);
-			$scope.paddingBottom = this.getComputedNum(computed['padding-bottom']);
-			$scope.paddingLeft = this.getComputedNum(computed['padding-left']);
-			
-			// margins
-			$scope.marginTop = this.getComputedNum(computed['margin-top']);
-			$scope.marginRight = this.getComputedNum(computed['margin-right']);
-			$scope.marginBottom = this.getComputedNum(computed['margin-bottom']);
-			$scope.marginLeft = this.getComputedNum(computed['margin-left']);
-			
-			// borders
-			$scope.borderTop = this.getComputedNum(computed['border-top-width']);
-			$scope.borderRight = this.getComputedNum(computed['border-right-width']);
-			$scope.borderBottom = this.getComputedNum(computed['border-bottom-width']);
-			$scope.borderLeft = this.getComputedNum(computed['border-left-width']);
-			
-			// size based on box-sizing
-			$scope.width = this.getComputedNum( selected.css('width') );
-			$scope.minWidth = this.getComputedNum(computed['min-width'], $scope.width);
-			$scope.maxWidth = this.getComputedNum(computed['max-width'], $scope.width);
-			$scope.height = this.getComputedNum( selected.css('height') );
-			$scope.minHeight = this.getComputedNum(computed['min-height'], $scope.height);
-			$scope.maxHeight = this.getComputedNum(computed['max-height'], $scope.height);
-			
-			// fonts
-			$scope.fontSize = this.getComputedNum(computed['font-size']);
-			$scope.lineHeight = this.getComputedNum(computed['line-height'], $scope.fontSize * 1.2);
-			$scope.textIndent = this.getComputedNum(computed['text-indent']);
-			$scope.letterSpacing = this.getComputedNum(computed['letter-spacing'], 0);
-			$scope.wordSpacing = this.getComputedNum(computed['word-spacing'], 0);
-			
-			// columns
-			$scope.columnCount = this.getComputedNum(computed['-webkit-column-count'], 1);
-			$scope.columnWidth = this.getComputedNum(computed['-webkit-column-width'], 0);
-			$scope.columnGap = this.getComputedNum(computed['-webkit-column-gap'], 0);
-			$scope.columnRuleWidth = this.getComputedNum(computed['-webkit-column-rule-width'], 0);
-			
-			// transforms
-			$scope.transformMatrix = new WebKitCSSMatrix(computed.webkitTransform);
-			//console.log(computed.webkitTransform);
-			//console.log(computed['-webkit-transform-origin']);
-			$scope.transformOrigin = this.getComputedNumPair(computed['-webkit-transform-origin']);
-			//console.log($scope.transformOrigin);
-			
-			$scope.transform = function(x, y) {
-				// subtract page offset (use local coordinates)
-				x -= $scope.offset.left + $scope.transformOrigin.x;
-				y -= $scope.offset.top + $scope.transformOrigin.y;
-				//x -= $scope.offset.left + $scope.transformMatrix.e;
-				//y -= $scope.offset.top + $scope.transformMatrix.f;
-				//x -= $scope.offset.left;
-				//y -= $scope.offset.top;
-				
-				// convert vector to matrix
-				var matrix = new WebKitCSSMatrix('matrix(1, 0, 0, 1, '+x+', '+y+')');
-				//console.log(matrix);
-				
-				// multiply matrix by transform
-				var result = $scope.transformMatrix.multiply(matrix);
-				//console.log(result);
-				
-				//console.log(result);
-				
-				// extract new position
-				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x + that.iframeOffset.left;
-				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y + that.iframeOffset.top;
-				//var newX = result.e + $scope.offset.left;
-				//var newY = result.f + $scope.offset.top;
-				//console.log(newX);
-				//console.log(newY);
-				
-				// return object with new CSS values
-				return {
-					left: newX,
-					top: newY,
-				};
-			};
-			
-			if (computed['box-sizing'] != 'border-box') {
-				var borderPadding = $scope.paddingLeft + $scope.paddingRight + $scope.borderLeft + $scope.borderRight;
-				$scope.minWidth += borderPadding;
-				$scope.maxWidth += borderPadding;
-				var borderPadding = $scope.paddingTop + $scope.paddingBottom + $scope.borderTop + $scope.borderBottom;
-				$scope.minHeight += borderPadding;
-				$scope.maxHeight += borderPadding;
-			}
-			
-			// parent attributes for calculation ratios
-			$scope.parentWidth = this.getComputedNum(parent.css('width'));
-			$scope.parentHeight = this.getComputedNum(parent.css('height'));
-			$scope.parentFontSize = this.getComputedNum(parentComputed['font-size']);
-		}
-		// set root scope properties
-		$scope.zoom = zoomTmp;
-		$scope.panX = panX;
-		$scope.panY = panY;
 		
-		if (!skipApply) {
-			$scope.$apply();
-		}
-	};
-	
-	this.getComputedNumPair = function(str) {
-		var parts = str.replace('px','').replace('px','').split(' ');
-		return {
-			x: Number(parts[0]),
-			y: Number(parts[1]),
-		}
-	};
-	
-	this.getComputedNum = function(prop, fallbackNum) {
-		if ((prop == undefined || prop == 'none' || prop == 'normal' || prop == 'auto') && fallbackNum != undefined) {
-			return fallbackNum;
-		}
-		return Number(prop.replace('px',''));
-	};
-	
 	// set the currently selected item for editing 
 	this.select = function(element) {
 		this.selected = element;
 		$scope.isSelected = true;
-		$scope.rules = dataService.getRules(element);
+		$scope.rules = dataService.getRules(element, $scope.sheets);
 		dataService.setRule(undefined);
 		
 		this.update(true);
 		$scope.$emit('selectElement');
-	};
+	};*/
 	
 });
 
 // this service keeps track of all defined CSS properties
 // all interaction with CSS rules goes through this service
-app.factory('dataService', [function(){
+/*app.factory('dataService', [function(){
 	return {
 		items: [],
 		
@@ -468,8 +541,8 @@ app.factory('dataService', [function(){
 		
 		// could possibly hash CSS rule text to lookup later:
 		// http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
-		getRules: function(element) {
-			this.properties = {};
+		getRules: function(element, sheets) {
+			/*this.properties = {};
 			var frameWindow = document.getElementById('page').contentWindow;
 			this.rules = frameWindow.getMatchedCSSRules(element[0]);
 			
@@ -499,82 +572,8 @@ app.factory('dataService', [function(){
 			
 			this.activeRule = this.rules[this.rules.length-1];
 			
-			return this.rules;
 		},
-		
-		proposePixelMove: function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
-			// add grid/object snapping
-			
-			// determine active rule
-			var activeRule = this.activeRule;
-			var rule = this.properties[prop];
-			
-			// define new style if property isn't defined yet
-			if (rule == undefined) {
-				rule = {
-					name: prop,
-					value: 0,
-					unit: defaultUnit,
-					style: activeRule.style,
-					rule: activeRule,
-				}
-				this.properties[prop] = rule;
-			}
-			
-			// convert pixels to %, em, etc. when needed
-			if (rule.unit == '%') {
-				val = val / percentDenom * 100;
-			} else if (rule.unit == 'em') {
-				val = val / emDenom;
-			}
-			val *= this.zoomFactor;
-			if (rule.unit == 'px') {
-				val = Math.round(val);
-			}
-			
-			// assign new value to CSS rule
-			var newNum = rule.value + val;
-			if (!allowNegative && newNum < 0) {
-				newNum = 0;
-			}
-			newNum = Math.round(newNum * 1000) / 1000;
-			var newVal = newNum + rule.unit;
-			
-			if (valWrapper != undefined) {
-				newVal = valWrapper.replace('#', newVal);
-				console.log(prop);
-				console.log(newVal);
-			}
-			
-			var style = rule.style;
-			if (this.selectedRule) {
-				style = this.selectedRule.style;
-			}
-			style[prop] = newVal;
-			
-			// figure out how to position handles
-			
-			// figure out how to position placeholders
-			
-		},
-		
-		finalizePixelMove: function(prop) {
-			var rule = this.properties[prop];
-			rule.value = Number( rule.style[prop].replace(rule.unit, '') );
-			if (this.selectedRule) {
-				rule.rule = this.selectedRule;
-				rule.style = this.selectedRule.style;
-			}
-		},
-		
-		// used for cancelling a handle drag before release
-		cancelPixelMove: function(prop) {
-			var rule = this.properties[prop];
-			if (rule != undefined) {
-				rule.style[prop] = rule.value + rule.unit;
-			}
-		},
-		
+				
 		// used to change the units for a particular handle
 		changeUnit: function(prop, unit) {
 			var rule = this.properties[prop];
@@ -596,138 +595,7 @@ app.factory('dataService', [function(){
 			}
 		},
 	};
-}]);
-
-// the handle directive only displays a handle
-// and directs events to the dataService for action
-// no data model logic should be performed inside this directive
-app.directive('handle', function(dataService, $document){
-  return {
-    restrict: 'E',
-    templateUrl: 'handle.html',
-    //transclude: true,
-    scope: {
-    	prop: '@',
-    	dir: '@',
-    	unit: '@',
-    	posx: '@',
-    	posy: '@',
-    	allownegative: '=',
-    	percentdenom: '=',
-    	emdenom: '=',
-    },
-    link: function($scope, element, attr, ctrl) {
-		// track drag-n-drop
-		
-		var startX = 0, startY = 0, x = 0, y = 0,
-			prop = $scope.prop, valWrapper;
-			
-		if (prop.indexOf(':') != -1) {
-			var parts = prop.split(':');
-			prop = parts[0];
-			valWrapper = parts[1];
-		}
-		
-		$scope.getRuleIndex = function() {
-			return dataService.getRuleIndex(prop);
-		}
-		
-		element.on('mouseover', function(event) {
-			// call hover event for property
-			$scope.$emit('handleMouseOver', $scope.prop);
-		});
-		
-		element.on('mouseout', function(event) {
-			// call hover event for property
-			$scope.$emit('handleMouseOut', $scope.prop);
-		});
-		
-		element.on('mousedown', function(event) {
-			// Prevent default dragging of selected content
-			event.preventDefault();
-			startX = event.pageX;
-			startY = event.pageY;
-			$document.on('mousemove', mousemove);
-			$document.on('mouseup', mouseup);
-			element.toggleClass('dragging');
-			$scope.$emit('handleStartDrag', $scope.prop);
-		});
-		
-		function mousemove(event) {
-			y = event.pageY - startY;
-			x = event.pageX - startX;
-			var dir = $scope.dir;
-			if (dir.indexOf('horiz') != -1) {
-				val = x;
-			} else if (dir == 'diagL' || dir == 'diagR') {
-				val = y;
-			} else if (dir == 'both') {
-				
-			} else {
-				val = y;
-			}
-			if (dir.charAt(0) == '-') {
-				val = -val;
-			}
-			dataService.proposePixelMove(prop, val, $scope.unit, $scope.allownegative, $scope.percentdenom, $scope.emdenom, valWrapper);
-			$scope.$emit('styleModified', $scope.prop);
-		}
-		
-		function mouseup() {
-			$document.unbind('mousemove', mousemove);
-			$document.unbind('mouseup', mouseup);
-			element.toggleClass('dragging');
-			dataService.finalizePixelMove(prop);
-			$scope.$emit('handleStopDrag', $scope.prop);
-		}
-    },
-  };
-});
-
-app.directive('iframeOnload', [function(){
-	return {
-	    scope: {
-	        callback: '&iframeOnload'
-	    },
-	    link: function(scope, element, attrs){
-	        element.on('load', function(event){
-	            return scope.callback(event);
-	        })
-	    }
-	};
-}]);
-
-app.directive('pannable', function($document, dataService){
-  return {
-    link: function($scope, element, attr, ctrl) {
-		// track drag-n-drop
-		var startX = 0, startY = 0, x = 0, y = 0, panX = 0, panY = 0;
-		
-		element.on('mousedown', function(event) {
-			// Prevent default dragging of selected content
-			event.preventDefault();
-			panX = $scope.panX;
-			panY = $scope.panY;
-			startX = event.pageX;
-			startY = event.pageY;
-			$document.on('mousemove', mousemove);
-			$document.on('mouseup', mouseup);
-		});
-		
-		function mousemove(event) {
-			y = event.pageY - startY;
-			x = event.pageX - startX;
-			$scope.panX = panX + x;
-			$scope.panY = panY + y;
-		}
-		
-		function mouseup() {
-			$document.unbind('mousemove', mousemove);
-			$document.unbind('mouseup', mouseup);
-		}
-    },
-  };
-});
+}]);*/
 
 
 angular.bootstrap(document, ['cssHandles']);
@@ -794,6 +662,10 @@ $('body').click(function(evt) {
 // http://codemirror.net/
 // http://ot.substance.io/demo/
 // https://github.com/medialize/sass.js
+// possibly use as reference
+// http://www.brothercake.com/site/resources/scripts/cssutilities/
+// http://shrthnd.volume7.io/
+// http://www.regbirch.com/blog/colour-picker-for-sass
 
 
 

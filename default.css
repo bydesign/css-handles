@@ -119,6 +119,7 @@ handle {
 .zoom4 handle, .zoom4 .curProp { -webkit-transform: scale(.3333); }
 .zoom5 handle, .zoom5 .curProp { -webkit-transform: scale(.25); }
 
+.handleColor,
 .handleColor0, 
 .handleColor1, 
 .handleColor2, 
@@ -128,7 +129,7 @@ handle {
 	opacity: 1;
 	border: none;
 }
-.handleColor1 { background-color: #00ADEF; }
+.handleColor1, .handleColor { background-color: #00ADEF; }
 .handleColor2 { background-color: #00D96D; }
 .handleColor3 { background-color: #A3D900; }
 .handleColor4 { background-color: #DC0000; }

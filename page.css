@@ -11,12 +11,22 @@
 	/*-webkit-transform-origin: 100% 100%;*/
 }
 
+.box1,  .box2,.box.box3 {
+	border-radius: 2px;
+}
+
 .box1 {
 	top: auto;
 	left: auto;
 	bottom: 50px;
 	right: 50px;
 }
+
+@font-face {
+    font-family: myFirstFont;
+    src: url(sansation_light.woff);
+}
+
 .box2 {
 	padding: 5%;
 	background-color: #eee;
@@ -37,6 +47,13 @@
 	background-color: #cc0000;
 	border: solid 10px #ccc;
 }
+
+@media (max-width:600px) {
+	.box4 {
+		padding: 1em;
+	}
+}
+
 .box5 {
 	padding: 3em;
 	left: 800px;

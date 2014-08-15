@@ -4,9 +4,9 @@
 
 <title>Web Handles</title>
 <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="codemirror-4.4/lib/codemirror.css">
-<link rel="stylesheet" href="codemirror-4.4/addon/lint/lint.css">
-<link rel="stylesheet" href="codemirror-4.4/addon/fold/foldgutter.css" />
+<link rel="stylesheet" href="scripts/codemirror/lib/codemirror.css">
+<link rel="stylesheet" href="scripts/codemirror/addon/lint/lint.css">
+<link rel="stylesheet" href="scripts/codemirror/addon/fold/foldgutter.css" />
 <link rel="stylesheet" href="default.css" />
 </head>
 <body>
@@ -325,6 +325,7 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
+				move="proposePixelMove()" 
 				ng-style="transform(
 					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
 					offset.top
@@ -513,7 +514,7 @@
 		</div>
 	</div>
 	<div class="editor" ng-repeat="sheet in sheets" ng-style="{height: 100/(sheets.length+1)+'%'}">
-		<h3>{{sheet.filename}}</h3>
+		<h3><a href="{{sheet.href}}">{{sheet.filename}}</a></h3>
 		<div class="textEditor">
 			<textarea ng-model="sheet.text" ui-codemirror="{
 			      onLoad : cssLoaded,
@@ -531,35 +532,49 @@
 	</div>
 </div>
 
-<div class="page" pannable id="pageHolder">
-	<iframe ng-src="{{pageSrc}}" id="page" iframe-onload="pageLoaded()" ng-class="'zoom'+zoom" ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}" ></iframe>
+<div class="page" id="pageHolder">
+	<page ng-class="'zoom'+zoom"
+		url="pageSrc"
+		pannable="true" 
+		source="pageSrc" 
+		html="html"
+		css="sheets"
+		on-select="selectElement"
+		on-load="onChangeHtml" 
+		ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}"
+	></page>
+
 	<div class="dragCover" ng-show="dragging" ng-show="pan"></div>
 </div>
 
 </div>
 
-<script src="jquery.js"></script>
-<script src="angular.js"></script>
+<script src="scripts/jquery.js"></script>
+<script src="scripts/angular.js"></script>
 <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>-->
-<script src="https://rawgit.com/stubbornella/csslint/master/release/csslint.js"></script>
-<script src="codemirror-4.4/lib/codemirror.js"></script>
-<script src="codemirror-4.4/mode/css/css.js"></script>
-<script src="codemirror-4.4/mode/xml/xml.js"></script>
-<script src="codemirror-4.4/mode/javascript/javascript.js"></script>
-<script src="codemirror-4.4/mode/htmlmixed/htmlmixed.js"></script>
-<script src="codemirror-4.4/addon/selection/active-line.js"></script>
-<script src="codemirror-4.4/addon/lint/lint.js"></script>
-<script src="codemirror-4.4/addon/lint/css-lint.js"></script>
-<script src="codemirror-4.4/addon/fold/foldcode.js"></script>
-<script src="codemirror-4.4/addon/fold/foldgutter.js"></script>
-<script src="codemirror-4.4/addon/fold/brace-fold.js"></script>
-<script src="codemirror-4.4/addon/fold/xml-fold.js"></script>
-<script src="codemirror-4.4/addon/fold/comment-fold.js"></script>
-<script src="ui-codemirror.js"></script>
-<script src="emmet/emmet.min.js"></script>
-<script src="lorem.js"></script>
-<script type="text/javascript" src="default2.js"></script>
+<script src="scripts/csslint.js"></script>
+<script src="scripts/codemirror/lib/codemirror.js"></script>
+<script src="scripts/codemirror/mode/css/css.js"></script>
+<script src="scripts/codemirror/mode/xml/xml.js"></script>
+<script src="scripts/codemirror/mode/javascript/javascript.js"></script>
+<script src="scripts/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+<script src="scripts/codemirror/addon/selection/active-line.js"></script>
+<script src="scripts/codemirror/addon/lint/lint.js"></script>
+<script src="scripts/codemirror/addon/lint/css-lint.js"></script>
+<script src="scripts/codemirror/addon/fold/foldcode.js"></script>
+<script src="scripts/codemirror/addon/fold/foldgutter.js"></script>
+<script src="scripts/codemirror/addon/fold/brace-fold.js"></script>
+<script src="scripts/codemirror/addon/fold/xml-fold.js"></script>
+<script src="scripts/codemirror/addon/fold/comment-fold.js"></script>
+<script src="scripts/ui-codemirror.js"></script>
+<script src="scripts/emmet/emmet.min.js"></script>
+<script src="scripts/lorem.js"></script>
+<script type="text/javascript">var module = {};</script>
+<script src="scripts/css/lib/parse/index.js"></script>
+<script src="scripts/handle.js"></script>
+<script src="scripts/page.js"></script>
+<script src="scripts/app.js"></script>
 
 </body>
 </html>

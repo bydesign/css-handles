@@ -43,6 +43,55 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 		}
 	};
 	
+	this.parseValue = function(text) {
+		// types = grouped, multiple, string, number
+		text = text.trim();	
+		var type = "string";
+		if (text.indexOf(',') > 0) {
+			type = "grouped";
+			
+		} else if (text.indexOf(' ') > 0) {
+			type = "multiple";
+			
+		} else if (/\d/.test(text);) {
+			type = "number";
+		}
+		console.log(type);
+		
+		var val = 0;
+		var unit = '';
+		var groups = text.split(',');
+		angular.forEach(groups, function(group) {
+			var parts = group.trim().split(' ');
+			angular.forEach(parts, function(part) {
+				console.log(part.trim());
+			});
+		});
+		
+		return {
+			type: type,
+			value: val,
+			unit: unit
+		};
+	};
+	
+	this.parse = function(text) {
+		var obj = css.parse(text);
+		
+		angular.forEach(obj.stylesheet.rules, function(rule) {
+			if (rule.type == "rule") {
+				angular.forEach(rule.declarations, function(dec) {
+					if (dec.type == "declaration") {
+						console.log(dec);
+						that.parseValue(dec.value);
+					}
+				});
+			}
+		});
+		
+		return obj;
+	};
+	
 	this.getRules = function(element) {
 		// new method for getting rules
 		var $element = $(element);
@@ -53,7 +102,7 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 		// find rules that apply to element
 		var that = this;
 		angular.forEach($scope.sheets, function(sheet) {
-			var parsedSheet = css.parse(sheet.text);
+			var parsedSheet = that.parse(sheet.text);
 			that.parsedSheets.push(parsedSheet);
 			angular.forEach(parsedSheet.stylesheet.rules, function(rule) {
 				if (rule.type == "rule" && $element.is(rule.selectors.join(', '))) {

@@ -119,32 +119,32 @@ handle {
 .zoom4 handle, .zoom4 .curProp { -webkit-transform: scale(.3333); }
 .zoom5 handle, .zoom5 .curProp { -webkit-transform: scale(.25); }
 
-.handleColor,
-.handleColor0, 
-.handleColor1, 
-.handleColor2, 
-.handleColor3, 
-.handleColor4 {
+/*.handleColor > .handleCt,*/
+.handleColor0 > .handleCt, 
+.handleColor1 > .handleCt, 
+.handleColor2 > .handleCt, 
+.handleColor3 > .handleCt, 
+.handleColor4 > .handleCt {
 	color: #fff;
 	opacity: 1;
 	border: none;
 }
-.handleColor1, .handleColor { background-color: #00ADEF; }
-.handleColor2 { background-color: #00D96D; }
-.handleColor3 { background-color: #A3D900; }
-.handleColor4 { background-color: #DC0000; }
-.handleColor5 { background-color: #A300D9; }
+.handleColor1 > .handleCt { background-color: #00ADEF; }
+.handleColor2 > .handleCt { background-color: #00D96D; }
+.handleColor3 > .handleCt { background-color: #A3D900; }
+.handleColor4 > .handleCt { background-color: #DC0000; }
+.handleColor5 > .handleCt { background-color: #A300D9; }
 
 handle.dragging > .handleCt {
 	background-color: #fff;
 	opacity: 1;
 	border: solid .166em #00ADEF;
 }
-handle.dragging > .handleColor1 { border-color: #00ADEF; color: #00ADEF; }
-handle.dragging > .handleColor2 { border-color: #00D96D; color: #00D96D; }
-handle.dragging > .handleColor3 { border-color: #A3D900; color: #A3D900; }
-handle.dragging > .handleColor4 { border-color: #DC0000; color: #DC0000; }
-handle.dragging > .handleColor5 { border-color: #A300D9; color: #A300D9; }
+handle.dragging.handleColor1 > .handleCt { border-color: #00ADEF; color: #00ADEF; }
+handle.dragging.handleColor2 > .handleCt { border-color: #00D96D; color: #00D96D; }
+handle.dragging.handleColor3 > .handleCt { border-color: #A3D900; color: #A3D900; }
+handle.dragging.handleColor4 > .handleCt { border-color: #DC0000; color: #DC0000; }
+handle.dragging.handleColor5 > .handleCt { border-color: #A300D9; color: #A300D9; }
 
 .n-resize > .handleCt { cursor: n-resize; }
 .s-resize > .handleCt { cursor: s-resize; }

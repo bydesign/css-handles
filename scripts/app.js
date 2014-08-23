@@ -31,6 +31,18 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 		$scope.sheets = sheets;
 	};
 	
+	// returns the numbered index of the rule for specified property
+	// this number is used for color coding handles and rules
+	$scope.getRuleIndex = function(prop) {
+		if (that.properties != undefined) {
+			var rule = that.properties[prop];
+			if (rule != undefined) {
+				return 1;
+				//return rule.rule.index;
+			}
+		}
+	};
+	
 	this.getRules = function(element) {
 		// new method for getting rules
 		var $element = $(element);
@@ -71,11 +83,11 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 				}
 			});
 		});
+		console.log(this.properties);
 		
 		// select active rule
 		// need to improve this later with rule trumping logic
 		this.activeRule = this.rules[this.rules.length-1];
-		console.log(this.rules);
 		
 		return this.rules;
 	};
@@ -227,7 +239,7 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 		return Number(prop.replace('px',''));
 	};
 	
-	proposePixelMove = function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
+	this.proposePixelMove = function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
 		// add grid/object snapping
 		
 		// determine active rule
@@ -284,7 +296,7 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 		
 	};
 	
-	finalizePixelMove = function(prop) {
+	this.finalizePixelMove = function(prop) {
 		var rule = this.properties[prop];
 		rule.value = Number( rule.style[prop].replace(rule.unit, '') );
 		if (this.selectedRule) {
@@ -294,7 +306,7 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 	};
 	
 	// used for cancelling a handle drag before release
-	cancelPixelMove = function(prop) {
+	this.cancelPixelMove = function(prop) {
 		var rule = this.properties[prop];
 		if (rule != undefined) {
 			rule.style[prop] = rule.value + rule.unit;
@@ -584,15 +596,6 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 				console.log('change handle unit');
 			}
 			
-		},
-		
-		// returns the numbered index of the rule for specified property
-		// this number is used for color coding handles and rules
-		getRuleIndex: function(prop) {
-			var rule = this.properties[prop];
-			if (rule != undefined) {
-				return rule.rule.index;
-			}
 		},
 	};
 }]);*/

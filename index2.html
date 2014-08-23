@@ -52,6 +52,7 @@
 	
 		<div ng-show="tabId == 1">
 			<handle class="s-resize" prop="padding-top" 
+				ng-class="'handleColor'+getRuleIndex('padding-top')" 
 				dir="vert" 
 				unit="px" 
 				allownegative="false" 
@@ -63,6 +64,7 @@
 				)">
 			</handle>
 			<handle class="w-resize" prop="padding-right" 
+				ng-class="'handleColor'+getRuleIndex('padding-right')" 
 				dir="-horiz" 
 				unit="px" 
 				allownegative="false" 
@@ -74,6 +76,7 @@
 				)">
 			</handle>
 			<handle class="n-resize" prop="padding-bottom" 
+				ng-class="'handleColor'+getRuleIndex('padding-bottom')" 
 				dir="-vert" 
 				unit="px" 
 				allownegative="false" 
@@ -85,6 +88,7 @@
 				)">
 			</handle>
 			<handle class="e-resize" prop="padding-left" 
+				ng-class="'handleColor'+getRuleIndex('padding-left')" 
 				dir="horiz" 
 				unit="px" 
 				allownegative="false" 
@@ -97,6 +101,7 @@
 			</handle>
 			
 			<handle class="n-resize" prop="margin-top" 
+				ng-class="'handleColor'+getRuleIndex('margin-top')" 
 				dir="-vert" 
 				unit="px" 
 				allownegative="true" 
@@ -108,6 +113,7 @@
 				)">
 			</handle>
 			<handle class="e-resize" prop="margin-right" 
+				ng-class="'handleColor'+getRuleIndex('margin-right')" 
 				dir="horiz" 
 				unit="px" 
 				allownegative="true" 
@@ -119,6 +125,7 @@
 				)">
 			</handle>
 			<handle class="s-resize" prop="margin-bottom" 
+				ng-class="'handleColor'+getRuleIndex('margin-bottom')" 
 				dir="vert" 
 				unit="px" 
 				allownegative="true" 
@@ -130,6 +137,7 @@
 				)">
 			</handle>
 			<handle class="w-resize" prop="margin-left" 
+				ng-class="'handleColor'+getRuleIndex('margin-left')" 
 				dir="-horiz" 
 				unit="px" 
 				allownegative="true" 
@@ -144,6 +152,7 @@
 		
 		<div ng-show="tabId == 2">
 			<handle class="ew-resize" prop="min-width" 
+				ng-class="'handleColor'+getRuleIndex('min-width')" 
 				dir="horiz" 
 				unit="px" 
 				allownegative="false" 
@@ -155,6 +164,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="width" 
+				ng-class="'handleColor'+getRuleIndex('width')" 
 				dir="horiz" 
 				unit="px" 
 				allownegative="false" 
@@ -166,6 +176,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="max-width" 
+				ng-class="'handleColor'+getRuleIndex('max-width')" 
 				dir="horiz" 
 				unit="px" 
 				allownegative="false" 
@@ -178,6 +189,7 @@
 			</handle>
 			
 			<handle class="ns-resize" prop="min-height" 
+				ng-class="'handleColor'+getRuleIndex('min-height')" 
 				dir="vert" 
 				unit="px" 
 				allownegative="false" 
@@ -189,6 +201,7 @@
 				)">
 			</handle>
 			<handle class="ns-resize" prop="height" 
+				ng-class="'handleColor'+getRuleIndex('height')" 
 				dir="vert" 
 				unit="px" 
 				allownegative="false" 
@@ -200,6 +213,7 @@
 				)">
 			</handle>
 			<handle class="ns-resize" prop="max-height" 
+				ng-class="'handleColor'+getRuleIndex('max-height')" 
 				dir="vert" 
 				unit="px" 
 				allownegative="false" 
@@ -214,6 +228,7 @@
 		
 		<div ng-show="tabId == 3">
 			<handle class="ns-resize" prop="top" 
+				ng-class="'handleColor'+getRuleIndex('top')" 
 				dir="vert" 
 				unit="px" 
 				allownegative="true" 
@@ -225,6 +240,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="right" 
+				ng-class="'handleColor'+getRuleIndex('right')" 
 				dir="-horiz" 
 				unit="px" 
 				allownegative="true" 
@@ -236,6 +252,7 @@
 				)">
 			</handle>
 			<handle class="ns-resize" prop="bottom" 
+				ng-class="'handleColor'+getRuleIndex('bottom')" 
 				dir="-vert" 
 				unit="px" 
 				allownegative="true" 
@@ -247,6 +264,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="left" 
+				ng-class="'handleColor'+getRuleIndex('left')" 
 				dir="horiz" 
 				unit="px" 
 				allownegative="true" 
@@ -261,6 +279,7 @@
 		
 		<div ng-show="tabId == 4">
 			<handle class="ns-resize" prop="border-top-width" 
+				ng-class="'handleColor'+getRuleIndex('border-top-width')" 
 				dir="-vert" 
 				unit="px" 
 				allownegative="true" 
@@ -272,6 +291,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="border-right-width" 
+				ng-class="'handleColor'+getRuleIndex('border-right-width')" 
 				dir="horiz" 
 				unit="px" 
 				allownegative="true" 
@@ -283,6 +303,7 @@
 				)">
 			</handle>
 			<handle class="ns-resize" prop="border-bottom-width" 
+				ng-class="'handleColor'+getRuleIndex('border-bottom-width')" 
 				dir="vert" 
 				unit="px" 
 				allownegative="true" 
@@ -294,6 +315,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="border-left-width" 
+				ng-class="'handleColor'+getRuleIndex('border-left-width')" 
 				dir="-horiz" 
 				unit="px" 
 				allownegative="true" 
@@ -306,6 +328,7 @@
 			</handle>
 			
 			<handle class="ns-resize" prop="border-radius" 
+				ng-class="'handleColor'+getRuleIndex('border-radius')" 
 				dir="vert" 
 				unit="px" 
 				allownegative="true" 
@@ -335,6 +358,7 @@
 		
 		<div ng-show="tabId == 6">
 			<handle class="ns-resize" prop="font-size" 
+				ng-class="'handleColor'+getRuleIndex('font-size')" 
 				dir="vert" 
 				unit="em" 
 				allownegative="false" 
@@ -346,6 +370,7 @@
 				)">
 			</handle>
 			<handle class="ns-resize" prop="line-height" 
+				ng-class="'handleColor'+getRuleIndex('line-height')" 
 				dir="vert" 
 				unit="em" 
 				allownegative="false" 
@@ -357,6 +382,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="text-indent" 
+				ng-class="'handleColor'+getRuleIndex('text-indent')" 
 				dir="horiz" 
 				unit="em" 
 				allownegative="true" 
@@ -368,6 +394,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="letter-spacing" 
+				ng-class="'handleColor'+getRuleIndex('letter-spacing')" 
 				dir="horiz" 
 				unit="em" 
 				allownegative="true" 
@@ -379,6 +406,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="word-spacing" 
+				ng-class="'handleColor'+getRuleIndex('word-spacing')" 
 				dir="horiz" 
 				unit="em" 
 				allownegative="true" 
@@ -393,6 +421,7 @@
 		
 		<div ng-show="tabId == 7">
 			<handle class="ew-resize" prop="-webkit-column-count" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-column-count')" 
 				dir="-horiz" 
 				unit="" 
 				allownegative="false" 
@@ -404,6 +433,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="-webkit-column-width" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-column-width')" 
 				dir="horiz" 
 				unit="em" 
 				allownegative="false" 
@@ -415,6 +445,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="-webkit-column-gap" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-column-gap')" 
 				dir="horiz" 
 				unit="px" 
 				allownegative="false" 
@@ -429,6 +460,7 @@
 		
 		<div ng-show="tabId == 8">
 			<handle class="ew-resize" prop="-webkit-column-count" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-column-count')" 
 				dir="-horiz" 
 				unit="" 
 				allownegative="false" 
@@ -443,6 +475,7 @@
 		
 		<div ng-show="tabId == 9">
 			<handle class="move originHandle" prop="-webkit-transform-origin" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform-origin')" 
 				dir="both" 
 				unit="px" 
 				allownegative="true" 
@@ -454,6 +487,7 @@
 				}">
 			</handle>
 			<handle class="ew-resize" prop="-webkit-transform:scaleX(#)" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform')" 
 				dir="horiz" 
 				unit="" 
 				allownegative="true" 
@@ -465,6 +499,7 @@
 				)">
 			</handle>
 			<handle class="ns-resize" prop="-webkit-transform:scaleY(#)" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform')" 
 				dir="vert" 
 				unit="" 
 				allownegative="true" 
@@ -476,6 +511,7 @@
 				)">
 			</handle>
 			<handle class="ew-resize" prop="-webkit-transform:skewX(#)" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform')" 
 				dir="-horiz" 
 				unit="deg" 
 				allownegative="true" 
@@ -484,7 +520,8 @@
 					offset.top
 				)">
 			</handle>
-			<handle class="ns-resize" prop="-webkit-transform:skewY(#)" 
+			<handle class="ns-resize" prop="-webkit-transform:skewY(#)"
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform')" 
 				dir="-vert" 
 				unit="deg" 
 				allownegative="true" 
@@ -533,7 +570,7 @@
 </div>
 
 <div class="page" id="pageHolder">
-	<page ng-class="'zoom'+zoom"
+	<page ng-class="'zoom'+zoom" 
 		url="pageSrc"
 		pannable="true" 
 		source="pageSrc" 

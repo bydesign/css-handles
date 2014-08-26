@@ -6,6 +6,7 @@ angular.module('page', []).directive('page', [function($document){
 			source: '@',
 			onSelect: '=',
 			onLoad: '=',
+			onScroll: '=',
 			pannable: '=',
 			html: '=',
 			css: '=',
@@ -42,6 +43,10 @@ angular.module('page', []).directive('page', [function($document){
 					that.sheetsDict[sheet.href] = sheet;
 				});
 				that.replaceStyleSheets();
+				
+				that.$page[0].contentWindow.onscroll = function(event) {
+					$scope.onScroll(event);
+				};
 			});
 			
 			this.replaceStyleSheets = function() {

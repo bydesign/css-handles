@@ -4,6 +4,48 @@ var css = {
 	parse: module.exports
 };
 
+var CssValue = function(prop, value) {
+	this.prop = prop;
+	this.text = value;
+	this.parse(this.text);
+};
+
+CssValue.prototype = {
+	parse: function(text) {
+		console.log('CssValue.parse');
+		// types = grouped, multiple, string, number
+		text = text.trim();	
+		var type = "string";
+		if (text.indexOf(',') > 0) {
+			type = "grouped";
+			
+		} else if (text.indexOf(' ') > 0) {
+			type = "multiple";
+			
+		} else if (/\d/.test(text)) {
+			type = "number";
+		}
+		console.log(type);
+		
+		var val = 0;
+		var unit = '';
+		var groups = text.split(',');
+		angular.forEach(groups, function(group) {
+			var parts = group.trim().split(' ');
+			angular.forEach(parts, function(part) {
+				console.log(part.trim());
+			});
+		});
+		
+		this.type = type;
+		//this.value = value;
+		//this.unit = unit;
+	},
+	toString: function() {
+		return text;
+	}
+};
+
 app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 	$scope.pageSrc = $sce.trustAsResourceUrl('page.html');
 	$.get($scope.pageSrc, function(data) {
@@ -21,7 +63,7 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 	var that = this;
 	
 	$scope.selectElement = function(element) {
-		console.log(element);
+		that.selected = element;
 		$scope.isSelected = true;
 		that.getRules(element);
 		that.update(element);
@@ -29,6 +71,12 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 	
 	$scope.onChangeHtml = function(sheets) {
 		$scope.sheets = sheets;
+	};
+	
+	$scope.onScroll = function() {
+		if (that.selected != undefined) {
+			that.update(that.selected);
+		}
 	};
 	
 	// returns the numbered index of the rule for specified property
@@ -43,55 +91,6 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 		}
 	};
 	
-	this.parseValue = function(text) {
-		// types = grouped, multiple, string, number
-		text = text.trim();	
-		var type = "string";
-		if (text.indexOf(',') > 0) {
-			type = "grouped";
-			
-		} else if (text.indexOf(' ') > 0) {
-			type = "multiple";
-			
-		} else if (/\d/.test(text);) {
-			type = "number";
-		}
-		console.log(type);
-		
-		var val = 0;
-		var unit = '';
-		var groups = text.split(',');
-		angular.forEach(groups, function(group) {
-			var parts = group.trim().split(' ');
-			angular.forEach(parts, function(part) {
-				console.log(part.trim());
-			});
-		});
-		
-		return {
-			type: type,
-			value: val,
-			unit: unit
-		};
-	};
-	
-	this.parse = function(text) {
-		var obj = css.parse(text);
-		
-		angular.forEach(obj.stylesheet.rules, function(rule) {
-			if (rule.type == "rule") {
-				angular.forEach(rule.declarations, function(dec) {
-					if (dec.type == "declaration") {
-						console.log(dec);
-						that.parseValue(dec.value);
-					}
-				});
-			}
-		});
-		
-		return obj;
-	};
-	
 	this.getRules = function(element) {
 		// new method for getting rules
 		var $element = $(element);
@@ -102,7 +101,7 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 		// find rules that apply to element
 		var that = this;
 		angular.forEach($scope.sheets, function(sheet) {
-			var parsedSheet = that.parse(sheet.text);
+			var parsedSheet = css.parse(sheet.text);
 			that.parsedSheets.push(parsedSheet);
 			angular.forEach(parsedSheet.stylesheet.rules, function(rule) {
 				if (rule.type == "rule" && $element.is(rule.selectors.join(', '))) {
@@ -122,7 +121,7 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 									dec: dec,
 									rule: rule,
 								};*/
-							that.properties[dec.property] = dec.value;
+							that.properties[dec.property] = new CssValue(dec.property, dec.value);
 						}
 					});
 					
@@ -158,7 +157,11 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 			// local variables
 			var computed = window.getComputedStyle(element);
 			var parent = selected.parent();
-			var iframeOffset = $('#page').offset();
+			var $iframe = $('#page');
+			var iframe = $iframe[0];
+			var iframeOffset = $iframe.offset();
+			var scrollOffsetTop = $(iframe.contentWindow).scrollTop();
+			var scrollOffsetLeft = $(iframe.contentWindow).scrollLeft();
 			var parentComputed = window.getComputedStyle(parent[0]);
 			
 			selected.css('-webkit-transform', 'translateX(0) translateY(0) rotate(0) scale(1)');
@@ -235,8 +238,8 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 				//console.log(result);
 				
 				// extract new position
-				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x + iframeOffset.left;
-				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y + iframeOffset.top;
+				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x + iframeOffset.left - scrollOffsetLeft;
+				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y + iframeOffset.top - scrollOffsetTop;
 				//var newX = result.e + $scope.offset.left;
 				//var newY = result.f + $scope.offset.top;
 				//console.log(newX);

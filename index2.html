@@ -1,9 +1,9 @@
 <!doctype html>
-<html>
+<html ng-app="cssHandles">
 <head>
 
 <title>Web Handles</title>
-<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+<!--<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>-->
 <link rel="stylesheet" href="scripts/codemirror/lib/codemirror.css">
 <link rel="stylesheet" href="scripts/codemirror/addon/lint/lint.css">
 <link rel="stylesheet" href="scripts/codemirror/addon/fold/foldgutter.css" />
@@ -576,8 +576,6 @@
 		source="pageSrc" 
 		html="html"
 		css="sheets"
-		on-select="selectElement"
-		on-load="onChangeHtml" 
 		on-scroll="onScroll" 
 		ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}"
 	></page>
@@ -610,9 +608,11 @@
 <script src="scripts/lorem.js"></script>
 <script type="text/javascript">var module = {};</script>
 <script src="scripts/css/lib/parse/index.js"></script>
+<script src="scripts/app.js"></script>
+<script src="scripts/dataservice.js"></script>
+<script src="scripts/controller.js"></script>
 <script src="scripts/handle.js"></script>
 <script src="scripts/page.js"></script>
-<script src="scripts/app.js"></script>
 
 </body>
 </html>

@@ -1,11 +1,11 @@
-angular.module('page', []).directive('page', [function($document){
+angular.module('cssHandles').directive('page', ['$document', 'DataService', function($document, DataService){
 	return {
 		restrict: 'E',
 		templateUrl: 'frame.html',
 		scope: {
 			source: '@',
-			onSelect: '=',
-			onLoad: '=',
+			//onSelect: '=',
+			//onLoad: '=',
 			onScroll: '=',
 			pannable: '=',
 			html: '=',
@@ -24,19 +24,20 @@ angular.module('page', []).directive('page', [function($document){
 				doc.write(newHtml);
 				doc.close();
 				that.$doc.find('body').click(function(event) {
-					$scope.onSelect(event.target);
+					//$scope.onSelect(event.target);
+					DataService.select(event.target);
 				});
 			});
 			
-			$scope.$watch('css', function(newSheets, oldSheets) {
+			/*$scope.$watch('css', function(newSheets, oldSheets) {
 				console.log(newSheets);
 				console.log(oldSheets);
-				/*angular.forEach(newSheets, function(sheet, index) {
+				angular.forEach(newSheets, function(sheet, index) {
 					if (sheet != oldSheets[index]) {
 						that.$doc.find('#'+sheet.elementId).html(sheet.text);
 					}
-				});*/
-			});
+				});
+			});*/
 			
 			this.$page.load(function() {
 				angular.forEach($scope.sheets, function(sheet) {
@@ -52,19 +53,20 @@ angular.module('page', []).directive('page', [function($document){
 			this.replaceStyleSheets = function() {
 				var sheetNum = that.doc.styleSheets.length;
 				var sheetsLoaded = 0;
-				$scope.sheets = [];
+				that.sheets = [];
 				angular.forEach(doc.styleSheets, function(styleSheet) {
 					var href = styleSheet.href;
 					var sheet = that.sheetsDict[href];
 					var styleId = 'styleSheet' + sheetsLoaded;
 					if (sheet != undefined) {
 						sheet.elementId = styleId;
-						$scope.sheets.push(sheet);
+						that.sheets.push(sheet);
 						that.replaceStyleNode(styleSheet.ownerNode, styleId, sheet.text);
 						sheetsLoaded++;
 						
 						if (sheetsLoaded == sheetNum) {
-							$scope.onLoad($scope.sheets);
+							//$scope.onLoad(that.sheets);
+							DataService.loaded(that.sheets);
 						}
 						
 					} else {
@@ -76,13 +78,14 @@ angular.module('page', []).directive('page', [function($document){
 								text: data,
 								elementId: styleId
 							};
-							$scope.sheets.push(sheet);
+							that.sheets.push(sheet);
 							that.sheetsDict[href] = sheet;
 							that.replaceStyleNode(styleSheet.ownerNode, styleId, data);
 							sheetsLoaded++;
 							
 							if (sheetsLoaded == sheetNum) {
-								$scope.onLoad($scope.sheets);
+								//$scope.onLoad(that.sheets);
+								DataService.loaded(that.sheets);
 							}
 						});
 					}

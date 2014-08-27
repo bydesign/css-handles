@@ -79,7 +79,6 @@ angular.module('page', []).directive('page', [function($document){
 							$scope.sheets.push(sheet);
 							that.sheetsDict[href] = sheet;
 							that.replaceStyleNode(styleSheet.ownerNode, styleId, data);
-							//$scope.$apply();
 							sheetsLoaded++;
 							
 							if (sheetsLoaded == sheetNum) {
@@ -87,7 +86,6 @@ angular.module('page', []).directive('page', [function($document){
 							}
 						});
 					}
-					//$scope.$apply();
 				});
 			};
 			

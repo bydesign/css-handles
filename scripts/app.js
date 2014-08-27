@@ -13,33 +13,43 @@ var CssValue = function(prop, value) {
 CssValue.prototype = {
 	parse: function(text) {
 		console.log('CssValue.parse');
-		// types = grouped, multiple, string, number
+		var val = 0;
+		var unit = '';
 		text = text.trim();	
+		
+		// types = grouped, multiple, string, number
 		var type = "string";
-		if (text.indexOf(',') > 0) {
+		if (text.indexOf(',') > -1) {
 			type = "grouped";
 			
-		} else if (text.indexOf(' ') > 0) {
+		} else if (text.indexOf(' ') > -1) {
 			type = "multiple";
+			
+		} else if (text.indexOf('#') > -1) {
+			type = "color";
+				
+		} else if (text.indexOf('(') > -1) {
+			type = "function";
 			
 		} else if (/\d/.test(text)) {
 			type = "number";
+			
+			val = Number(text.replace(/[a-zA-Z%]/g, ''));
+			unit = text.replace(/[0-9\.-]/g, '');
 		}
-		console.log(type);
 		
-		var val = 0;
-		var unit = '';
-		var groups = text.split(',');
+		// parse shorthand values into parts
+		/*var groups = text.split(',');
 		angular.forEach(groups, function(group) {
 			var parts = group.trim().split(' ');
 			angular.forEach(parts, function(part) {
 				console.log(part.trim());
 			});
-		});
+		});*/
 		
 		this.type = type;
-		//this.value = value;
-		//this.unit = unit;
+		this.value = val;
+		this.unit = unit;
 	},
 	toString: function() {
 		return text;
@@ -71,6 +81,7 @@ app.controller('MainCtrl', function($scope, $sce, $window, $timeout) {
 	
 	$scope.onChangeHtml = function(sheets) {
 		$scope.sheets = sheets;
+		$scope.$apply();
 	};
 	
 	$scope.onScroll = function() {

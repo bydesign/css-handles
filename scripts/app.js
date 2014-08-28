@@ -2,58 +2,6 @@ var css = {
 	parse: module.exports
 };
 
-var CssValue = function(prop, value) {
-	this.prop = prop;
-	this.text = value;
-	this.parse(this.text);
-};
-
-CssValue.prototype = {
-	parse: function(text) {
-		console.log('CssValue.parse');
-		var val = 0;
-		var unit = '';
-		text = text.trim();	
-		
-		// types = grouped, multiple, string, number
-		var type = "string";
-		if (text.indexOf(',') > -1) {
-			type = "grouped";
-			
-		} else if (text.indexOf(' ') > -1) {
-			type = "multiple";
-			
-		} else if (text.indexOf('#') > -1) {
-			type = "color";
-				
-		} else if (text.indexOf('(') > -1) {
-			type = "function";
-			
-		} else if (/\d/.test(text)) {
-			type = "number";
-			
-			val = Number(text.replace(/[a-zA-Z%]/g, ''));
-			unit = text.replace(/[0-9\.-]/g, '');
-		}
-		
-		// parse shorthand values into parts
-		/*var groups = text.split(',');
-		angular.forEach(groups, function(group) {
-			var parts = group.trim().split(' ');
-			angular.forEach(parts, function(part) {
-				console.log(part.trim());
-			});
-		});*/
-		
-		this.type = type;
-		this.value = val;
-		this.unit = unit;
-	},
-	toString: function() {
-		return text;
-	}
-};
-
 angular.module('cssHandles', ['ui.codemirror']);
 //angular.bootstrap(document, ['cssHandles']);
 	

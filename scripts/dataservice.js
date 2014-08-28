@@ -1,8 +1,73 @@
+var CssValue = function(sheet, dec) {
+	this.sheet = sheet;
+	this.dec = dec;
+	this.prop = dec.property;
+	this.text = dec.value;
+	this.parse(this.text);
+};
+
+CssValue.prototype = {
+	parse: function(text) {
+		console.log('CssValue.parse');
+		var val = 0;
+		var unit = '';
+		text = text.trim();	
+		
+		// types = grouped, multiple, string, number
+		var type = "string";
+		if (text.indexOf(',') > -1) {
+			type = "grouped";
+			
+		} else if (text.indexOf(' ') > -1) {
+			type = "multiple";
+			
+		} else if (text.indexOf('#') > -1) {
+			type = "color";
+				
+		} else if (text.indexOf('(') > -1) {
+			type = "function";
+			
+		} else if (/\d/.test(text)) {
+			type = "number";
+			
+			val = Number(text.replace(/[a-zA-Z%]/g, ''));
+			unit = text.replace(/[0-9\.-]/g, '');
+		}
+		
+		// parse shorthand values into parts
+		/*var groups = text.split(',');
+		angular.forEach(groups, function(group) {
+			var parts = group.trim().split(' ');
+			angular.forEach(parts, function(part) {
+				console.log(part.trim());
+			});
+		});*/
+		
+		this.type = type;
+		this.value = val;
+		this.unit = unit;
+	},
+	toString: function() {
+		return this.dec.property + ': ' + this.value + this.unit;
+	},
+	// method to apply new value
+};
+
 angular.module('cssHandles').factory('DataService', function($rootScope) {
 	var ds = {
 		loaded: function(css) {
 			ds.sheets = css;
-			$rootScope.$emit('loaded', css);
+			
+			angular.forEach(ds.sheets, function(sheet, index) {
+				sheet.editor = ds.editors[index];
+			});
+			
+			$rootScope.$emit('loaded', ds.sheets);
+		},
+		
+		editors: [],
+		editorLoaded: function(editor) {
+			ds.editors.push(editor);
 		},
 		
 		select: function(element) {
@@ -41,7 +106,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 										dec: dec,
 										rule: rule,
 									};*/
-								that.properties[dec.property] = new CssValue(dec.property, dec.value);
+								that.properties[dec.property] = new CssValue(sheet, dec);
 							}
 						});
 						
@@ -74,7 +139,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 		
 		proposePixelMove: function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
 			// add grid/object snapping
-			
 			// determine active rule
 			var activeRule = this.activeRule;
 			var rule = this.properties[prop];
@@ -90,14 +154,13 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 				}
 				this.properties[prop] = rule;
 			}
-			
 			// convert pixels to %, em, etc. when needed
 			if (rule.unit == '%') {
 				val = val / percentDenom * 100;
 			} else if (rule.unit == 'em') {
 				val = val / emDenom;
 			}
-			val *= this.zoomFactor;
+			//val *= this.zoomFactor;
 			if (rule.unit == 'px') {
 				val = Math.round(val);
 			}
@@ -120,6 +183,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 			}
 			style[prop] = newVal;*/
 			
+			// apply value to css rule
+			
 			// return text change object
 			return {
 				property: prop,
@@ -131,7 +196,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 		
 		finalizePixelMove: function(prop) {
 			var rule = this.properties[prop];
-			rule.value = Number( rule.style[prop].replace(rule.unit, '') );
+			//rule.value = Number( rule.style[prop].replace(rule.unit, '') );
 			if (this.selectedRule) {
 				rule.rule = this.selectedRule;
 				rule.style = this.selectedRule.style;

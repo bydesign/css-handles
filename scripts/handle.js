@@ -1,7 +1,7 @@
 // the handle directive only displays a handle
 // and directs events to the dataService for action
 // no data model logic should be performed inside this directive
-angular.module('cssHandles').directive('handle', function($document){
+angular.module('cssHandles').directive('handle', function($document, DataService){
   return {
     restrict: 'E',
     templateUrl: 'handle.html',
@@ -28,10 +28,6 @@ angular.module('cssHandles').directive('handle', function($document){
 			prop = parts[0];
 			valWrapper = parts[1];
 		}
-		
-		/*$scope.getRuleIndex = function() {
-			return dataService.getRuleIndex(prop);
-		}*/
 		
 		element.on('mouseover', function(event) {
 			// call hover event for property
@@ -70,7 +66,7 @@ angular.module('cssHandles').directive('handle', function($document){
 			if (dir.charAt(0) == '-') {
 				val = -val;
 			}
-			//var change = dataService.proposePixelMove(prop, val, $scope.unit, $scope.allownegative, $scope.percentdenom, $scope.emdenom, valWrapper);
+			var change = DataService.proposePixelMove(prop, val, $scope.unit, $scope.allownegative, $scope.percentdenom, $scope.emdenom, valWrapper);
 			//console.log(change);
 			
 			//$scope.$emit('styleModified', $scope.prop);
@@ -82,7 +78,7 @@ angular.module('cssHandles').directive('handle', function($document){
 			$document.unbind('mousemove', mousemove);
 			$document.unbind('mouseup', mouseup);
 			element.toggleClass('dragging');
-			//dataService.finalizePixelMove(prop);
+			DataService.finalizePixelMove(prop);
 			//$scope.$emit('handleStopDrag', $scope.prop);
 			
 			// call received finalizeValue function here

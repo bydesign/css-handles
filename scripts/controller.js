@@ -14,6 +14,10 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	this.selected;
 	var that = this;
 	
+	$scope.cssEditorLoaded = function(editor, textarea) {
+		DataService.editorLoaded(editor);
+	};
+	
 	$rootScope.$on('select', function(event, element) {
 		that.selected = element;
 		$scope.isSelected = true;

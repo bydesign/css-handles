@@ -26,10 +26,20 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		//DataService.select(element);
 	});
 	
-	$rootScope.$on('loaded', function(event, sheets) {
-		$scope.sheets = sheets;
+	$rootScope.$on('handleStartDrag', function() {
+		$scope.dragging = true;
+	});
+	
+	$rootScope.$on('handleStopDrag', function() {
+		$scope.dragging = false;
 		$scope.$apply();
 	});
+	
+	$scope.cssLoaded = function(sheets) {
+		console.log('cssLoaded');
+		$scope.sheets = sheets;
+		$scope.$apply();
+	};
 	
 	$scope.onScroll = function() {
 		if (that.selected != undefined) {

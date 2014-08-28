@@ -5,7 +5,7 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 		scope: {
 			source: '@',
 			//onSelect: '=',
-			//onLoad: '=',
+			onLoad: '=',
 			onScroll: '=',
 			pannable: '=',
 			html: '=',
@@ -65,8 +65,9 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 						sheetsLoaded++;
 						
 						if (sheetsLoaded == sheetNum) {
-							//$scope.onLoad(that.sheets);
-							DataService.loaded(that.sheets);
+							$scope.onLoad(that.sheets);
+							//$rootScope.$emit('loaded', ds.sheets);
+							//DataService.loaded(that.sheets);
 						}
 						
 					} else {
@@ -84,8 +85,8 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 							sheetsLoaded++;
 							
 							if (sheetsLoaded == sheetNum) {
-								//$scope.onLoad(that.sheets);
-								DataService.loaded(that.sheets);
+								$scope.onLoad(that.sheets);
+								//DataService.loaded(that.sheets);
 							}
 						});
 					}

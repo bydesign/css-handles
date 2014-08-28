@@ -47,6 +47,35 @@ CssValue.prototype = {
 		this.value = val;
 		this.unit = unit;
 	},
+	
+	setValue: function(value, unit) {
+		this.value = value;
+		this.unit = unit;
+		this.apply();
+	},
+	
+	apply: function() {
+		var start = this.dec.position.start,
+			end = this.dec.position.end,
+			newStr = this.toString(),
+			editor = this.sheet.editor;
+		editor.replaceRange(newStr,
+			{
+				line: start.line-1,
+				ch: start.column-1
+			},
+			{
+				line: end.line-1,
+				ch: end.column-1
+			}
+		);
+		end.column = start.column + newStr.length;
+		editor.setCursor({
+			line: start.line-1,
+			ch: start.column-1
+		});
+	},
+	
 	toString: function() {
 		return this.dec.property + ': ' + this.value + this.unit;
 	},
@@ -55,19 +84,13 @@ CssValue.prototype = {
 
 angular.module('cssHandles').factory('DataService', function($rootScope) {
 	var ds = {
-		loaded: function(css) {
-			ds.sheets = css;
-			
-			angular.forEach(ds.sheets, function(sheet, index) {
-				sheet.editor = ds.editors[index];
-			});
-			
-			$rootScope.$emit('loaded', ds.sheets);
-		},
-		
-		editors: [],
+		// load editors and match them up with stylesheets
+		sheets: [],
 		editorLoaded: function(editor) {
-			ds.editors.push(editor);
+			ds.sheets.push({
+				editor: editor,
+				text: editor.getValue()
+			});
 		},
 		
 		select: function(element) {
@@ -79,34 +102,22 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 		getRules: function(element) {
 			// new method for getting rules
 			var $element = $(element);
-			this.properties = {};
-			this.rules = [];
-			this.parsedSheets = [];
+			ds.properties = {};
+			ds.rules = [];
+			ds.parsedSheets = [];
 			
 			// find rules that apply to element
 			var that = this;
 			angular.forEach(ds.sheets, function(sheet) {
-				var parsedSheet = css.parse(sheet.text);
+				var parsedSheet = css.parse(sheet.editor.getValue());
 				that.parsedSheets.push(parsedSheet);
 				angular.forEach(parsedSheet.stylesheet.rules, function(rule) {
 					if (rule.type == "rule" && $element.is(rule.selectors.join(', '))) {
-						that.rules.push(rule);
+						ds.rules.push(rule);
 						
 						angular.forEach(rule.declarations, function(dec) {
 							if (dec.type == "declaration") {
-								// need to move this logic into CSS parser to parse property values
-								/*var str = dec.value,
-									val = Number(str.replace(/[a-zA-Z%]/g, '')),
-									unit = str.replace(/[0-9\.-]/g, ''),
-									props = {
-										name: dec.property,
-										value: val,
-										unit: unit,
-										//style: rule.style,
-										dec: dec,
-										rule: rule,
-									};*/
-								that.properties[dec.property] = new CssValue(sheet, dec);
+								ds.properties[dec.property] = new CssValue(sheet, dec);
 							}
 						});
 						
@@ -116,13 +127,12 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 					}
 				});
 			});
-			console.log(this.properties);
 			
 			// select active rule
 			// need to improve this later with rule trumping logic
-			this.activeRule = this.rules[this.rules.length-1];
+			ds.activeRule = ds.rules[ds.rules.length-1];
 			
-			return this.rules;
+			return ds.rules;
 		},
 		
 		// returns the numbered index of the rule for specified property
@@ -140,8 +150,11 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 		proposePixelMove: function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
 			// add grid/object snapping
 			// determine active rule
-			var activeRule = this.activeRule;
-			var rule = this.properties[prop];
+			//var activeRule = this.activeRule;
+			var rule = ds.properties[prop];
+			if (rule.originalValue == undefined) {
+				rule.originalValue = rule.value;
+			}
 			
 			// define new style if property isn't defined yet
 			if (rule == undefined) {
@@ -152,7 +165,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 					style: activeRule.style,
 					rule: activeRule,
 				}
-				this.properties[prop] = rule;
+				ds.properties[prop] = rule;
 			}
 			// convert pixels to %, em, etc. when needed
 			if (rule.unit == '%') {
@@ -166,49 +179,54 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 			}
 			
 			// assign new value to CSS rule
-			var newNum = rule.value + val;
+			var newNum = rule.originalValue + val;
 			if (!allowNegative && newNum < 0) {
 				newNum = 0;
 			}
 			newNum = Math.round(newNum * 1000) / 1000;
-			var newVal = newNum + rule.unit;
+			
+			// apply value to css rule
+			rule.setValue(newNum, rule.unit);
+			
+			/*var newVal = newNum + rule.unit;
 			
 			if (valWrapper != undefined) {
 				newVal = valWrapper.replace('#', newVal);
 			}
 			
 			var style = rule.style;
-			/*if (this.selectedRule) {
+			if (this.selectedRule) {
 				style = this.selectedRule.style;
 			}
-			style[prop] = newVal;*/
-			
-			// apply value to css rule
+			style[prop] = newVal;
 			
 			// return text change object
 			return {
 				property: prop,
 				value: newVal,
 				position: rule.dec.position,
-			};
+			};*/
 			
 		},
 		
 		finalizePixelMove: function(prop) {
-			var rule = this.properties[prop];
+			var rule = ds.properties[prop];
+			rule.originalValue = undefined;
 			//rule.value = Number( rule.style[prop].replace(rule.unit, '') );
-			if (this.selectedRule) {
-				rule.rule = this.selectedRule;
-				rule.style = this.selectedRule.style;
+			if (ds.selectedRule) {
+				rule.rule = ds.selectedRule;
+				rule.style = ds.selectedRule.style;
 			}
 		},
 		
 		// used for cancelling a handle drag before release
 		cancelPixelMove: function(prop) {
-			var rule = this.properties[prop];
-			if (rule != undefined) {
+			var rule = ds.properties[prop];
+			rule.value = rule.originalValue;
+			rule.originalValue = undefined;
+			/*if (rule != undefined) {
 				rule.style[prop] = rule.value + rule.unit;
-			}
+			}*/
 		}
 	};
 	return ds;

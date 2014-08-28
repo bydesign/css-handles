@@ -1,11 +1,10 @@
 // the handle directive only displays a handle
 // and directs events to the dataService for action
 // no data model logic should be performed inside this directive
-angular.module('cssHandles').directive('handle', function($document, DataService){
+angular.module('cssHandles').directive('handle', function($document, DataService, $rootScope){
   return {
     restrict: 'E',
     templateUrl: 'handle.html',
-    //transclude: true,
     scope: {
     	prop: '@',
     	dir: '@',
@@ -19,7 +18,6 @@ angular.module('cssHandles').directive('handle', function($document, DataService
     },
     link: function($scope, element, attr, ctrl) {
 		// track drag-n-drop
-		
 		var startX = 0, startY = 0, x = 0, y = 0,
 			prop = $scope.prop, valWrapper;
 			
@@ -47,7 +45,7 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			$document.on('mousemove', mousemove);
 			$document.on('mouseup', mouseup);
 			element.toggleClass('dragging');
-			//$scope.$emit('handleStartDrag', $scope.prop);
+			$scope.$emit('handleStartDrag', $scope.prop);
 		});
 		
 		function mousemove(event) {
@@ -66,12 +64,8 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			if (dir.charAt(0) == '-') {
 				val = -val;
 			}
+			
 			var change = DataService.proposePixelMove(prop, val, $scope.unit, $scope.allownegative, $scope.percentdenom, $scope.emdenom, valWrapper);
-			//console.log(change);
-			
-			//$scope.$emit('styleModified', $scope.prop);
-			
-			// call received proposeValue function here
 		}
 		
 		function mouseup() {
@@ -79,9 +73,7 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			$document.unbind('mouseup', mouseup);
 			element.toggleClass('dragging');
 			DataService.finalizePixelMove(prop);
-			//$scope.$emit('handleStopDrag', $scope.prop);
-			
-			// call received finalizeValue function here
+			$scope.$emit('handleStopDrag', $scope.prop);
 		}
     },
   };

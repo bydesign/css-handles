@@ -18,6 +18,11 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 			this.sheetsDict = {};
 			var that = this;
 			
+			/*$scope.$on('cssChange', function(event, sheet, change) {
+				var $el = that.$doc.find('#'+sheet.sheet.elementId);
+				$el.text(sheet.editor.getValue());
+			});*/
+			
 			$scope.$watch('html', function(newHtml, oldHtml) {
 				var doc = that.doc;
 				doc.open();
@@ -29,20 +34,31 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 				});
 			});
 			
-			/*$scope.$watch('css', function(newSheets, oldSheets) {
-				console.log(newSheets);
-				console.log(oldSheets);
+			$scope.$watch('css', function(newSheets, oldSheets) {
+				console.log('page watch');
 				angular.forEach(newSheets, function(sheet, index) {
 					if (sheet != oldSheets[index]) {
-						that.$doc.find('#'+sheet.elementId).html(sheet.text);
+						that.$doc.find('#'+sheet.elementId).text(sheet.text);
 					}
 				});
-			});*/
+			}, true);
 			
+			// called at first page load and whenever html is changed
 			this.$page.load(function() {
 				angular.forEach($scope.sheets, function(sheet) {
 					that.sheetsDict[sheet.href] = sheet;
 				});
+				
+				/*console.log(that.sheetsDict);
+				console.log($scope.sheets);
+				angular.forEach(doc.styleSheets, function(styleSheet) {
+					console.log(styleSheet.href);
+					var sheet = that.sheetsDict[styleSheet.href];
+					sheet.styleSheet = styleSheet;
+					sheet.styleId = $(styleSheet.ownerNode).attr('id');
+					console.log(sheet.styleId);
+				});*/
+				
 				that.replaceStyleSheets();
 				
 				that.$page[0].contentWindow.onscroll = function(event) {
@@ -54,10 +70,10 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 				var sheetNum = that.doc.styleSheets.length;
 				var sheetsLoaded = 0;
 				that.sheets = [];
-				angular.forEach(doc.styleSheets, function(styleSheet) {
+				angular.forEach(doc.styleSheets, function(styleSheet, index) {
 					var href = styleSheet.href;
 					var sheet = that.sheetsDict[href];
-					var styleId = 'styleSheet' + sheetsLoaded;
+					var styleId = 'styleSheet' + index;
 					if (sheet != undefined) {
 						sheet.elementId = styleId;
 						that.sheets.push(sheet);
@@ -66,12 +82,11 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 						
 						if (sheetsLoaded == sheetNum) {
 							$scope.onLoad(that.sheets);
-							//$rootScope.$emit('loaded', ds.sheets);
-							//DataService.loaded(that.sheets);
 						}
 						
 					} else {
 						$.get(href, function(data) {
+							that.replaceStyleNode(styleSheet.ownerNode, styleId, data);
 							var hrefParts = href.split('/');
 							var sheet = {
 								filename: hrefParts[hrefParts.length-1],
@@ -81,12 +96,10 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 							};
 							that.sheets.push(sheet);
 							that.sheetsDict[href] = sheet;
-							that.replaceStyleNode(styleSheet.ownerNode, styleId, data);
 							sheetsLoaded++;
 							
 							if (sheetsLoaded == sheetNum) {
 								$scope.onLoad(that.sheets);
-								//DataService.loaded(that.sheets);
 							}
 						});
 					}

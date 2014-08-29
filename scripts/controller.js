@@ -1,4 +1,4 @@
-angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $window, $timeout, $rootScope, DataService) {
+angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $window, $timeout, DataService) {
 	$scope.pageSrc = $sce.trustAsResourceUrl('page.html');
 	$.get($scope.pageSrc, function(data) {
 		$scope.html = data;
@@ -14,36 +14,41 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	this.selected;
 	var that = this;
 	
-	$scope.cssEditorLoaded = function(editor, textarea) {
-		DataService.editorLoaded(editor);
+	$scope.cssEditorLoaded = function(editor, sheet) {
+		DataService.editorLoaded(editor, sheet);
 	};
 	
-	$rootScope.$on('select', function(event, element) {
+	$scope.$on('select', function(event, element) {
 		that.selected = element;
 		$scope.isSelected = true;
-		//that.getRules(element);
-		that.update(element);
-		//DataService.select(element);
+		
+		that.update(that.selected);
 	});
 	
-	$rootScope.$on('handleStartDrag', function() {
+	$scope.$on('handleStartDrag', function() {
 		$scope.dragging = true;
 	});
 	
-	$rootScope.$on('handleStopDrag', function() {
+	$scope.$on('handleStopDrag', function() {
 		$scope.dragging = false;
-		$scope.$apply();
+		//$scope.$apply();
 	});
 	
+	$scope.$watch('sheets', function(newSheets, oldSheets) {
+		console.log('controller watch');
+		that.update(that.selected);
+	}, true);
+	
 	$scope.cssLoaded = function(sheets) {
-		console.log('cssLoaded');
 		$scope.sheets = sheets;
-		$scope.$apply();
+		//$scope.$apply();
 	};
 	
 	$scope.onScroll = function() {
 		if (that.selected != undefined) {
-			that.update(that.selected);
+			//$scope.$apply(function() {
+				that.update(that.selected);
+			//});
 		}
 	};
 	
@@ -52,6 +57,10 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.getRuleIndex = function(prop) {
 		return DataService.getRuleIndex(prop);
 	};
+	
+	/*$scope.$on('cssChange', function(event, sheet, change) {
+		that.update(that.selected);
+	});*/
 	
 	
 	// handle positions are updated in the main control

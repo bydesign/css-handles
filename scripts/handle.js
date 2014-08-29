@@ -1,7 +1,7 @@
 // the handle directive only displays a handle
 // and directs events to the dataService for action
 // no data model logic should be performed inside this directive
-angular.module('cssHandles').directive('handle', function($document, DataService, $rootScope){
+angular.module('cssHandles').directive('handle', function($document, DataService){
   return {
     restrict: 'E',
     templateUrl: 'handle.html',

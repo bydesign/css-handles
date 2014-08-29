@@ -8,7 +8,6 @@ var CssValue = function(sheet, dec) {
 
 CssValue.prototype = {
 	parse: function(text) {
-		console.log('CssValue.parse');
 		var val = 0;
 		var unit = '';
 		text = text.trim();	
@@ -86,17 +85,22 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 	var ds = {
 		// load editors and match them up with stylesheets
 		sheets: [],
-		editorLoaded: function(editor) {
-			ds.sheets.push({
+		editorLoaded: function(editor, sheet) {
+			var sheetObj = {
 				editor: editor,
-				text: editor.getValue()
-			});
+				text: editor.getValue(),
+				sheet: sheet
+			};
+			ds.sheets.push(sheetObj);
+			/*editor.on('changes', function(editor, change) {
+				$rootScope.$broadcast('cssChange', sheetObj, change);
+			});*/
 		},
 		
 		select: function(element) {
 			ds.selected = element;
 			ds.getRules(element);
-			$rootScope.$emit('select', element);
+			$rootScope.$broadcast('select', element);
 		},
 		
 		getRules: function(element) {

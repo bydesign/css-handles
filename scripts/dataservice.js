@@ -92,9 +92,9 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 				sheet: sheet
 			};
 			ds.sheets.push(sheetObj);
-			/*editor.on('changes', function(editor, change) {
+			editor.on('changes', function(editor, change) {
 				$rootScope.$broadcast('cssChange', sheetObj, change);
-			});*/
+			});
 		},
 		
 		select: function(element) {
@@ -191,26 +191,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 			
 			// apply value to css rule
 			rule.setValue(newNum, rule.unit);
-			
-			/*var newVal = newNum + rule.unit;
-			
-			if (valWrapper != undefined) {
-				newVal = valWrapper.replace('#', newVal);
-			}
-			
-			var style = rule.style;
-			if (this.selectedRule) {
-				style = this.selectedRule.style;
-			}
-			style[prop] = newVal;
-			
-			// return text change object
-			return {
-				property: prop,
-				value: newVal,
-				position: rule.dec.position,
-			};*/
-			
 		},
 		
 		finalizePixelMove: function(prop) {

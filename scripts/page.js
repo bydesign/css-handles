@@ -18,10 +18,11 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 			this.sheetsDict = {};
 			var that = this;
 			
-			/*$scope.$on('cssChange', function(event, sheet, change) {
+			$scope.$on('cssChange', function(event, sheet, change) {
 				var $el = that.$doc.find('#'+sheet.sheet.elementId);
 				$el.text(sheet.editor.getValue());
-			});*/
+				$scope.$emit('cssChangeAfter', sheet, change);
+			});
 			
 			$scope.$watch('html', function(newHtml, oldHtml) {
 				var doc = that.doc;
@@ -34,30 +35,11 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 				});
 			});
 			
-			$scope.$watch('css', function(newSheets, oldSheets) {
-				console.log('page watch');
-				angular.forEach(newSheets, function(sheet, index) {
-					if (sheet != oldSheets[index]) {
-						that.$doc.find('#'+sheet.elementId).text(sheet.text);
-					}
-				});
-			}, true);
-			
 			// called at first page load and whenever html is changed
 			this.$page.load(function() {
 				angular.forEach($scope.sheets, function(sheet) {
 					that.sheetsDict[sheet.href] = sheet;
 				});
-				
-				/*console.log(that.sheetsDict);
-				console.log($scope.sheets);
-				angular.forEach(doc.styleSheets, function(styleSheet) {
-					console.log(styleSheet.href);
-					var sheet = that.sheetsDict[styleSheet.href];
-					sheet.styleSheet = styleSheet;
-					sheet.styleId = $(styleSheet.ownerNode).attr('id');
-					console.log(sheet.styleId);
-				});*/
 				
 				that.replaceStyleSheets();
 				
@@ -110,32 +92,6 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 				var element = $('<style type="text/css" id="'+styleId+'">'+data+'</style>');
 				$(sheetElement).after(element).remove();
 			};
-			
-			// track drag-n-drop
-			/*var startX = 0, startY = 0, x = 0, y = 0, panX = 0, panY = 0;
-			
-			element.on('mousedown', function(event) {
-				// Prevent default dragging of selected content
-				event.preventDefault();
-				panX = $scope.panX;
-				panY = $scope.panY;
-				startX = event.pageX;
-				startY = event.pageY;
-				$document.on('mousemove', mousemove);
-				$document.on('mouseup', mouseup);
-			});
-			
-			function mousemove(event) {
-				y = event.pageY - startY;
-				x = event.pageX - startX;
-				$scope.panX = panX + x;
-				$scope.panY = panY + y;
-			}
-			
-			function mouseup() {
-				$document.unbind('mousemove', mousemove);
-				$document.unbind('mouseup', mouseup);
-			}*/
 		},
 	};
 }])

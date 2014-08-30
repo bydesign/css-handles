@@ -31,24 +31,17 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	
 	$scope.$on('handleStopDrag', function() {
 		$scope.dragging = false;
-		//$scope.$apply();
+		$scope.$apply();
 	});
-	
-	$scope.$watch('sheets', function(newSheets, oldSheets) {
-		console.log('controller watch');
-		that.update(that.selected);
-	}, true);
 	
 	$scope.cssLoaded = function(sheets) {
 		$scope.sheets = sheets;
-		//$scope.$apply();
+		$scope.$apply();
 	};
 	
 	$scope.onScroll = function() {
 		if (that.selected != undefined) {
-			//$scope.$apply(function() {
-				that.update(that.selected);
-			//});
+			that.update(that.selected);
 		}
 	};
 	
@@ -58,10 +51,11 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		return DataService.getRuleIndex(prop);
 	};
 	
-	/*$scope.$on('cssChange', function(event, sheet, change) {
-		that.update(that.selected);
-	});*/
-	
+	$scope.$on('cssChangeAfter', function(event, sheet, change) {
+		if (that.selected != undefined) {
+			that.update(that.selected);
+		}
+	});
 	
 	// handle positions are updated in the main control
 	// because performance is better and handles need access to

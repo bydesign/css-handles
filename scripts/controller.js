@@ -36,7 +36,9 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	
 	$scope.cssLoaded = function(sheets) {
 		$scope.sheets = sheets;
-		$scope.$apply();
+		if (!$scope.$$phase) {
+			$scope.$apply();
+		}
 	};
 	
 	$scope.onScroll = function() {

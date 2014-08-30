@@ -1,6 +1,9 @@
 var CssValue = function(sheet, dec) {
 	this.sheet = sheet;
+	this.editor = sheet.editor;
 	this.dec = dec;
+	this.start = dec.position.start;
+	this.end = dec.position.end;
 	this.prop = dec.property;
 	this.text = dec.value;
 	this.parse(this.text);
@@ -54,25 +57,40 @@ CssValue.prototype = {
 	},
 	
 	apply: function() {
-		var start = this.dec.position.start,
-			end = this.dec.position.end,
-			newStr = this.toString(),
-			editor = this.sheet.editor;
-		editor.replaceRange(newStr,
+		var newStr = this.toString();
+		this.editor.replaceRange(newStr,
 			{
-				line: start.line-1,
-				ch: start.column-1
+				line: this.start.line-1,
+				ch: this.start.column-1
 			},
 			{
-				line: end.line-1,
-				ch: end.column-1
+				line: this.end.line-1,
+				ch: this.end.column-1
 			}
 		);
-		end.column = start.column + newStr.length;
-		editor.setCursor({
-			line: start.line-1,
-			ch: start.column-1
+		this.end.column = this.start.column + newStr.length;
+		this.setCursor();
+	},
+	
+	setCursor: function() {
+		this.editor.setCursor({
+			line: this.start.line-1,
+			ch: this.start.column-1
 		});
+	},
+	
+	selectValue: function() {
+		this.editor.setSelection(
+			{
+				line: this.start.line-1,
+				ch: this.start.column-1
+			},
+			{
+				line: this.end.line-1,
+				ch: this.end.column-1
+			}
+		);
+		this.editor.focus();
 	},
 	
 	toString: function() {
@@ -201,6 +219,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 				rule.rule = ds.selectedRule;
 				rule.style = ds.selectedRule.style;
 			}
+			rule.selectValue();
+			$rootScope.$broadcast('handleStopDrag', rule);
 		},
 		
 		// used for cancelling a handle drag before release

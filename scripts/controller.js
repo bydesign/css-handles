@@ -18,6 +18,10 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		DataService.editorLoaded(editor, sheet);
 	};
 	
+	$scope.htmlLoaded = function(editor, model) {
+		DataService.htmlEditorLoaded(editor, model);
+	};
+	
 	$scope.$on('select', function(event, element) {
 		that.selected = element;
 		$scope.isSelected = true;

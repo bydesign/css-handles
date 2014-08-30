@@ -31,7 +31,7 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 				doc.close();
 				that.$doc.find('body').click(function(event) {
 					//$scope.onSelect(event.target);
-					DataService.select(event.target);
+					DataService.select(event.target, doc);
 				});
 			});
 			

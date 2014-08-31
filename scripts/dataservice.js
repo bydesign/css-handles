@@ -122,6 +122,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 		select: function(element, doc) {
 			ds.selected = element;
 			ds.getRules(element);
+			
 			// highlight line in HTML
 			ds.get_clean_lines();
 			var lineNum = ds.line_number(element, doc);
@@ -131,7 +132,55 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 			});
 			ds.editor.focus();
 			
+			ds.foldRules();
+			
 			$rootScope.$broadcast('select', element);
+		},
+		
+		// fold non-relevant CSS
+		foldRules: function() {
+			var firstRule = ds.rules[0];
+			if (firstRule != undefined) {
+				// fold anything before first relevant rule
+				var sheetEditor = firstRule.sheet.editor;
+				sheetEditor.foldCode({line: 0, ch: 0}, null, "unfold");
+				var startLine = firstRule.position.start.line-2;
+				if (startLine >= 0) {
+					var startLength = sheetEditor.getLine(startLine).length;
+					sheetEditor.foldCode(0, function(editor, pos) {
+						return {
+							from: {
+								line: 0,
+								ch: 0
+							},
+							to: {
+								line: startLine,
+								ch: startLength
+							}
+						};
+					});
+				}
+				// fold anything after relevant rules
+				angular.forEach(ds.rules, function(rule, index) {
+					var nextLine;
+					if (index+1 < ds.rules.length) {
+						var ruleNext = ds.rules[index+1];
+						nextLine = ruleNext.position.start.line-2;
+					} else {
+						nextLine = sheetEditor.lineCount();
+					}
+					var line = rule.position.end.line;
+					sheetEditor.foldCode(line, function(editor, pos) {
+						return {
+							from: pos,
+							to: {
+								line: nextLine,
+								ch: 1
+							}
+						};
+					});
+				});
+			}
 		},
 		
 		getRules: function(element) {
@@ -148,6 +197,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 				that.parsedSheets.push(parsedSheet);
 				angular.forEach(parsedSheet.stylesheet.rules, function(rule) {
 					if (rule.type == "rule" && $element.is(rule.selectors.join(', '))) {
+						rule.sheet = sheet;
 						ds.rules.push(rule);
 						
 						angular.forEach(rule.declarations, function(dec) {

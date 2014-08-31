@@ -542,6 +542,8 @@
 			<textarea ng-model="html" ui-codemirror="{
 			      onLoad : htmlLoaded,
 			      lineNumbers: true,
+			      indentUnit: 4,
+			      indentWithTabs: true,
 			      styleActiveLine: true,
 			      mode: 'text/html',
 		          foldGutter: true,
@@ -556,6 +558,8 @@
 			<textarea ng-model="sheet.text" ui-codemirror="{
 			      onLoad : cssEditorLoaded,
 			      lineNumbers: true,
+			      indentUnit: 4,
+			      indentWithTabs: true,
 			      styleActiveLine: true,
 			      matchBrackets: true,
 			      foldGutter: true,

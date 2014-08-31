@@ -25,8 +25,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.$on('select', function(event, element) {
 		that.selected = element;
 		$scope.isSelected = true;
-		
-		that.update(that.selected);
+		that.update(element);
 	});
 	
 	$scope.$on('handleStartDrag', function() {

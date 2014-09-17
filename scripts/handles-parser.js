@@ -3,12 +3,11 @@ angular.module('cssHandles').factory('CssParser', function() {
 var ps = {
 	parse: function(text) {
 		console.log('parsing');
-		var SELECTOR = 0,
-			DEFINITION = 1,
+		var RULE = 0,
+			ATRULE = 1,
 			PROPERTY = 2,
 			VALUE = 3,
-			MEDIA = 4,
-			COMMENT = 5;
+			COMMENT = 4;
 		
 		var lines = text.split('\n');
 		var parsed = {
@@ -16,16 +15,13 @@ var ps = {
 			comments: []
 		};
 		var curToken = '';
-		var curRule = {
-			properties: []
-		};
+		var curRules = [];
 		var curProp = {};
-		var modes = [SELECTOR];
+		var modes = [RULE];
 		var prevChar,
 			startPos;
 		for (i=0, lineCount=lines.length; i<lineCount; i++) {
 			var line = lines[i];
-			console.log(line);
 			for (var j=0, charCount=line.length; j<charCount; j++) {
 				var mode = modes[0];
 				var char = line[j];
@@ -60,31 +56,51 @@ var ps = {
 						modes.shift();
 					}
 				
-				// trim leading whitespace
-				} else if (curToken.length == 0 && ' \t\n\r\v'.indexOf(char) > -1) {
-					prevChar = char;
-					continue;
+				// handle whitespace
+				} else if (' \t\n\r\v'.indexOf(char) > -1) {
+					if (curToken.length == 0) {
+						prevChar = char;
+						continue;
+					
+					} else if (mode == ATRULE) {
+						curToken += char;
+					}
 				
+				// start @rule
+				} else if (char == '@') {
+					modes.unshift(ATRULE);
+					curToken += char;
+								
 				// start selector definition
 				} else if (char == '{') {
-					console.log('start definition');
 					modes.unshift(PROPERTY);
-					curRule.selector = curToken.trim();
+					var rule = {
+						selector: curToken.trim(),
+						properties: []
+					};
+					if (curRules.length > 0) {
+						rule.parentRule = curRules[0];
+					}
+					curRules.unshift(rule);
+					
 					curToken = '';
 					
 				// end selector definition
 				} else if (char == '}') {
 					modes.shift();
-					parsed.rules.push(curRule);
+					parsed.rules.push(curRules[0]);
+					curRules.shift();
 					curToken = '';
-					curRule = { properties:[] };
-					console.log('end definition');
 					
 				// end property name
 				} else if (char == ':') {
-					modes[0] = VALUE;
-					curProp.name = curToken;
-					curToken = '';
+					if (mode == PROPERTY) {
+						modes[0] = VALUE;
+						curProp.name = curToken;
+						curToken = '';
+					} else {
+						curToken += char;
+					}
 				
 				// end property value
 				} else if (char == ';') {
@@ -100,7 +116,7 @@ var ps = {
 							char: j
 						}
 					};
-					curRule.properties.push(curProp);
+					curRules[0].properties.push(curProp);
 					curProp = {};
 					curToken = '';
 				
@@ -143,9 +159,11 @@ return ps;
 // variables $variablename
 // mixins @include
 // selector inheritance @extends
-// lists @each, nth, etc.
+// lists @each, nth, @for, etc.
 // math operations and functions: round, percentage, etc.
 // color modifiers
 // color functions: rgba, fade-out, lighten, etc.
 // nth function
 // custom functions (run inside sass?)
+
+// mixins for media queries

@@ -167,21 +167,30 @@ handle.dragging.handleColor5 > .handleCt { border-color: #A300D9; color: #A300D9
 .color4 { background-color: #DC0000; }
 .color5 { background-color: #A300D9; }
 
-.editors, .page, .page iframe, .textEditor {
+.editors, .page, .page iframe, .editor, .editHtml .textEditor {
 	position: absolute;
-	top: 32px;
+	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
 }
 .editors {
+	top: 32px;
 	right: 67%;
 }
-.textEditor {
+.editHtml {
+	height: 40%;
+}
+.editHtml .textEditor {
 	top: 20px;
+}
+.editCss {
+	height: 60%;
+	top: 40%;
 }
 .page {
 	left: 33%;
+	top: 32px;
 }
 .page iframe {
 	border: solid 1px #ccc;
@@ -198,10 +207,7 @@ handle.dragging.handleColor5 > .handleCt { border-color: #A300D9; color: #A300D9
 	bottom: 0;
 	z-index: 1000;
 }
-.editor {
-	position: relative;
-}
-.editor h3 {
+.editor h2 {
 	height: 20px;
 	line-height: 20px;
 	margin: 0;
@@ -209,10 +215,42 @@ handle.dragging.handleColor5 > .handleCt { border-color: #A300D9; color: #A300D9
 	color: #fff;
 	background-color: #ccc;
 	font-size: .8em;
+	z-index: 100;
+	position: relative;
 }
-.CodeMirror {
+.editor h3 {
+	margin: 0;
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 18px;
+	height: 18px;
+	padding-left: .5em;
+	border-bottom: solid 1px #ccc;
+	border-top: solid 1px #ccc;
+}
+.editor h3 a {
+	text-decoration: none;
+	color: #666;
+}
+.editHtml .CodeMirror {
 	height: 100%;
 	overflow-y: auto;
 	overflow-x: auto;
 	border-top: solid 1px #ccc;
+}
+.editCss .CodeMirror {
+	height: auto;
+}
+.editCss .CodeMirror-scroll {
+	height: auto;
+	overflow-y: hidden;
+	overflow-x: auto;
+}
+.scrollable {
+	overflow: auto;
+	position: absolute;
+	top: 20px;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }

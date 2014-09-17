@@ -536,8 +536,8 @@
 </div>
 
 <div class="editors">
-	<div class="editor editHtml" ng-style="{height: 100/(sheets.length+1)+'%'}">
-		<h3>HTML</h3>
+	<div class="editor editHtml">
+		<h2>HTML</h2>
 		<div class="textEditor">
 			<textarea ng-model="html" ui-codemirror="{
 			      onLoad : htmlLoaded,
@@ -552,23 +552,25 @@
 			    }"></textarea>
 		</div>
 	</div>
-	<div class="editor" ng-repeat="sheet in sheets" ng-style="{height: 100/(sheets.length+1)+'%'}">
-		<h3><a href="{{sheet.href}}">{{sheet.filename}}</a></h3>
-		<div class="textEditor">
-			<textarea ng-model="sheet.text" ui-codemirror="{
-			      onLoad : cssEditorLoaded,
-			      lineNumbers: true,
-			      indentUnit: 4,
-			      indentWithTabs: true,
-			      styleActiveLine: true,
-			      matchBrackets: true,
-			      foldGutter: true,
-			      gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-			      lint: true,
-			      mode: 'css',
-			      styleSheet: sheet,
-			      profile: 'css'
-			    }"></textarea>
+	<div class="editor editCss">
+		<h2>CSS</h2>
+		<div class="scrollable">
+			<div class="textEditor" ng-repeat="sheet in sheets">
+				<h3><a href="{{sheet.href}}">{{sheet.filename}}</a></h3>
+				<textarea ng-model="sheet.text" ui-codemirror="{
+				      onLoad : cssEditorLoaded,
+				      lineNumbers: true,
+				      indentUnit: 4,
+				      indentWithTabs: true,
+				      styleActiveLine: true,
+				      matchBrackets: true,
+				      gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers'],
+				      lint: true,
+				      mode: 'css',
+				      styleSheet: sheet,
+				      profile: 'css'
+				    }"></textarea>
+			</div>
 		</div>
 	</div>
 </div>
@@ -614,6 +616,7 @@
 <script type="text/javascript">var module = {};</script>
 <script src="scripts/css/lib/parse/index.js"></script>
 <script src="scripts/app.js"></script>
+<script src="scripts/handles-parser.js"></script>
 <script src="scripts/dataservice.js"></script>
 <script src="scripts/controller.js"></script>
 <script src="scripts/handle.js"></script>

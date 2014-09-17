@@ -99,7 +99,7 @@ CssValue.prototype = {
 	// method to apply new value
 };
 
-angular.module('cssHandles').factory('DataService', function($rootScope) {
+angular.module('cssHandles').factory('DataService', function($rootScope, CssParser) {
 	var ds = {
 		// load editors and match them up with stylesheets
 		sheets: [],
@@ -193,6 +193,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope) {
 			// find rules that apply to element
 			var that = this;
 			angular.forEach(ds.sheets, function(sheet) {
+				CssParser.parse(sheet.editor.getValue());
+			
 				var parsedSheet = css.parse(sheet.editor.getValue());
 				that.parsedSheets.push(parsedSheet);
 				angular.forEach(parsedSheet.stylesheet.rules, function(rule) {

@@ -8,7 +8,7 @@
 	background-color: #ccc;
 	overflow: hidden;
 	padding-top: 1em;
-	/*-webkit-transform-origin: 100% 100%;*/
+	-webkit-transform-origin: 100% 100%;
 }
 
 .box1,  .box2,.box.box3 {
@@ -29,7 +29,7 @@
 
 .box2 {
 	padding: 5%;
-	background-color: #eee;
+	background: #eee url(myimage.png) no-repeat, transparent url(myotherimage.png) 50% 10px;
 	left: 500px;
 	margin-left: -2.55%;
 }

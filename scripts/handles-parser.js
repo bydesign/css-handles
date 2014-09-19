@@ -1,5 +1,18 @@
 angular.module('cssHandles').factory('CssParser', function() {
 
+var RULE = 0,
+	ATRULE = 1,
+	PROPERTY = 2,
+	VALUE = 3,
+	COMMENT = 4,
+	FUNCTION = 5,
+	NUMBERVAL = 6,
+	TEXTVAL = 7,
+	COLORVAL = 8,
+	BANGVAL = 9,
+	UNITVAL = 10,
+	IMPORTANTVAL = 11;
+	
 var ps = {
 	getPos: function(startPos, i, j) {
 		
@@ -14,20 +27,22 @@ var ps = {
 			}
 		};
 	},
+	
+	modifySubVal: function(mode, subval, curToken) {
+		if (mode == UNITVAL) {
+			subval.unit = curToken;
+		} else if (mode == TEXTVAL) {
+			subval.value = curToken;
+		} else if (mode == NUMBERVAL) {
+			subval.value = Number(curToken);
+		} else if (mode == COLORVAL) {
+			subval.value = curToken;
+		}
+		return subval;
+	},
+	
 	parse: function(text) {
 		console.log('parsing');
-		var RULE = 0,
-			ATRULE = 1,
-			PROPERTY = 2,
-			VALUE = 3,
-			COMMENT = 4,
-			FUNCTION = 5,
-			NUMBERVAL = 6,
-			TEXTVAL = 7,
-			COLORVAL = 8,
-			BANGVAL = 9,
-			UNITVAL = 10,
-			IMPORTANTVAL = 11;
 		
 		var COLORFNS = ['rgb','rgba','hsl','hsla'];
 		var lines = text.split('\n');
@@ -82,22 +97,10 @@ var ps = {
 						curToken += char;
 							
 					} else if (modes.indexOf(VALUE) != -1) {
+						subval = ps.modifySubVal(mode, subval, curToken);
 						subval.pos = ps.getPos(startPos, i, j);
-						if (mode == TEXTVAL) {
-							subval.value = curToken;
-							vals.push(subval);
-							modes.shift();
-							
-						} else if (mode == NUMBERVAL) {
-							subval.value = Number(curToken);
-							vals.push(subval);
-							modes.shift();
-						
-						} else if (mode == UNITVAL) {
-							subval.unit = curToken;
-							vals.push(subval);
-							modes.shift();
-						}
+						vals.push(subval);
+						modes.shift();
 						subval = {};
 						curToken = '';
 					}
@@ -167,15 +170,7 @@ var ps = {
 				
 				// end property value
 				} else if (char == ';') {
-					if (mode == UNITVAL) {
-						subval.unit = curToken;
-					} else if (mode == TEXTVAL) {
-						subval.value = curToken;
-					} else if (mode == NUMBERVAL) {
-						subval.value = Number(curToken);
-					} else if (mode == COLORVAL) {
-						subval.value = curToken;
-					}
+					subval = ps.modifySubVal(mode, subval, curToken);
 					
 					if (vals.length > 0) {
 						subval.pos = ps.getPos(startPos, i, j);

@@ -1,6 +1,19 @@
 angular.module('cssHandles').factory('CssParser', function() {
 
 var ps = {
+	getPos: function(startPos, i, j) {
+		
+		return {
+			start: {
+				line: startPos.line,
+				char: startPos.char
+			},
+			end: {
+				line: i,
+				char: j-1
+			}
+		};
+	},
 	parse: function(text) {
 		console.log('parsing');
 		var RULE = 0,
@@ -53,16 +66,7 @@ var ps = {
 					if (char == '/' && prevChar == '*') {
 						parsed.comments.push({
 							text: curToken,
-							pos: {
-								start: {
-									line: startPos.line,
-									char: startPos.char
-								},
-								end: {
-									line: i,
-									char: j
-								}
-							}
+							pos: ps.getPos(startPos, i, j)
 						});
 						curToken = '';
 						modes.shift();
@@ -78,13 +82,14 @@ var ps = {
 						curToken += char;
 							
 					} else if (modes.indexOf(VALUE) != -1) {
+						subval.pos = ps.getPos(startPos, i, j);
 						if (mode == TEXTVAL) {
-							subval.text = curToken;
+							subval.value = curToken;
 							vals.push(subval);
 							modes.shift();
 							
 						} else if (mode == NUMBERVAL) {
-							subval.number = Number(curToken);
+							subval.value = Number(curToken);
 							vals.push(subval);
 							modes.shift();
 						
@@ -165,30 +170,24 @@ var ps = {
 					if (mode == UNITVAL) {
 						subval.unit = curToken;
 					} else if (mode == TEXTVAL) {
-						subval.text = curToken;
+						subval.value = curToken;
 					} else if (mode == NUMBERVAL) {
-						subval.number = Number(curToken);
+						subval.value = Number(curToken);
 					} else if (mode == COLORVAL) {
-						subval.color = curToken;
+						subval.value = curToken;
 					}
 					
 					if (vals.length > 0) {
+						subval.pos = ps.getPos(startPos, i, j);
 						vals.push(subval);
-						curProp.value = vals;
+						curProp.values = vals;
 					
 					} else {
-						curProp.value = subval;
+						curProp.type = subval.type;
+						curProp.value = subval.value;
+						curProp.unit = subval.unit;
+						curProp.pos = ps.getPos(startPos, i, j);
 					}
-					curProp.pos = {
-						start: {
-							line: startPos.line,
-							char: startPos.char
-						},
-						end: {
-							line: i,
-							char: j
-						}
-					};
 					
 					curRules[0].properties.push(curProp);
 					modes.shift();
@@ -222,7 +221,7 @@ var ps = {
 					} else {
 						if (mode == NUMBERVAL && char.match(isTextRegex)) {
 							modes[0] = UNITVAL;
-							subval.number = Number(curToken);
+							subval.value = Number(curToken);
 							curToken = '';
 						}
 					}

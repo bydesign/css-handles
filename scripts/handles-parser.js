@@ -235,11 +235,11 @@ var ps = {
 		return {
 			start: {
 				line: startPos.line,
-				char: startPos.char
+				ch: startPos.ch
 			},
 			end: {
 				line: i,
-				char: j-1
+				ch: j
 			}
 		};
 	},
@@ -315,7 +315,7 @@ var ps = {
 				if (mode != COMMENT && char == '*' && prevChar == '/') {
 					startPos = {
 						line: i,
-						char: j-1
+						ch: j
 					};
 					curToken += char;
 					modes.unshift(COMMENT);
@@ -360,8 +360,13 @@ var ps = {
 					modes.unshift(PROPERTY);
 					var rule = {
 						selector: curToken.trim(),
+						pos: {
+							start: startPos
+						},
 						properties: []
 					};
+					rule.atrule = modes.indexOf(ATRULE) != -1;
+					
 					if (curRules.length > 0) {
 						rule.parentRule = curRules[0];
 					}
@@ -372,7 +377,12 @@ var ps = {
 				// end selector definition
 				} else if (char == '}') {
 					modes.shift();
-					parsed.rules.push(curRules[0]);
+					var rule = curRules[0];
+					rule.pos.end = {
+						line: i,
+						ch: j
+					};
+					parsed.rules.push(rule);
 					curRules.shift();
 					curToken = '';
 					
@@ -451,7 +461,7 @@ var ps = {
 					if (curToken.length == 0) {
 						startPos = {
 							line: i,
-							char: j-1
+							ch: j
 						};
 						if (mode == VALUE) {
 							if (char.match(isNumberRegex)) {

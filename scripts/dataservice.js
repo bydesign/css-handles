@@ -1,104 +1,3 @@
-var CssValue = function(sheet, dec) {
-	this.sheet = sheet;
-	this.editor = sheet.editor;
-	this.dec = dec;
-	this.start = dec.position.start;
-	this.end = dec.position.end;
-	this.prop = dec.property;
-	this.text = dec.value;
-	this.parse(this.text);
-};
-
-CssValue.prototype = {
-	parse: function(text) {
-		var val = 0;
-		var unit = '';
-		text = text.trim();	
-		
-		// types = grouped, multiple, string, number
-		var type = "string";
-		if (text.indexOf(',') > -1) {
-			type = "grouped";
-			
-		} else if (text.indexOf(' ') > -1) {
-			type = "multiple";
-			
-		} else if (text.indexOf('#') > -1) {
-			type = "color";
-				
-		} else if (text.indexOf('(') > -1) {
-			type = "function";
-			
-		} else if (/\d/.test(text)) {
-			type = "number";
-			
-			val = Number(text.replace(/[a-zA-Z%]/g, ''));
-			unit = text.replace(/[0-9\.-]/g, '');
-		}
-		
-		// parse shorthand values into parts
-		/*var groups = text.split(',');
-		angular.forEach(groups, function(group) {
-			var parts = group.trim().split(' ');
-			angular.forEach(parts, function(part) {
-				console.log(part.trim());
-			});
-		});*/
-		
-		this.type = type;
-		this.value = val;
-		this.unit = unit;
-	},
-	
-	setValue: function(value, unit) {
-		this.value = value;
-		this.unit = unit;
-		this.apply();
-	},
-	
-	apply: function() {
-		var newStr = this.toString();
-		this.editor.replaceRange(newStr,
-			{
-				line: this.start.line-1,
-				ch: this.start.column-1
-			},
-			{
-				line: this.end.line-1,
-				ch: this.end.column-1
-			}
-		);
-		this.end.column = this.start.column + newStr.length;
-		this.setCursor();
-	},
-	
-	setCursor: function() {
-		this.editor.setCursor({
-			line: this.start.line-1,
-			ch: this.start.column-1
-		});
-	},
-	
-	selectValue: function() {
-		this.editor.setSelection(
-			{
-				line: this.start.line-1,
-				ch: this.start.column-1
-			},
-			{
-				line: this.end.line-1,
-				ch: this.end.column-1
-			}
-		);
-		this.editor.focus();
-	},
-	
-	toString: function() {
-		return this.dec.property + ': ' + this.value + this.unit;
-	},
-	// method to apply new value
-};
-
 angular.module('cssHandles').factory('DataService', function($rootScope, CssParser) {
 	var ds = {
 		// load editors and match them up with stylesheets
@@ -143,8 +42,10 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			if (firstRule != undefined) {
 				// fold anything before first relevant rule
 				var sheetEditor = firstRule.sheet.editor;
-				sheetEditor.foldCode({line: 0, ch: 0}, null, "unfold");
-				var startLine = firstRule.position.start.line-2;
+				for (var i=0, len=sheetEditor.lineCount(); i<len; i++) {
+					sheetEditor.foldCode({line: i, ch: 0}, null, "unfold");
+				}
+				var startLine = firstRule.pos.start.line-1;
 				if (startLine >= 0) {
 					var startLength = sheetEditor.getLine(startLine).length;
 					sheetEditor.foldCode(0, function(editor, pos) {
@@ -165,11 +66,11 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					var nextLine;
 					if (index+1 < ds.rules.length) {
 						var ruleNext = ds.rules[index+1];
-						nextLine = ruleNext.position.start.line-2;
+						nextLine = ruleNext.pos.start.line-1;
 					} else {
 						nextLine = sheetEditor.lineCount();
 					}
-					var line = rule.position.end.line;
+					var line = rule.pos.end.line+1;
 					sheetEditor.foldCode(line, function(editor, pos) {
 						return {
 							from: pos,
@@ -193,31 +94,35 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			// find rules that apply to element
 			var that = this;
 			angular.forEach(ds.sheets, function(sheet) {
-				CssParser.parse(sheet.editor.getValue());
-			
-				var parsedSheet = css.parse(sheet.editor.getValue());
+				//var parsedSheet = css.parse(sheet.editor.getValue());
+				var parsedSheet = CssParser.parse(sheet.editor.getValue());
 				that.parsedSheets.push(parsedSheet);
-				angular.forEach(parsedSheet.stylesheet.rules, function(rule) {
-					if (rule.type == "rule" && $element.is(rule.selectors.join(', '))) {
+				angular.forEach(parsedSheet.rules, function(rule) {
+					if (rule.selector[0] != '@' && $element.is(rule.selector)) {
 						rule.sheet = sheet;
 						ds.rules.push(rule);
 						
-						angular.forEach(rule.declarations, function(dec) {
-							if (dec.type == "declaration") {
+						angular.forEach(rule.properties, function(prop) {
+							prop.rule = rule;
+							ds.properties[prop.name] = prop;
+							/*if (dec.type == "declaration") {
 								ds.properties[dec.property] = new CssValue(sheet, dec);
-							}
+							}*/
 						});
 						
-					} else if (rule.type == "media") {
+					}/* else if (rule.type == "media") {
 						// loop over sub-rules for responsive rule modification?
 						console.log('media rule found');
-					}
+					}*/
 				});
 			});
 			
 			// select active rule
-			// need to improve this later with rule trumping logic
+			// need to improve this later with rule specificity logic
 			ds.activeRule = ds.rules[ds.rules.length-1];
+			
+			console.log('ds.properties');
+			console.log(ds.properties);
 			
 			return ds.rules;
 		},
@@ -232,6 +137,19 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					//return rule.rule.index;
 				}
 			}
+		},
+		updateEditor: function(newVal, prop) {
+			var editor = prop.rule.sheet.editor;
+			var newStr = newVal + (prop.unit ? prop.unit : '');
+			editor.replaceRange(newStr, prop.pos.start, prop.pos.end);
+			editor.setCursor(prop.pos.start);
+			prop.pos.end.ch = prop.pos.start.ch + newStr.length;
+		},
+		
+		selectValue: function(prop) {
+			var editor = prop.rule.sheet.editor;
+			editor.setSelection(prop.pos.start, prop.pos.end);
+			editor.focus();
 		},
 		
 		proposePixelMove: function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
@@ -273,7 +191,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			newNum = Math.round(newNum * 1000) / 1000;
 			
 			// apply value to css rule
-			rule.setValue(newNum, rule.unit);
+			ds.updateEditor(newNum, rule);
 		},
 		
 		finalizePixelMove: function(prop) {
@@ -284,7 +202,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				rule.rule = ds.selectedRule;
 				rule.style = ds.selectedRule.style;
 			}
-			rule.selectValue();
+			ds.selectValue(rule);
 			$rootScope.$broadcast('handleStopDrag', rule);
 		},
 		

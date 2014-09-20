@@ -13,6 +13,78 @@ var RULE = 0,
 	UNITVAL = 10,
 	IMPORTANTVAL = 11;
 	
+var STYLES = {
+	'border': {
+		'number': ['border-width'],
+		'text': ['border-style'],
+		'color': ['border-color']
+	},
+	'margin': {
+		'number': ['margin-top','margin-right','margin-bottom','margin-left']
+	},
+	'padding': {
+		'number': ['padding-top','padding-right','padding-bottom','padding-left']
+	},
+	'border-width': {
+		'number': ['border-top-width','border-right-width','border-bottom-width','border-left-width']
+	},
+	'background': {
+		'number': ['background-position-x', 'background-position-y'],
+		'color': ['background-color'],
+		'text': ['background-repeat', 'background-attachment'],
+		'url': ['background-image']
+	},
+	'background-position': {
+		'number': ['background-position-x', 'background-position-y']
+	},
+	'background-size': {
+		'number': ['background-size-x', 'background-size-y']
+	},
+	// need to add support for second radius numbers on this shorthand property
+	'border-radius': {
+		'number': ['border-top-left-radius', 'border-top-right-radius', 'border-bottom-right-radius', 'border-bottom-left-radius']
+	},
+	'box-shadow': {
+		'number': ['box-shadow-h', 'box-shadow-v', 'blur', 'spread'],
+		'color': ['box-shadow-color'],
+		'text': ['inset']
+	},
+	'column-rule': {
+		'color': ['column-rule-color'],
+		'text': ['column-rule-style'],
+		'number': ['column-rule-width']
+	},
+	'columns': {
+		'number': ['column-width', 'column-count']
+	},
+	'flex': {
+		'number': ['flex-grow', 'flex-shrink', 'flex-basis']
+	},
+	// this one isn't quite correct, should really be based on the type of value more specifically
+	'font': {
+		'number': ['font-size', 'line-height'],
+		'text': ['font-style', 'font-variant', 'font-weight', 'font-family']
+	},
+	// note that URL is not really type, it's a function
+	'list-style': {
+		'text': ['list-style-type', 'list-style-position']
+		'url': ['list-style-image']
+	},
+	'outline': {
+		'color': ['outline-color'],
+		'number': ['outline-width'],
+		'text': ['outline-style']
+	},
+	'text-shadow': {
+		'color': ['text-shadow-color'],
+		'number': ['text-shadow-h','text-shadow-v', 'text-shadow-blur']
+	},
+	'transform-origin': {
+		'number': ['transform-origin-x', 'transform-origin-y', 'transform-origin-z']
+	}
+	
+};
+	
 var ps = {
 	getPos: function(startPos, i, j) {
 		
@@ -144,9 +216,14 @@ var ps = {
 					
 				// start function
 				} else if (char == '(') {
-					if (mode == TEXTVAL && [COLORFNS].indexOf(curToken) != -1) {
-						subval.type = 'color';
-						subval.fn = curToken;
+					if (mode == TEXTVAL) {
+						if ([COLORFNS].indexOf(curToken) != -1) {
+							subval.type = 'color';
+							subval.fn = curToken;
+						} else {
+							subval.type = curToken;
+						}
+						curToken = '';
 					}
 					//console.log('function name: ' + curToken);
 					modes.unshift(FUNCTION);
@@ -155,6 +232,7 @@ var ps = {
 				// end function
 				} else if (char == ')') {
 					//console.log('function value: ' + curToken);
+					//subval.value = curToken;
 					modes.shift();
 					//curToken = '';
 				

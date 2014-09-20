@@ -14,6 +14,7 @@ var RULE = 0,
 	IMPORTANTVAL = 11;
 	
 var COLORS = {
+	'transparent': '',
 	'black': '#000000',
 	'navy': '#000080',
 	'darkblue': '#00008B',
@@ -156,7 +157,7 @@ var COLORS = {
 	'white': '#FFFFFF'
 }
 	
-var STYLES = {
+var SHORTHAND_STYLES = {
 	'border': {
 		'number': ['border-width'],
 		'text': ['border-style'],
@@ -257,6 +258,32 @@ var ps = {
 			subval.value = curToken;
 		}
 		return subval;
+	},
+	
+	getSubProps: function(curProp, vals) {
+		var mapping = SHORTHAND_STYLES[curProp.name];
+		if (mapping != undefined) {
+			var newVals = [];
+			var positions = {};
+			angular.forEach(vals, function(val) {
+				var type = val.type;
+				var typeIndex = positions[type];
+				if (typeIndex == undefined) {
+					typeIndex = 0;
+				} else {
+					typeIndex++;
+				}
+				val.name = mapping[type][typeIndex];
+				val.shorthand = true;
+				newVals.push(val);
+				positions[type] = typeIndex;
+			});
+			
+			return newVals;
+		
+		} else {
+			return undefined;
+		}
 	},
 	
 	parse: function(text) {
@@ -400,6 +427,10 @@ var ps = {
 						subval.pos = ps.getPos(startPos, i, j);
 						vals.push(subval);
 						curProp.values = vals;
+						subprops = ps.getSubProps(curProp, vals);
+						if (subprops != undefined) {
+							curRules[0].properties = curRules[0].properties.concat(subprops);
+						}
 					
 					} else {
 						curProp.type = subval.type;

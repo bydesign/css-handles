@@ -22,6 +22,10 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		DataService.htmlEditorLoaded(editor, model);
 	};
 	
+	$scope.unfoldCode = function() {
+		DataService.unfoldCode();
+	};
+	
 	$scope.$on('select', function(event, element) {
 		that.selected = element;
 		$scope.isSelected = true;

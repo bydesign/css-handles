@@ -42,9 +42,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			if (firstRule != undefined) {
 				// fold anything before first relevant rule
 				var sheetEditor = firstRule.sheet.editor;
-				for (var i=0, len=sheetEditor.lineCount(); i<len; i++) {
-					sheetEditor.foldCode({line: i, ch: 0}, null, "unfold");
-				}
+				ds.unfoldCode();
 				var startLine = firstRule.pos.start.line-1;
 				if (startLine >= 0) {
 					var startLength = sheetEditor.getLine(startLine).length;
@@ -82,6 +80,15 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					});
 				});
 			}
+		},
+		
+		unfoldCode: function() {
+			angular.forEach(ds.sheets, function(sheet) {
+				var editor = sheet.editor;
+				for (var i=0, len=editor.lineCount(); i<len; i++) {
+					editor.foldCode({line: i, ch: 0}, null, "unfold");
+				}
+			});
 		},
 		
 		getRules: function(element) {

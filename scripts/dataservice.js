@@ -64,11 +64,12 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					var nextLine;
 					if (index+1 < ds.rules.length) {
 						var ruleNext = ds.rules[index+1];
-						nextLine = ruleNext.pos.start.line-1;
+						nextLine = sheetEditor.getLineNumber(ruleNext.pos.start.line)-1;
 					} else {
 						nextLine = sheetEditor.lineCount();
 					}
-					var line = rule.pos.end.line+1;
+					var line = sheetEditor.getLineNumber(rule.pos.end.line)+1;
+					console.log(line);
 					sheetEditor.foldCode(line, function(editor, pos) {
 						return {
 							from: pos,
@@ -104,7 +105,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			console.log($element);
 			angular.forEach(ds.sheets, function(sheet) {
 				//var parsedSheet = css.parse(sheet.editor.getValue());
-				var parsedSheet = CssParser.parse(sheet.editor.getValue());
+				var parsedSheet = CssParser.parse(sheet.editor);
 				that.parsedSheets.push(parsedSheet);
 				angular.forEach(parsedSheet.rules, function(rule) {
 					if (rule.selector[0] != '@') {
@@ -151,16 +152,24 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var editor = prop.rule.sheet.editor;
 			var newStr = newVal + (prop.unit ? prop.unit : '');
 			if (prop.pos != undefined) {
-				editor.replaceRange(newStr, prop.pos.start, prop.pos.end);
-				editor.setCursor(prop.pos.start);
-				prop.pos.end.ch = prop.pos.start.ch + newStr.length;
+				var start = {
+					line: editor.getLineNumber(prop.pos.start.line),
+					ch: prop.pos.start.ch
+				};
+				var end = {
+					line: editor.getLineNumber(prop.pos.end.line),
+					ch: prop.pos.end.ch
+				};
+				editor.replaceRange(newStr, start, end);
+				editor.setCursor(start);
+				prop.pos.end.ch = start.ch + newStr.length;
 			
 			// create new rule
 			} else {
 				var def = '\t' + prop.name + ': ';
 				var startPos = def.length-1;
 				def += newStr + ';\n';
-				var line = prop.rule.pos.end.line;
+				var line = editor.getLineNumber(prop.rule.pos.end.line);
 				editor.replaceRange(def, {
 					line: line,
 					ch: prop.rule.pos.end.ch
@@ -181,7 +190,15 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		selectValue: function(prop) {
 			var editor = prop.rule.sheet.editor;
-			editor.setSelection(prop.pos.start, prop.pos.end);
+			var start = sheetEditor.getLineNumber(prop.pos.start.line);
+			var end = sheetEditor.getLineNumber(prop.pos.end.line);
+			editor.setSelection({
+				line: start, 
+				ch: prop.pos.start.ch
+			}, {
+				line: end, 
+				ch: prop.pos.end.ch
+			});
 			editor.focus();
 		},
 		

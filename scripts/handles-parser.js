@@ -230,7 +230,7 @@ var SHORTHAND_STYLES = {
 };
 	
 var ps = {
-	getPos: function(startPos, i, j) {
+	getPos: function(startPos, handle, j) {
 		
 		return {
 			start: {
@@ -238,7 +238,7 @@ var ps = {
 				ch: startPos.ch
 			},
 			end: {
-				line: i,
+				line: handle,
 				ch: j
 			}
 		};
@@ -289,11 +289,11 @@ var ps = {
 		}
 	},
 	
-	parse: function(text) {
+	parse: function(editor) {
 		console.log('parsing');
 		
 		var COLORFNS = ['rgb','rgba','hsl','hsla'];
-		var lines = text.split('\n');
+		//var lines = text.split('\n');
 		var parsed = {
 			rules: [],
 			comments: []
@@ -308,8 +308,15 @@ var ps = {
 			startPos,
 			vals = [],
 			subval = {};
-		for (i=0, lineCount=lines.length; i<lineCount; i++) {
-			var line = lines[i];
+			
+		console.log(editor);
+		editor.eachLine(function(handle) {
+			var line = handle.text;
+			console.log(handle);
+			console.log(editor.getLineNumber(handle));
+			
+		//for (i=0, lineCount=lines.length; i<lineCount; i++) {
+		//	var line = lines[i];
 			for (var j=0, charCount=line.length; j<charCount; j++) {
 				var mode = modes[0];
 				var char = line[j];
@@ -317,7 +324,7 @@ var ps = {
 				// start comment
 				if (mode != COMMENT && char == '*' && prevChar == '/') {
 					startPos = {
-						line: i,
+						line: handle,
 						ch: j
 					};
 					curToken += char;
@@ -329,7 +336,7 @@ var ps = {
 					if (char == '/' && prevChar == '*') {
 						parsed.comments.push({
 							text: curToken,
-							pos: ps.getPos(startPos, i, j)
+							pos: ps.getPos(startPos, handle, j)
 						});
 						curToken = '';
 						modes.shift();
@@ -350,7 +357,7 @@ var ps = {
 							
 					} else if (modes.indexOf(VALUE) != -1) {
 						subval = ps.modifySubVal(mode, subval, curToken);
-						subval.pos = ps.getPos(startPos, i, j);
+						subval.pos = ps.getPos(startPos, handle, j);
 						vals.push(subval);
 						modes.shift();
 						subval = {};
@@ -386,7 +393,7 @@ var ps = {
 					modes.shift();
 					var rule = curRules[0];
 					rule.pos.end = {
-						line: i,
+						line: handle,
 						ch: j
 					};
 					parsed.rules.push(rule);
@@ -445,7 +452,7 @@ var ps = {
 					subval = ps.modifySubVal(mode, subval, curToken);
 					
 					if (vals.length > 0) {
-						subval.pos = ps.getPos(startPos, i, j);
+						subval.pos = ps.getPos(startPos, handle, j);
 						vals.push(subval);
 						curProp.values = vals;
 						subprops = ps.getSubProps(curProp, vals);
@@ -457,7 +464,7 @@ var ps = {
 						curProp.type = subval.type;
 						curProp.value = subval.value;
 						curProp.unit = subval.unit;
-						curProp.pos = ps.getPos(startPos, i, j);
+						curProp.pos = ps.getPos(startPos, handle, j);
 					}
 					
 					curRules[0].properties.push(curProp);
@@ -471,7 +478,7 @@ var ps = {
 				} else {
 					if (curToken.length == 0) {
 						startPos = {
-							line: i,
+							line: handle,
 							ch: j
 						};
 						if (mode == VALUE) {
@@ -500,7 +507,7 @@ var ps = {
 				}
 				prevChar = char;
 			}
-		}
+		});
 		console.log(parsed);
 		
 		return parsed;

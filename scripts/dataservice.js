@@ -212,7 +212,11 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			
 			// convert pixels to %, em, etc. when needed
 			if (rule.unit == '%') {
-				val = val / percentDenom * 100;
+				if (percentDenom > 0 || percentDenom < 0) {
+					val = val / percentDenom * 100;
+				} else {
+					val = 0;
+				}
 			} else if (rule.unit == 'em') {
 				val = val / emDenom;
 			}

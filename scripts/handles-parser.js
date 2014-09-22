@@ -277,6 +277,9 @@ var ps = {
 				val.shorthand = true;
 				newVals.push(val);
 				positions[type] = typeIndex;
+				
+				// go one level deeper here (shorthands of shorthands)
+				// how should box model properties be handled?
 			});
 			
 			return newVals;
@@ -334,7 +337,11 @@ var ps = {
 				
 				// handle whitespace
 				} else if (' \t\n\r\v'.indexOf(char) > -1) {
-					if (curToken.length == 0) {
+					if (mode == RULE) {
+						curToken += char;
+						prevChar = char;
+					
+					} else if (curToken.length == 0) {
 						prevChar = char;
 						continue;
 					
@@ -421,13 +428,17 @@ var ps = {
 				
 				// parse commas
 				} else if (char == ',') {
+					if (mode == RULE) {
+						curToken += char;
+						prevChar = char;
+					}
 					//console.log('comma');
-					if (mode = FUNCTION) {
+					/*if (mode = FUNCTION) {
 						console.log(subval);
 						console.log('function parameter: ' + curToken);
 					} else if (mode = VALUE) {
 						console.log('multi-part value');
-					}
+					}*/
 				
 				// end property value
 				} else if (char == ';') {

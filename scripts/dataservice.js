@@ -79,6 +79,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 						};
 					});
 				});
+				sheetEditor.refresh();
 			}
 		},
 		
@@ -100,11 +101,15 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			
 			// find rules that apply to element
 			var that = this;
+			console.log($element);
 			angular.forEach(ds.sheets, function(sheet) {
 				//var parsedSheet = css.parse(sheet.editor.getValue());
 				var parsedSheet = CssParser.parse(sheet.editor.getValue());
 				that.parsedSheets.push(parsedSheet);
 				angular.forEach(parsedSheet.rules, function(rule) {
+					if (rule.selector[0] != '@') {
+						console.log(rule.selector + ': ' + $element.is(rule.selector));
+					}
 					if (rule.selector[0] != '@' && $element.is(rule.selector)) {
 						rule.sheet = sheet;
 						ds.rules.push(rule);
@@ -128,9 +133,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			// need to improve this later with rule specificity logic
 			ds.activeRule = ds.rules[ds.rules.length-1];
 			
-			console.log('ds.properties');
-			console.log(ds.properties);
-			
 			return ds.rules;
 		},
 		
@@ -148,9 +150,33 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		updateEditor: function(newVal, prop) {
 			var editor = prop.rule.sheet.editor;
 			var newStr = newVal + (prop.unit ? prop.unit : '');
-			editor.replaceRange(newStr, prop.pos.start, prop.pos.end);
-			editor.setCursor(prop.pos.start);
-			prop.pos.end.ch = prop.pos.start.ch + newStr.length;
+			if (prop.pos != undefined) {
+				editor.replaceRange(newStr, prop.pos.start, prop.pos.end);
+				editor.setCursor(prop.pos.start);
+				prop.pos.end.ch = prop.pos.start.ch + newStr.length;
+			
+			// create new rule
+			} else {
+				var def = '\t' + prop.name + ': ';
+				var startPos = def.length-1;
+				def += newStr + ';\n';
+				var line = prop.rule.pos.end.line;
+				editor.replaceRange(def, {
+					line: line,
+					ch: prop.rule.pos.end.ch
+				});
+				// set property's position
+				prop.pos = {
+					start: {
+						line: line,
+						ch: startPos
+					},
+					end: {
+						line: line,
+						ch: startPos + newStr.length+1
+					}
+				};
+			}
 		},
 		
 		selectValue: function(prop) {
@@ -164,9 +190,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			// determine active rule
 			//var activeRule = this.activeRule;
 			var rule = ds.properties[prop];
-			if (rule.originalValue == undefined) {
-				rule.originalValue = rule.value;
-			}
 			
 			// define new style if property isn't defined yet
 			if (rule == undefined) {
@@ -174,11 +197,15 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					name: prop,
 					value: 0,
 					unit: defaultUnit,
-					style: activeRule.style,
-					rule: activeRule,
+					rule: ds.rules[ds.rules.length-1]
 				}
 				ds.properties[prop] = rule;
 			}
+			
+			if (rule.originalValue == undefined) {
+				rule.originalValue = rule.value;
+			}
+			
 			// convert pixels to %, em, etc. when needed
 			if (rule.unit == '%') {
 				val = val / percentDenom * 100;

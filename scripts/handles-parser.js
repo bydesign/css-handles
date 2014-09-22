@@ -309,14 +309,9 @@ var ps = {
 			vals = [],
 			subval = {};
 			
-		console.log(editor);
 		editor.eachLine(function(handle) {
 			var line = handle.text;
-			console.log(handle);
-			console.log(editor.getLineNumber(handle));
 			
-		//for (i=0, lineCount=lines.length; i<lineCount; i++) {
-		//	var line = lines[i];
 			for (var j=0, charCount=line.length; j<charCount; j++) {
 				var mode = modes[0];
 				var char = line[j];
@@ -406,7 +401,6 @@ var ps = {
 						modes[0] = VALUE;
 						curProp.name = curToken.trim();
 						curToken = '';
-						//console.log(curProp.name);
 					} else {
 						curToken += char;
 					}
@@ -422,9 +416,7 @@ var ps = {
 						}
 						curToken = '';
 					}
-					//console.log('function name: ' + curToken);
 					modes.unshift(FUNCTION);
-					//curToken = '';
 						
 				// end function
 				} else if (char == ')') {

@@ -69,7 +69,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 						nextLine = sheetEditor.lineCount();
 					}
 					var line = sheetEditor.getLineNumber(rule.pos.end.line)+1;
-					console.log(line);
 					sheetEditor.foldCode(line, function(editor, pos) {
 						return {
 							from: pos,
@@ -102,7 +101,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			
 			// find rules that apply to element
 			var that = this;
-			console.log($element);
 			angular.forEach(ds.sheets, function(sheet) {
 				//var parsedSheet = css.parse(sheet.editor.getValue());
 				var parsedSheet = CssParser.parse(sheet.editor);
@@ -118,9 +116,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 						angular.forEach(rule.properties, function(prop) {
 							prop.rule = rule;
 							ds.properties[prop.name] = prop;
-							/*if (dec.type == "declaration") {
-								ds.properties[dec.property] = new CssValue(sheet, dec);
-							}*/
 						});
 						
 					}/* else if (rule.type == "media") {
@@ -161,7 +156,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					ch: prop.pos.end.ch
 				};
 				editor.replaceRange(newStr, start, end);
-				editor.setCursor(start);
+				//editor.setCursor(start);
 				prop.pos.end.ch = start.ch + newStr.length;
 			
 			// create new rule
@@ -177,11 +172,11 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				// set property's position
 				prop.pos = {
 					start: {
-						line: line,
+						line: editor.getLineHandle(line),
 						ch: startPos
 					},
 					end: {
-						line: line,
+						line: editor.getLineHandle(line),
 						ch: startPos + newStr.length+1
 					}
 				};
@@ -190,8 +185,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		selectValue: function(prop) {
 			var editor = prop.rule.sheet.editor;
-			var start = sheetEditor.getLineNumber(prop.pos.start.line);
-			var end = sheetEditor.getLineNumber(prop.pos.end.line);
+			var start = editor.getLineNumber(prop.pos.start.line);
+			var end = editor.getLineNumber(prop.pos.end.line);
 			editor.setSelection({
 				line: start, 
 				ch: prop.pos.start.ch

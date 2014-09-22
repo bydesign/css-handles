@@ -5,7 +5,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		editorLoaded: function(editor, sheet) {
 			var sheetObj = {
 				editor: editor,
-				text: editor.getValue(),
+				//text: editor.getValue(),
 				sheet: sheet
 			};
 			ds.sheets.push(sheetObj);
@@ -38,49 +38,41 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		// fold non-relevant CSS
 		foldRules: function() {
-			var firstRule = ds.rules[0];
-			if (firstRule != undefined) {
-				// fold anything before first relevant rule
-				var sheetEditor = firstRule.sheet.editor;
-				ds.unfoldCode();
-				var startLine = firstRule.pos.start.line-1;
-				if (startLine >= 0) {
-					var startLength = sheetEditor.getLine(startLine).length;
-					sheetEditor.foldCode(0, function(editor, pos) {
-						return {
-							from: {
-								line: 0,
-								ch: 0
-							},
-							to: {
-								line: startLine,
-								ch: startLength
-							}
+			ds.unfoldCode();
+			angular.forEach(ds.sheets, function(sheet) {
+				var editor = sheet.editor;
+				var start = { line:0, ch:0 };
+				
+				angular.forEach(ds.rules, function(rule) {
+					if (rule.sheet == sheet) {
+						// collapse before rule
+						editor.foldCode(0, function(editor, pos) {
+							return {
+								from: start,
+								to: {
+									line: editor.getLineNumber(rule.pos.start.line)-1
+								}
+							};
+						});
+						
+						start = {
+							line: editor.getLineNumber(rule.pos.end.line)+1,
+							ch:0
 						};
-					});
-				}
-				// fold anything after relevant rules
-				angular.forEach(ds.rules, function(rule, index) {
-					var nextLine;
-					if (index+1 < ds.rules.length) {
-						var ruleNext = ds.rules[index+1];
-						nextLine = sheetEditor.getLineNumber(ruleNext.pos.start.line)-1;
-					} else {
-						nextLine = sheetEditor.lineCount();
 					}
-					var line = sheetEditor.getLineNumber(rule.pos.end.line)+1;
-					sheetEditor.foldCode(line, function(editor, pos) {
-						return {
-							from: pos,
-							to: {
-								line: nextLine,
-								ch: 1
-							}
-						};
-					});
 				});
-				sheetEditor.refresh();
-			}
+				// fold code after last rule
+				editor.foldCode(0, function(editor, pos) {
+					return {
+						from: start,
+						to: {
+							line: editor.lineCount()
+						}
+					};
+				});
+				
+				editor.refresh();
+			});
 		},
 		
 		unfoldCode: function() {

@@ -299,6 +299,7 @@ var ps = {
 			comments: []
 		};
 		var curToken = '';
+		var curFn = '';
 		var curRules = [];
 		var curProp = {};
 		var modes = [RULE];
@@ -311,6 +312,7 @@ var ps = {
 			
 		editor.eachLine(function(handle) {
 			var line = handle.text;
+			prevChar = '\n';
 			
 			for (var j=0, charCount=line.length; j<charCount; j++) {
 				var mode = modes[0];
@@ -410,10 +412,14 @@ var ps = {
 					if (mode == TEXTVAL) {
 						if ([COLORFNS].indexOf(curToken) != -1) {
 							subval.type = 'color';
-							subval.fn = curToken;
 						} else {
 							subval.type = curToken;
 						}
+						subval.fnName = curToken;
+						subval.fnValues = [];
+						
+						curFn = curToken;
+						console.log(curToken);
 						curToken = '';
 					}
 					modes.unshift(FUNCTION);
@@ -422,7 +428,18 @@ var ps = {
 				} else if (char == ')') {
 					//console.log('function value: ' + curToken);
 					//subval.value = curToken;
-					modes.shift();
+					console.log(curToken);
+					if (modes.indexOf(FUNCTION) != 0) {
+						if (subval.fnValues.length > 0) {
+							var fnVal = subval.fnValues[subval.fnValues.length-1];
+							var fnVal = ps.modifySubVal(mode, fnVal, curToken);
+							console.log(fnVal);
+						}
+						curFn = '';
+						modes.shift();
+						modes.shift();
+						console.log(modes);
+					}
 					//curToken = '';
 				
 				// parse commas
@@ -457,6 +474,8 @@ var ps = {
 						curProp.value = subval.value;
 						curProp.unit = subval.unit;
 						curProp.pos = ps.getPos(startPos, handle, j);
+						curProp.fnName = subval.fnName;
+						curProp.fnValues = subval.fnValues;
 					}
 					
 					curRules[0].properties.push(curProp);
@@ -473,7 +492,8 @@ var ps = {
 							line: handle,
 							ch: j
 						};
-						if (mode == VALUE) {
+						if (mode == VALUE || mode == FUNCTION) {
+							//console.log('function mode: '+(mode == FUNCTION));
 							if (char.match(isNumberRegex)) {
 								modes.unshift(NUMBERVAL);
 								subval.type = 'number';
@@ -491,7 +511,14 @@ var ps = {
 					} else {
 						if (mode == NUMBERVAL && char.match(isTextRegex)) {
 							modes[0] = UNITVAL;
-							subval.value = Number(curToken);
+							console.log(modes.indexOf(FUNCTION));
+							if (modes.indexOf(FUNCTION) != -1) {
+								if (subval.fnValues != undefined) {
+									subval.fnValues.push({ value: Number(curToken) });
+								}
+							} else {
+								subval.value = Number(curToken);
+							}
 							curToken = '';
 						}
 					}

@@ -45,7 +45,8 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			$document.on('mousemove', mousemove);
 			$document.on('mouseup', mouseup);
 			element.toggleClass('dragging');
-			$scope.$emit('handleStartDrag', $scope.prop);
+			DataService.handleStartDrag(prop);
+			//$scope.$emit('handleStartDrag', $scope.prop);
 		});
 		
 		function mousemove(event) {

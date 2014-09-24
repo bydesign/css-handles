@@ -172,6 +172,14 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			}
 		},
 		
+		handleStartDrag: function(prop) {
+			var rule = ds.properties[prop];
+			if (rule != undefined) {
+				ds.selectValue(rule);
+			}
+			$rootScope.$broadcast('handleStartDrag', prop);
+		},
+		
 		selectValue: function(prop) {
 			var editor = prop.rule.sheet.editor;
 			var start = editor.getLineNumber(prop.pos.start.line);
@@ -230,29 +238,27 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			newNum = Math.round(newNum * 1000) / 1000;
 			
 			// apply value to css rule
+			rule.value = newNum;
 			ds.updateEditor(newNum, rule);
 		},
 		
 		finalizePixelMove: function(prop) {
+			console.log('stop drag: '+prop);
 			var rule = ds.properties[prop];
 			rule.originalValue = undefined;
-			//rule.value = Number( rule.style[prop].replace(rule.unit, '') );
 			if (ds.selectedRule) {
 				rule.rule = ds.selectedRule;
 				rule.style = ds.selectedRule.style;
 			}
-			ds.selectValue(rule);
 			$rootScope.$broadcast('handleStopDrag', rule);
 		},
 		
 		// used for cancelling a handle drag before release
 		cancelPixelMove: function(prop) {
+			console.log('cancel drag: '+prop);
 			var rule = ds.properties[prop];
 			rule.value = rule.originalValue;
 			rule.originalValue = undefined;
-			/*if (rule != undefined) {
-				rule.style[prop] = rule.value + rule.unit;
-			}*/
 		},
 		
 		

@@ -32,12 +32,14 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		that.update(element);
 	});
 	
-	$scope.$on('handleStartDrag', function() {
+	$scope.$on('handleStartDrag', function(evt, prop) {
 		$scope.dragging = true;
+		//DataService.handleStartDrag(prop);
 	});
 	
-	$scope.$on('handleStopDrag', function() {
+	$scope.$on('handleStopDrag', function(evt, prop) {
 		$scope.dragging = false;
+		//DataService.handleStopDrag(prop);
 		$scope.$apply();
 	});
 	
@@ -70,6 +72,8 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	// because performance is better and handles need access to
 	// all the computed properties
 	this.update = function(element, skipApply) {
+		var selected = $(element);
+		selected.css('-webkit-transition', 'all 0 ease 0');
 		var zoomTmp = $scope.zoom,
 			panX = $scope.panX,
 			panY = $scope.panY;
@@ -77,7 +81,6 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		$scope.panX = 0;
 		$scope.panY = 0;
 		$scope.$apply();
-		var selected = $(element);
 		if (element != undefined) {
 			// local variables
 			var computed = window.getComputedStyle(element);
@@ -195,6 +198,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		$scope.zoom = zoomTmp;
 		$scope.panX = panX;
 		$scope.panY = panY;
+		selected.css('-webkit-transition', '');
 		
 		if (!skipApply) {
 			$scope.$apply();

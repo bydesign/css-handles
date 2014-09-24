@@ -1,8 +1,4 @@
 /**** TEMPORARY PAGE STYLES ****/
-* {
-	-webkit-transition: all .15s ease-in-out;
-}
-
 .box {
 	position: absolute;
 	width: 100px;

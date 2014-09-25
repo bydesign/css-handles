@@ -1,4 +1,4 @@
-angular.module('cssHandles').factory('DataService', function($rootScope, CssParser) {
+angular.module('cssHandles').factory('DataService', function($rootScope, CssParser, HtmlParser) {
 	var ds = {
 		// load editors and match them up with stylesheets
 		sheets: [],
@@ -16,6 +16,9 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		htmlEditorLoaded: function(editor) {
 			ds.editor = editor;
+			editor.on('changes', function(editor, change) {
+				HtmlParser.parse(editor);
+			});
 		},
 		
 		select: function(element, doc) {

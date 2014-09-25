@@ -29,12 +29,14 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 		
 		element.on('mouseover', function(event) {
 			// call hover event for property
-			$scope.$emit('handleMouseOver', $scope.prop);
+			DataService.handleMouseOver(prop);
+			//$scope.$emit('handleMouseOver', $scope.prop);
 		});
 		
 		element.on('mouseout', function(event) {
 			// call hover event for property
-			$scope.$emit('handleMouseOut', $scope.prop);
+			DataService.handleMouseOut(prop);
+			//$scope.$emit('handleMouseOut', $scope.prop);
 		});
 		
 		element.on('mousedown', function(event) {

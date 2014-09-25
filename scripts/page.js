@@ -32,6 +32,12 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 				that.$doc.find('body').click(function(event) {
 					//$scope.onSelect(event.target);
 					DataService.select(event.target, doc);
+					
+				}).mouseover(function(event) {
+					$(event.target).css('outline', 'dashed 1px rgba(0, 173, 239, 0.5)');
+					
+				}).mouseout(function(event) {
+					$(event.target).css('outline', '');
 				});
 			});
 			

@@ -13,6 +13,10 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	this.sheetsDict = {};
 	this.selected;
 	var that = this;
+	emmetPlugin.setKeymap({
+		'Alt-Up': 'balance_outward',
+		'Alt-Down': 'balance_inward'
+	});
 	
 	$scope.cssEditorLoaded = function(editor, sheet) {
 		DataService.editorLoaded(editor, sheet);

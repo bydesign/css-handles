@@ -96,6 +96,10 @@ p {
 	font-weight: normal;
 }
 
+.hoverLine/*, .CodeMirror-activeline-background*/ {
+	background-color: rgba(0, 173, 239, 0.5);
+}
+
 handle {
 	margin-left: -1em;
 	margin-top: -1em;

@@ -162,7 +162,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				prop.pos = {
 					start: {
 						line: editor.getLineHandle(line),
-						ch: startPos
+						ch: startPos+1
 					},
 					end: {
 						line: editor.getLineHandle(line),
@@ -170,6 +170,30 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					}
 				};
 			}
+			ds.selectValue(prop);
+		},
+		
+		handleMouseOver: function(prop) {
+			var rule = ds.properties[prop];
+			if (rule != undefined) {
+				var editor = rule.rule.sheet.editor;
+				var line = editor.getLineNumber(rule.pos.start.line);
+				editor.addLineClass(line, 'background', 'hoverLine');
+				editor.scrollIntoView({
+					line: line,
+					ch: 0
+				});
+			}
+			$rootScope.$broadcast('handleMouseOver', prop);
+		},
+		
+		handleMouseOut: function(prop) {
+			var rule = ds.properties[prop];
+			if (rule != undefined) {
+				var editor = rule.rule.sheet.editor;
+				editor.removeLineClass(rule.pos.start.line, 'background', 'hoverLine');
+			}
+			$rootScope.$broadcast('handleMouseOut', prop);
 		},
 		
 		handleStartDrag: function(prop) {
@@ -243,12 +267,26 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		
 		finalizePixelMove: function(prop) {
-			console.log('stop drag: '+prop);
 			var rule = ds.properties[prop];
-			rule.originalValue = undefined;
-			if (ds.selectedRule) {
-				rule.rule = ds.selectedRule;
-				rule.style = ds.selectedRule.style;
+			
+			// finalize property
+			if (rule != undefined) {
+				rule.originalValue = undefined;
+				if (ds.selectedRule) {
+					rule.rule = ds.selectedRule;
+					rule.style = ds.selectedRule.style;
+				}
+			
+			// create empty property
+			} else {
+				rule = {
+					name: prop,
+					value: 0,
+					unit: '',
+					rule: ds.rules[ds.rules.length-1]
+				}
+				ds.updateEditor('0', rule);
+				ds.properties[prop] = rule;
 			}
 			$rootScope.$broadcast('handleStopDrag', rule);
 		},

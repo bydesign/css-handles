@@ -290,7 +290,7 @@ var ps = {
 	},
 	
 	parse: function(editor) {
-		console.log('parsing');
+		var t0 = performance.now();
 		
 		var COLORFNS = ['rgb','rgba','hsl','hsla'];
 		//var lines = text.split('\n');
@@ -419,7 +419,7 @@ var ps = {
 						subval.fnValues = [];
 						
 						curFn = curToken;
-						console.log(curToken);
+						//console.log(curToken);
 						curToken = '';
 					}
 					modes.unshift(FUNCTION);
@@ -428,17 +428,17 @@ var ps = {
 				} else if (char == ')') {
 					//console.log('function value: ' + curToken);
 					//subval.value = curToken;
-					console.log(curToken);
+					//console.log(curToken);
 					if (modes.indexOf(FUNCTION) != 0) {
 						if (subval.fnValues.length > 0) {
 							var fnVal = subval.fnValues[subval.fnValues.length-1];
 							var fnVal = ps.modifySubVal(mode, fnVal, curToken);
-							console.log(fnVal);
+							//console.log(fnVal);
 						}
 						curFn = '';
 						modes.shift();
 						modes.shift();
-						console.log(modes);
+						//console.log(modes);
 					}
 					//curToken = '';
 				
@@ -511,7 +511,7 @@ var ps = {
 					} else {
 						if (mode == NUMBERVAL && char.match(isTextRegex)) {
 							modes[0] = UNITVAL;
-							console.log(modes.indexOf(FUNCTION));
+							//console.log(modes.indexOf(FUNCTION));
 							if (modes.indexOf(FUNCTION) != -1) {
 								if (subval.fnValues != undefined) {
 									subval.fnValues.push({ value: Number(curToken) });
@@ -527,7 +527,9 @@ var ps = {
 				prevChar = char;
 			}
 		});
-		console.log(parsed);
+		
+		var t1 = performance.now();
+		console.log("Parsing CSS took " + (t1 - t0) + " milliseconds.");
 		
 		return parsed;
 	

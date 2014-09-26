@@ -10,6 +10,8 @@ var TAG = 0,
 	
 var ps = {
 	parse: function(editor) {
+		var t0 = performance.now();
+		
 		var parsed = {
 			tags: [],
 			tree: [],
@@ -208,6 +210,9 @@ var ps = {
 				prevChar = char;
 			}
 		}
+		
+		var t1 = performance.now();
+		console.log("Parsing HTML took " + (t1 - t0) + " milliseconds.");
 		
 		return tags;
 	

@@ -9,24 +9,7 @@ var TAG = 0,
 	TAGCLOSE = 6;
 	
 var ps = {
-	getPos: function(startPos, handle, j) {
-		
-		return {
-			start: {
-				line: startPos.line,
-				ch: startPos.ch
-			},
-			end: {
-				line: handle,
-				ch: j
-			}
-		};
-	},
-	
 	parse: function(editor) {
-		console.log('parsing');
-		
-		//var lines = text.split('\n');
 		var parsed = {
 			tags: [],
 			tree: [],
@@ -34,7 +17,6 @@ var ps = {
 		};
 		var token = '';
 		var curTag = {};
-		//var modes = [RULE];
 		var mode = TEXT;
 		var isNumberRegex = /[0-9-\.]/,
 			isTextRegex = /[a-zA-Z\%]/,
@@ -48,11 +30,32 @@ var ps = {
 			parentTag,
 			curProp,
 			quoteChar;
+		
+		function endTag(i, j) {
+			curTag.selfclosing = prevChar=='/';
+			if (curTag.tagName == undefined) {
+				curTag.tagName = token;
+			}
+			curTag.pos = {
+				start: startPos,
+				end: {
+					line: i,
+					ch: j+1
+				}
+			};
+			tags.push(curTag);
+			//console.log(curTag);
+			var parent = curTag;
+			if (curTag.selfclosing) {
+				parent = curTag.parent;
+			}
 			
-		function addTag(tag) {
-			tags.push(tag);
-			console.log(tag);
-			curTag = {};
+			// start over with new tag object
+			curTag = {
+				parent: parent
+			};
+			token = '';
+			mode = TEXT;
 		}
 		
 		function addProp(tag, name, value) {
@@ -61,13 +64,13 @@ var ps = {
 			}
 			tag[name] = value;
 		}
-			
-		editor.eachLine(function(handle) {
-			var line = handle.text;
+		
+		var lines = editor.getValue().split('\n');
+		for (var i=0, len=lines.length; i<len; i++) {
+			var line = lines[i];
 			prevChar = '\n';
 			
 			for (var j=0, charCount=line.length; j<charCount; j++) {
-				//var mode = modes[0];
 				var char = line[j];
 				
 				switch(mode) {
@@ -79,6 +82,9 @@ var ps = {
 							} else if (char == '/') {
 								mode = TAGCLOSE;
 							
+							} else if (char == '!') {
+								mode = COMMENT;
+							
 							} else {
 								token += char;
 							}
@@ -89,11 +95,7 @@ var ps = {
 								mode = ATTR;
 								
 							} else if (char == '>') {
-								curTag.selfclosing = prevChar == '/';
-								curTag.tagName = token;
-								addTag(curTag);
-								token = '';
-								mode = TEXT;
+								endTag(i, j);
 								
 							} else {
 								token += char;
@@ -109,6 +111,13 @@ var ps = {
 							
 						} else if (char == '>') {
 							mode = TEXT;
+							// tag closed, so set end position
+							curTag.parent.pos.end = {
+								line: i,
+								ch: j+1
+							};
+							// tag closed, so new tag will be parented under grandparent
+							curTag.parent = curTag.parent.parent;
 							
 						} else {
 							token += char;
@@ -130,9 +139,7 @@ var ps = {
 							token = '';
 						
 						} else if (char == '>') {
-							addTag(curTag);
-							token = '';
-							mode = TEXT;
+							endTag(i, j);
 							
 						} else {
 							token += char;
@@ -151,9 +158,7 @@ var ps = {
 						
 						} else if (char == '>') {
 							addProp(curTag, curProp, token);
-							addTag(curTag);
-							token = '';
-							mode = TEXT;
+							endTag(i, j);
 							
 						} else {
 							token += char;
@@ -177,11 +182,24 @@ var ps = {
 						if (char == '<') {
 							mode = TAG;
 							token = '';
+							startPos = {
+								line: i,
+								ch: j
+							};
 						}
 						break;
 						
 					case COMMENT:
-						break
+						if (token.length == 2 && token != '--') {
+							mode = TEXT;
+						
+						} else if (char == '>' && prevChar == '-' && prevPrevChar == '-') {
+							mode = TEXT;
+							token = '';
+						}
+						token += char;
+						
+						break;
 						
 					default:
 						
@@ -189,10 +207,9 @@ var ps = {
 				prevPrevChar = prevChar;
 				prevChar = char;
 			}
-		});
-		console.log(parsed);
+		}
 		
-		return parsed;
+		return tags;
 	
 	}
 };

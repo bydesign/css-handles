@@ -20,31 +20,71 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		htmlEditorLoaded: function(editor) {
 			ds.editor = editor;
-			editor.on('changes', function(editor, change) {
+			editor.on('changes', function(editor, changes) {
+				console.log(changes);
 				ds.html = HtmlParser.parse(editor);
 			});
 			editor.on('cursorActivity', function(editor) {
-				var pos = editor.getCursor('anchor');
-				var el = ds.getHtmlElement(pos);
-				if (el != ds.selected) {
-					//ds.select(el);
+				if (ds.isClickSelected) {
+					ds.isClickSelected = false;
+				} else {
+					var pos = editor.getCursor('anchor');
+					var el = ds.getHtmlElement(pos);
+					if (el != undefined && el != ds.selected) {
+						ds.select(el, undefined, true);
+					}
 				}
 			});
 		},
 		
 		getHtmlElement: function(pos) {
 			// find element at pos
-			return;
+			if (ds.html != undefined) {
+				var tags = ds.html.tags;
+				var selTag;
+				angular.forEach(tags, function(tag) {
+					var start = tag.pos.start,
+						end = tag.pos.end;
+					if (pos.line >= start.line && 
+						pos.line <= end.line && 
+						pos.ch >= start.ch && 
+						pos.ch <= end.ch) {
+						selTag = tag;
+					}
+				});
+				var tagName = selTag.tagName;
+				var allTags = $(ds.doc).find(tagName);
+				var index = ds.html.types[tagName].indexOf(selTag);
+				
+				if (allTags.length > index) {
+					return allTags[index];
+				}
+			}
 		},
 		
-		select: function(element) {
+		getElementPosition: function(element) {
+		    var tag = element.tagName.toLowerCase();
+		    var allTags = $(ds.doc).find(tag);
+		    var index = allTags.index(element);
+		    var tags = ds.html.types[tag];
+		    if (tags != undefined && tags.length > index) {
+		    	return tags[index].pos;
+		    }
+		},
+		
+		select: function(element, doc, suppressSelect) {
 			ds.selected = element;
 			ds.getRules(element);
 			
-			var position = ds.getElementPosition(element);
-			if (position != undefined) {
-				ds.editor.setSelection(position.start, position.end);
-				ds.editor.focus();
+			if (suppressSelect == undefined) {
+				var position = ds.getElementPosition(element);
+				var editor = ds.editor;
+				if (position != undefined) {
+					ds.isClickSelected = true;
+					editor.setSelection(position.start, position.end);
+					editor.scrollIntoView(position.start);
+					editor.focus();
+				}
 			}
 			
 			ds.foldRules();
@@ -315,25 +355,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var rule = ds.properties[prop];
 			rule.value = rule.originalValue;
 			rule.originalValue = undefined;
-		},
+		}
 		
-		
-	    // walks the source code to find the desired node
-	    // does this by finding where the desired node is in sequence with all other nodes of the same tag
-	    // then (somewhat naively) counts such tags until it finds that many instances of the tag
-	    // require source to be scrubbed of potential false positives (see clean_lines())
-	
-	    // FIXME: will fail if any tags of the same type have been added to the page, probably need to make a copy in an iframe and compare that instead
-	    getElementPosition: function(element) {
-	    	var doc = ds.doc;
-	        var tag = element.tagName.toLowerCase();
-	        var allTags = $(doc).find(tag);
-	        var index = allTags.index(element);
-	        var tags = ds.html.types[tag];
-	        if (tags != undefined && tags.length > index) {
-	        	return tags[index].pos;
-	        }
-	    }
 	};
 	return ds;
 })

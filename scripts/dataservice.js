@@ -45,10 +45,14 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				angular.forEach(tags, function(tag) {
 					var start = tag.pos.start,
 						end = tag.pos.end;
-					if (pos.line >= start.line && 
-						pos.line <= end.line && 
-						pos.ch >= start.ch && 
-						pos.ch <= end.ch) {
+					
+					if ((
+						pos.line > start.line ||
+						(pos.line == start.line && pos.ch >= start.ch)
+					) && (
+						pos.line < end.line ||
+						(pos.line == end.line && pos.ch <= end.ch)
+					)) {
 						selTag = tag;
 					}
 				});

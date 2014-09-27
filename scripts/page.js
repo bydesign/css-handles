@@ -14,6 +14,7 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 		link: function($scope, element, attr, ctrl) {
 			this.$page = element.find('#page');
 			this.doc = this.$page[0].contentWindow.document;
+			DataService.doc(this.doc);
 			this.$doc = $(doc);
 			this.sheetsDict = {};
 			var that = this;

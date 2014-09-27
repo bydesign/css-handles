@@ -24,7 +24,7 @@ var ps = {
 			isTextRegex = /[a-zA-Z\%]/,
 			whitespace = ' \t\n\r\v',
 			tags = [],
-			tree = [],
+			types = {},
 			prevChar,
 			prePreChar,
 			startPos,
@@ -36,8 +36,9 @@ var ps = {
 		function endTag(i, j) {
 			curTag.selfclosing = prevChar=='/';
 			if (curTag.tagName == undefined) {
-				curTag.tagName = token;
+				curTag.tagName = token.toLowerCase();
 			}
+			// add tag position
 			curTag.pos = {
 				start: startPos,
 				end: {
@@ -45,12 +46,17 @@ var ps = {
 					ch: j+1
 				}
 			};
-			tags.push(curTag);
-			//console.log(curTag);
+			// add tag parent
 			var parent = curTag;
 			if (curTag.selfclosing) {
 				parent = curTag.parent;
 			}
+			// add to tag types dictionary
+			tags.push(curTag);
+			if (types[curTag.tagName] == undefined) {
+				types[curTag.tagName] = [];
+			}
+			types[curTag.tagName].push(curTag);
 			
 			// start over with new tag object
 			curTag = {
@@ -92,7 +98,7 @@ var ps = {
 							}
 						} else {
 							if (whitespace.indexOf(char) > -1) {
-								curTag.tagName = token;
+								curTag.tagName = token.toLowerCase();
 								token = ''
 								mode = ATTR;
 								
@@ -214,7 +220,10 @@ var ps = {
 		var t1 = performance.now();
 		console.log("Parsing HTML took " + (t1 - t0) + " milliseconds.");
 		
-		return tags;
+		return {
+			tags: tags,
+			types: types
+		};
 	
 	}
 };

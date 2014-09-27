@@ -14,25 +14,38 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			});
 		},
 		
+		doc: function(doc) {
+			ds.doc = doc;
+		},
+		
 		htmlEditorLoaded: function(editor) {
 			ds.editor = editor;
 			editor.on('changes', function(editor, change) {
-				HtmlParser.parse(editor);
+				ds.html = HtmlParser.parse(editor);
+			});
+			editor.on('cursorActivity', function(editor) {
+				var pos = editor.getCursor('anchor');
+				var el = ds.getHtmlElement(pos);
+				if (el != ds.selected) {
+					//ds.select(el);
+				}
 			});
 		},
 		
-		select: function(element, doc) {
+		getHtmlElement: function(pos) {
+			// find element at pos
+			return;
+		},
+		
+		select: function(element) {
 			ds.selected = element;
 			ds.getRules(element);
 			
-			// highlight line in HTML
-			ds.get_clean_lines();
-			var lineNum = ds.line_number(element, doc);
-			ds.editor.setCursor({
-				line: lineNum,
-				ch: 0
-			});
-			ds.editor.focus();
+			var position = ds.getElementPosition(element);
+			if (position != undefined) {
+				ds.editor.setSelection(position.start, position.end);
+				ds.editor.focus();
+			}
 			
 			ds.foldRules();
 			
@@ -311,56 +324,16 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 	    // require source to be scrubbed of potential false positives (see clean_lines())
 	
 	    // FIXME: will fail if any tags of the same type have been added to the page, probably need to make a copy in an iframe and compare that instead
-	    line_number: function(node, doc) {
-	        var tag = node.tagName;
-	        var all_tags = $(doc).find(tag);
-	        var index = all_tags.index(node) + 1;
-	        var num_tags_found = 0;
-	        for (var row = 0; row < ds.clean_lines.length; row++) {
-	            var re = new RegExp('<' + tag, 'gi');
-	            var matches = ds.clean_lines[row].match(re);
-	            if (matches && matches.length) {
-	                num_tags_found += matches.length;
-	                if (num_tags_found >= index) {
-	                    return row;
-	                }
-	            }
+	    getElementPosition: function(element) {
+	    	var doc = ds.doc;
+	        var tag = element.tagName.toLowerCase();
+	        var allTags = $(doc).find(tag);
+	        var index = allTags.index(element);
+	        var tags = ds.html.types[tag];
+	        if (tags != undefined && tags.length > index) {
+	        	return tags[index].pos;
 	        }
-	    },
-	    
-	    get_clean_lines: function() {
-            var lines = ds.editor.getValue().split(/\r?\n/);
-    
-            // now sanitize the raw html so you don't get false hits in code or comments
-            var inside = false;
-            var tag = '';
-            var closing = {
-                xmp: '<\\/\\s*xmp\\s*>',
-                script: '<\\/\\s*script\\s*>',
-                '!--': '-->'
-            };
-            ds.clean_lines = $.map(lines, function(line) {
-                if (inside && line.match(closing[tag])) {
-                    var re = new RegExp('.*(' + closing[tag] + ')', 'i');
-                    line = line.replace(re, "$1");
-                    inside = false;
-                } else if (inside) {
-                    line = '';
-                }
-    
-                if (line.match(/<(script|!--)/)) {
-                    tag = RegExp.$1;
-                    line = line.replace(/<(script|xmp|!--)[^>]*.*(<(\/(script|xmp)|--)?>)/i, "<$1>$2");
-                    var re = new RegExp(closing[tag], 'i');
-                    inside = ! (re).test(line);
-                }
-    
-                // remove quoted strings, because they might have false positive tag matches (like '<span>')
-                line = line.replace(/(["'])(?:[^\\\1]|\\.)*\1/, '$1unsafe_string$1');
-    
-                return line;
-            });
-        }
+	    }
 	};
 	return ds;
 })

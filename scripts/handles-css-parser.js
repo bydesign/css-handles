@@ -225,6 +225,9 @@ var SHORTHAND_STYLES = {
 	},
 	'transform-origin': {
 		'number': ['transform-origin-x', 'transform-origin-y', 'transform-origin-z']
+	},
+	'-webkit-transform-origin': {
+		'number': ['transform-origin-x', 'transform-origin-y', 'transform-origin-z']
 	}
 	
 };
@@ -293,9 +296,10 @@ var ps = {
 		var t0 = performance.now();
 		
 		var COLORFNS = ['rgb','rgba','hsl','hsla'];
+		var MULTIPARTPROPS = ['background', 'background-image', 'background-repeat', 'background-offset', 'box-shadow'];
 		var RULE = 0,
 			ATRULE = 1,
-			PRECOMGROUP = 2,
+			//PRECOMGROUP = 2,
 			PROPERTY = 3,
 			COMMENT = 5,
 			VALFN = 6,
@@ -307,28 +311,172 @@ var ps = {
 			
 		var rules = [];
 		var comments = [];
-		var tree = [];
 		var curToken = '';
-		var curNode = {};
+		var curNode;
+		var tree = [];
 		var isNumberRegex = /[0-9-\.]/,
 			isTextRegex = /[a-zA-Z\%]/,
+			isWhitespaceRegex = /\s/,
+			mode = RULE,
 			prevChar,
 			startPos;
+			
+		
+		function addNode(type, text, parent) {
+			curNode = {
+				parent: parent,
+				children: [],
+				type: type,
+				text: text
+			};
+			
+			if (type == PROPERTY) {
+				if (MULTIPARTPROPS.indexOf(text) != -1) {	// is multipart rule
+					curNode.valueGroups = [];
+					curNode.isGrouped = true;
+					
+				} else if (SHORTHAND_STYLES[text] != undefined) {
+					curNode.isShorthand = true;
+					curNode.values = [];
+				}
+			}
+			
+			if (parent == undefined) {
+				tree.push(curNode);
+			} else {
+				parent.children.push(curNode);
+			}
+			curToken = '';
+			//console.log(curNode);
+		}
 			
 		editor.eachLine(function(handle) {
 			var line = handle.text;
 			prevChar = '\n';
 			
 			for (var j=0, charCount=line.length; j<charCount; j++) {
-				var mode = modes[0];
 				var char = line[j];
 				
 				switch(mode) {
 					case RULE:
+						if (char == '{') {
+							addNode(RULE, curToken.trim(), curNode);
+						
+						} else if (char == ':') {
+							mode = PROPERTY;
+							addNode(PROPERTY, curToken.trim(), curNode);
+						
+						} else if (char == '}') {
+							curNode = curNode.parent;
+							
+						} else if (char == '@') {
+							mode = ATRULE;
+							
+						} else if (char == '*' && prevChar == '/') {
+							mode = COMMENT;
+							curToken += char;
+							
+						} else {
+							curToken += char;
+						}
+						break;
+						
 					case ATRULE:
-					case PRECOMGROUP:
+						if (char == '{') {
+							addNode(ATRULE, curToken.trim(), curNode);
+							mode = RULE;
+						
+						} else if (char == '(') {
+							
+						} else if (char == ')') {
+							
+						} else {
+							curToken += char;
+						}
+						break;
+						
 					case PROPERTY:
+						//if (char == ';' || char == '}') {
+						if (char == ';' || char == '}') {
+							if (curNode.isGrouped) {
+								curNode.valueGroups.push(curToken.trim());
+							
+							} else if (curNode.isShorthand) {
+								curNode.values.push(curToken.trim());
+							
+							} else {
+								curNode.value = curToken.trim();
+							}
+							mode = RULE;
+							curNode = curNode.parent;
+							curToken = '';
+							
+						} else if (curToken.length > 0 && char.match(isWhitespaceRegex)) {
+							if (curNode.isGrouped) {
+								curNode.valueGroups.push(curToken.trim());
+								curToken = '';
+							
+							} else if (curNode.isShorthand) {
+								curNode.values.push(curToken.trim());
+								curToken = '';
+							
+							} else {
+								curToken += char;
+							}
+						
+						} else if (char == ',' && curNode.isGrouped) {
+							curNode.valueGroups.push(curToken.trim());
+							curToken = '';
+						
+						} else {
+							/*if (curToken.length == 0) {
+								startPos = {
+									line: handle,
+									ch: j
+								};
+								if (char.match(isNumberRegex)) {
+									modes.unshift(NUMBERVAL);
+									subval.type = 'number';
+								} else if (char.match(isTextRegex)) {
+									modes.unshift(TEXTVAL);
+									subval.type = 'text';
+								} else if (char == '#') {
+									modes.unshift(COLORVAL);
+									subval.type = 'color';
+								} else if (char == '!') {
+									modes.unshift(IMPORTANTVAL);
+									subval.type = 'important';
+									}
+							} else {
+								if (mode == VALNUMBER && char.match(isTextRegex)) {
+									modes[0] = UNITVAL;
+									//console.log(modes.indexOf(FUNCTION));
+									if (modes.indexOf(FUNCTION) != -1) {
+										if (subval.fnValues != undefined) {
+											subval.fnValues.push({ value: Number(curToken) });
+										}
+									} else {
+										subval.value = Number(curToken);
+									}
+									curToken = '';
+								}
+							}*/
+							curToken += char;
+						}
+						break;
+						
 					case COMMENT:
+						if (char == '/' && prevChar == '*') {
+							mode = RULE;
+							curToken += char;
+							comments.push(curToken);
+							curToken = '';
+							
+						} else {
+							curToken += char;
+						}
+						break;
+					
 					case VALFN:
 					case VALNUMBER:
 					case VALTEXT:
@@ -337,6 +485,8 @@ var ps = {
 					case VALLIST:
 					default:
 				}
+				
+				prevChar = char;
 			}
 		});
 		
@@ -348,6 +498,8 @@ var ps = {
 			comments: comments,
 			tree: tree
 		};
+		console.log(tree);
+		console.log(comments);
 		
 		return parsed;
 		

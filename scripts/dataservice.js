@@ -156,6 +156,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			angular.forEach(ds.sheets, function(sheet) {
 				//var parsedSheet = css.parse(sheet.editor.getValue());
 				var parsedSheet = CssParser.parse(sheet.editor);
+				var parsedSheetAlt = CssParser.parseAlt(sheet.editor);
 				that.parsedSheets.push(parsedSheet);
 				angular.forEach(parsedSheet.rules, function(rule) {
 					//if (rule.selector[0] != '@' && $element.is(rule.selector)) {

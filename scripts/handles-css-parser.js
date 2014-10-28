@@ -289,6 +289,70 @@ var ps = {
 		}
 	},
 	
+	parseAlt: function(editor) {
+		var t0 = performance.now();
+		
+		var COLORFNS = ['rgb','rgba','hsl','hsla'];
+		var RULE = 0,
+			ATRULE = 1,
+			PRECOMGROUP = 2,
+			PROPERTY = 3,
+			COMMENT = 5,
+			VALFN = 6,
+			VALNUM = 7,
+			VALTEXT = 8,
+			VALCOLOR = 9,
+			VALUNIT = 10,
+			VALLIST = 11;
+			
+		var rules = [];
+		var comments = [];
+		var tree = [];
+		var curToken = '';
+		var curNode = {};
+		var isNumberRegex = /[0-9-\.]/,
+			isTextRegex = /[a-zA-Z\%]/,
+			prevChar,
+			startPos;
+			
+		editor.eachLine(function(handle) {
+			var line = handle.text;
+			prevChar = '\n';
+			
+			for (var j=0, charCount=line.length; j<charCount; j++) {
+				var mode = modes[0];
+				var char = line[j];
+				
+				switch(mode) {
+					case RULE:
+					case ATRULE:
+					case PRECOMGROUP:
+					case PROPERTY:
+					case COMMENT:
+					case VALFN:
+					case VALNUMBER:
+					case VALTEXT:
+					case VALCOLOR:
+					case VALUNIT:
+					case VALLIST:
+					default:
+				}
+			}
+		});
+		
+		var t1 = performance.now();
+		console.log("Parsing CSS took " + (t1 - t0) + " milliseconds.");
+		
+		var parsed = {
+			rules: rules,
+			comments: comments,
+			tree: tree
+		};
+		
+		return parsed;
+		
+	},
+	
 	parse: function(editor) {
 		var t0 = performance.now();
 		
@@ -430,7 +494,7 @@ var ps = {
 					//subval.value = curToken;
 					//console.log(curToken);
 					if (modes.indexOf(FUNCTION) != 0) {
-						if (subval.fnValues.length > 0) {
+						if (subval.fnValues != undefined && subval.fnValues.length > 0) {
 							var fnVal = subval.fnValues[subval.fnValues.length-1];
 							var fnVal = ps.modifySubVal(mode, fnVal, curToken);
 							//console.log(fnVal);

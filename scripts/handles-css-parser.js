@@ -299,8 +299,7 @@ var ps = {
 		var MULTIPARTPROPS = ['background', 'background-image', 'background-repeat', 'background-offset', 'box-shadow'];
 		var RULE = 0,
 			ATRULE = 1,
-			//PRECOMGROUP = 2,
-			VALUE = 2,
+			MEDIAPROP = 2,
 			PROPERTY = 3,
 			COMMENT = 5,
 			VALFN = 6,
@@ -308,7 +307,8 @@ var ps = {
 			VALTEXT = 8,
 			VALCOLOR = 9,
 			VALUNIT = 10,
-			VALLIST = 11;
+			VALLIST = 11,
+			VALUE = 12;
 			
 		var rules = [];
 		var comments = [];
@@ -371,6 +371,8 @@ var ps = {
 							curNode = curNode.parent;
 							
 						} else if (char == '@') {
+							addNode(ATRULE, undefined, curNode);
+							curToken = '';
 							mode = ATRULE;
 							
 						} else if (char == '*' && prevChar == '/') {
@@ -384,12 +386,29 @@ var ps = {
 						
 					case ATRULE:
 						if (char == '{') {
-							addNode(ATRULE, curToken.trim(), curNode);
 							mode = RULE;
 						
+						} else if (curToken.length != 0 && char.match(isWhitespaceRegex)) {
+							curNode.text = curToken.trim();
+							curToken = '';
+						
 						} else if (char == '(') {
+							mode = MEDIAPROP;
+							curToken = '';
 							
+						} else {
+							curToken += char;
+						}
+						break;
+						
+					case MEDIAPROP:
+						if (char == ':') {
+							mode = PROPERTY;
+							addNode(PROPERTY, curToken.trim(), curNode);
+						
 						} else if (char == ')') {
+							mode = ATRULE;
+							curToken = '';
 							
 						} else {
 							curToken += char;
@@ -497,6 +516,13 @@ var ps = {
 								
 						} else if (char == ',') {
 							
+						
+						} else if (char == ')') {
+							mode = curNode.parent.parent.type;
+							if (mode == ATRULE) {
+								curNode = curNode.parent.parent;
+								curToken = '';
+							}
 						
 						} else {
 							curToken += char;

@@ -300,6 +300,7 @@ var ps = {
 		var RULE = 0,
 			ATRULE = 1,
 			//PRECOMGROUP = 2,
+			VALUE = 2,
 			PROPERTY = 3,
 			COMMENT = 5,
 			VALFN = 6,
@@ -332,7 +333,8 @@ var ps = {
 			
 			if (type == PROPERTY) {
 				if (MULTIPARTPROPS.indexOf(text) != -1) {	// is multipart rule
-					curNode.valueGroups = [];
+					//curNode.valueGroups = [];
+					//curNode.children.push([]);
 					curNode.isGrouped = true;
 					
 				} else if (SHORTHAND_STYLES[text] != undefined) {
@@ -347,7 +349,6 @@ var ps = {
 				parent.children.push(curNode);
 			}
 			curToken = '';
-			//console.log(curNode);
 		}
 			
 		editor.eachLine(function(handle) {
@@ -396,71 +397,27 @@ var ps = {
 						break;
 						
 					case PROPERTY:
-						//if (char == ';' || char == '}') {
-						if (char == ';' || char == '}') {
-							if (curNode.isGrouped) {
-								curNode.valueGroups.push(curToken.trim());
+						if (char.match(isNumberRegex)) {
+							addNode(VALUNIT, undefined, curNode);
+							mode = VALUNIT;
+							curToken += char;
 							
-							} else if (curNode.isShorthand) {
-								curNode.values.push(curToken.trim());
+						} else if (char.match(isTextRegex)) {
+							addNode(VALTEXT, undefined, curNode);
+							mode = VALTEXT;
+							curToken += char;
 							
-							} else {
-								curNode.value = curToken.trim();
-							}
-							mode = RULE;
-							curNode = curNode.parent;
-							curToken = '';
+						} else if (char == '#') {
+							addNode(VALCOLOR, undefined, curNode);
+							mode = VALCOLOR;
+							curToken += char;
 							
-						} else if (curToken.length > 0 && char.match(isWhitespaceRegex)) {
-							if (curNode.isGrouped) {
-								curNode.valueGroups.push(curToken.trim());
-								curToken = '';
-							
-							} else if (curNode.isShorthand) {
-								curNode.values.push(curToken.trim());
-								curToken = '';
-							
-							} else {
-								curToken += char;
-							}
-						
-						} else if (char == ',' && curNode.isGrouped) {
-							curNode.valueGroups.push(curToken.trim());
-							curToken = '';
+						} else if (char == '!') {
+							//addNode(VALNUMBER, char, curNode);
+							curNode.important = true;
+							curToken += char;
 						
 						} else {
-							/*if (curToken.length == 0) {
-								startPos = {
-									line: handle,
-									ch: j
-								};
-								if (char.match(isNumberRegex)) {
-									modes.unshift(NUMBERVAL);
-									subval.type = 'number';
-								} else if (char.match(isTextRegex)) {
-									modes.unshift(TEXTVAL);
-									subval.type = 'text';
-								} else if (char == '#') {
-									modes.unshift(COLORVAL);
-									subval.type = 'color';
-								} else if (char == '!') {
-									modes.unshift(IMPORTANTVAL);
-									subval.type = 'important';
-									}
-							} else {
-								if (mode == VALNUMBER && char.match(isTextRegex)) {
-									modes[0] = UNITVAL;
-									//console.log(modes.indexOf(FUNCTION));
-									if (modes.indexOf(FUNCTION) != -1) {
-										if (subval.fnValues != undefined) {
-											subval.fnValues.push({ value: Number(curToken) });
-										}
-									} else {
-										subval.value = Number(curToken);
-									}
-									curToken = '';
-								}
-							}*/
 							curToken += char;
 						}
 						break;
@@ -477,11 +434,78 @@ var ps = {
 						}
 						break;
 					
+					case VALTEXT:
+						if (char.match(isWhitespaceRegex)) {
+							mode = PROPERTY;
+							curNode.value = curToken;
+							curNode = curNode.parent;
+							curToken = '';
+							
+						} else if (char == ';') {
+							mode = RULE;
+							curNode.value = curToken;
+							curNode = curNode.parent.parent;
+							curToken = '';
+							
+						} else if (char == ',') {
+							
+						
+						} else {
+							curToken += char;
+						}
+						break;
+						
+					case VALCOLOR:
+						if (char.match(isWhitespaceRegex)) {
+							mode = PROPERTY;
+							curNode.value = curToken;
+							curNode = curNode.parent;
+							curToken = '';
+							
+						} else if (char == ';') {
+							mode = RULE;
+							curNode.value = curToken;
+							curNode = curNode.parent.parent;
+							curToken = '';
+								
+						} else if (char == ',') {
+							
+						
+						} else {
+							curToken += char;
+						}
+						break;
+						
+					case VALUNIT:
+						if (char.match(isWhitespaceRegex)) {
+							mode = PROPERTY;
+							curNode = curNode.parent;
+							curToken = '';
+							
+						} else if (char == ';') {
+							mode = RULE;
+							curNode = curNode.parent.parent;
+							curToken = '';
+						
+						} else if (char.match(isTextRegex)) {
+							if (curNode.unit == undefined) {
+								curNode.value = Number(curToken);
+								curNode.unit = char;
+							} else {
+								curNode.unit += char;
+							}
+								
+						} else if (char == ',') {
+							
+						
+						} else {
+							curToken += char;
+						}
+						break;
+						
+					case VALUE:
 					case VALFN:
 					case VALNUMBER:
-					case VALTEXT:
-					case VALCOLOR:
-					case VALUNIT:
 					case VALLIST:
 					default:
 				}

@@ -339,19 +339,24 @@ var ps = {
 					//curNode.children.push([]);
 					curNode.isGrouped = true;
 					
-				} else if (SHORTHAND_STYLES[value] != undefined) {
+				}
+				if (SHORTHAND_STYLES[value] != undefined || value.indexOf('transform') != -1) {
 					curNode.isShorthand = true;
-					curNode.values = [];
 				}
 			}
 			
 			if (parent == undefined) {
 				tree.push(curNode);
 			} else {
-				if (parent.children == undefined) {
-					parent.children = [];
+				if (parent.type != PROPERTY || parent.isShorthand || parent.isGrouped) {
+					if (parent.children == undefined) {
+						parent.children = [];
+					}
+					parent.children.push(curNode);
+					
+				} else {
+					parent.valobj = curNode;
 				}
-				parent.children.push(curNode);
 			}
 			curToken = '';
 		}

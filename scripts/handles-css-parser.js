@@ -301,13 +301,13 @@ var ps = {
 			ATRULE = 1,
 			MEDIAPROP = 2,
 			PROPERTY = 3,
+			PROPERTYFN = 6,
 			COMMENT = 5,
-			VALFN = 6,
-			VALNUM = 7,
+			//VALNUM = 7,
 			VALTEXT = 8,
 			VALCOLOR = 9,
 			VALUNIT = 10,
-			VALLIST = 11,
+			//VALLIST = 11,
 			VALUE = 12;
 			
 		var rules = [];
@@ -323,21 +323,23 @@ var ps = {
 			startPos;
 			
 		
-		function addNode(type, text, parent) {
+		function addNode(type, value, parent) {
+			//console.log('add node '+value+'('+type + ') to '+(parent != undefined ? parent.value : 'root'));
 			curNode = {
 				parent: parent,
-				children: [],
-				type: type,
-				text: text
+				type: type
 			};
+			if (value != undefined) {
+				curNode.value = value;
+			}
 			
 			if (type == PROPERTY) {
-				if (MULTIPARTPROPS.indexOf(text) != -1) {	// is multipart rule
+				if (MULTIPARTPROPS.indexOf(value) != -1) {	// is multipart rule
 					//curNode.valueGroups = [];
 					//curNode.children.push([]);
 					curNode.isGrouped = true;
 					
-				} else if (SHORTHAND_STYLES[text] != undefined) {
+				} else if (SHORTHAND_STYLES[value] != undefined) {
 					curNode.isShorthand = true;
 					curNode.values = [];
 				}
@@ -346,9 +348,27 @@ var ps = {
 			if (parent == undefined) {
 				tree.push(curNode);
 			} else {
+				if (parent.children == undefined) {
+					parent.children = [];
+				}
 				parent.children.push(curNode);
 			}
 			curToken = '';
+		}
+		
+		function moveUp(num) {
+			var prevNode = curNode;
+			if (num != undefined) {
+				if (num == 2) {
+					curNode = curNode.parent.parent;
+				} else if (num == 3) {
+					curNode = curNode.parent.parent.parent;
+				}
+			} else {
+				curNode = curNode.parent;
+			}
+			curToken = '';
+			//console.log('move from '+prevNode.value+'('+prevNode.type+') to '+(curNode != undefined ? curNode.value+'('+curNode.type+')' : 'root'));
 		}
 			
 		editor.eachLine(function(handle) {
@@ -357,6 +377,11 @@ var ps = {
 			
 			for (var j=0, charCount=line.length; j<charCount; j++) {
 				var char = line[j];
+				if (curNode == undefined) {
+					mode = RULE;
+				} else {
+					mode = curNode.type;
+				}
 				
 				switch(mode) {
 					case RULE:
@@ -364,19 +389,16 @@ var ps = {
 							addNode(RULE, curToken.trim(), curNode);
 						
 						} else if (char == ':') {
-							mode = PROPERTY;
 							addNode(PROPERTY, curToken.trim(), curNode);
 						
 						} else if (char == '}') {
-							curNode = curNode.parent;
+							moveUp();
 							
 						} else if (char == '@') {
 							addNode(ATRULE, undefined, curNode);
-							curToken = '';
-							mode = ATRULE;
 							
 						} else if (char == '*' && prevChar == '/') {
-							mode = COMMENT;
+							addNode(COMMENT, undefined, curNode);
 							curToken += char;
 							
 						} else {
@@ -385,16 +407,27 @@ var ps = {
 						break;
 						
 					case ATRULE:
-						if (char == '{') {
-							mode = RULE;
+						if (char == ':') {
+							addNode(PROPERTY, curToken.trim(), curNode);
 						
-						} else if (curToken.length != 0 && char.match(isWhitespaceRegex)) {
-							curNode.text = curToken.trim();
-							curToken = '';
+						} else if (char == '{') {
+							var tokenTrimmed = curToken.trim();
+							if (tokenTrimmed.length > 0 && curNode.value == 'media') {
+								addNode(RULE, tokenTrimmed, curNode);
+								
+							} else {
+								curNode.value = tokenTrimmed;
+								curToken = '';
+							}
+						
+						} else if (char == '}') {
+							moveUp();
+							
+						} else if (curNode.value == undefined && curToken.length > 0 && char.match(isWhitespaceRegex)) {
+							curNode.value = curToken.trim();
 						
 						} else if (char == '(') {
-							mode = MEDIAPROP;
-							curToken = '';
+							addNode(MEDIAPROP, undefined, curNode);
 							
 						} else {
 							curToken += char;
@@ -403,12 +436,13 @@ var ps = {
 						
 					case MEDIAPROP:
 						if (char == ':') {
-							mode = PROPERTY;
-							addNode(PROPERTY, curToken.trim(), curNode);
+							console.log('CHANGE TO PROPERTY');
+							curNode.type = PROPERTY;
+							curNode.value = curToken.trim();
+							curToken = '';
 						
 						} else if (char == ')') {
-							mode = ATRULE;
-							curToken = '';
+							moveUp();
 							
 						} else {
 							curToken += char;
@@ -416,25 +450,29 @@ var ps = {
 						break;
 						
 					case PROPERTY:
+					case PROPERTYFN:
 						if (char.match(isNumberRegex)) {
-							addNode(VALUNIT, undefined, curNode);
-							mode = VALUNIT;
+							addNode(VALUNIT, Number(char), curNode);
 							curToken += char;
 							
 						} else if (char.match(isTextRegex)) {
-							addNode(VALTEXT, undefined, curNode);
-							mode = VALTEXT;
+							addNode(VALTEXT, char, curNode);
 							curToken += char;
 							
 						} else if (char == '#') {
-							addNode(VALCOLOR, undefined, curNode);
-							mode = VALCOLOR;
+							addNode(VALCOLOR, char, curNode);
 							curToken += char;
 							
 						} else if (char == '!') {
-							//addNode(VALNUMBER, char, curNode);
 							curNode.important = true;
 							curToken += char;
+						
+						} else if (char == '"' || char == "'") {
+							addNode(VALTEXT, undefined, curNode);
+							curNode.quoteChar = char;
+						
+						} else if (char == ')' || char == ';' || char == '{') {
+							moveUp();
 						
 						} else {
 							curToken += char;
@@ -443,10 +481,10 @@ var ps = {
 						
 					case COMMENT:
 						if (char == '/' && prevChar == '*') {
-							mode = RULE;
 							curToken += char;
-							comments.push(curToken);
-							curToken = '';
+							curNode.value = curToken;
+							comments.push(curNode);
+							moveUp();
 							
 						} else {
 							curToken += char;
@@ -454,38 +492,50 @@ var ps = {
 						break;
 					
 					case VALTEXT:
-						if (char.match(isWhitespaceRegex)) {
-							mode = PROPERTY;
-							curNode.value = curToken;
-							curNode = curNode.parent;
-							curToken = '';
-							
-						} else if (char == ';') {
-							mode = RULE;
-							curNode.value = curToken;
-							curNode = curNode.parent.parent;
-							curToken = '';
-							
-						} else if (char == ',') {
-							
+						if (curNode.quoteChar != undefined) {
+							if (char == curNode.quoteChar) {
+								curNode.value = curToken;
+								moveUp();
+							} else {
+								curToken += char;
+							}
 						
 						} else {
-							curToken += char;
+							if (char.match(isWhitespaceRegex)) {
+								curNode.value = curToken;
+								moveUp();
+								
+							} else if (char == ';') {
+								curNode.value = curToken;
+								moveUp(2);
+								
+							} else if (char == ',') {
+								
+							
+							} else if (char == '(') {
+								curNode.value = curToken;
+								curNode.type = PROPERTYFN;
+								curToken = '';
+								
+							} else if (char == ')') {
+								curNode.value = curToken;
+								moveUp(2);
+							
+							} else {
+								curToken += char;
+							}
 						}
 						break;
+					
 						
 					case VALCOLOR:
 						if (char.match(isWhitespaceRegex)) {
-							mode = PROPERTY;
 							curNode.value = curToken;
-							curNode = curNode.parent;
-							curToken = '';
+							moveUp();
 							
 						} else if (char == ';') {
-							mode = RULE;
 							curNode.value = curToken;
-							curNode = curNode.parent.parent;
-							curToken = '';
+							moveUp(2);
 								
 						} else if (char == ',') {
 							
@@ -497,31 +547,33 @@ var ps = {
 						
 					case VALUNIT:
 						if (char.match(isWhitespaceRegex)) {
-							mode = PROPERTY;
-							curNode = curNode.parent;
-							curToken = '';
+							moveUp();
+							
+						} else if (char.match(isNumberRegex)) {
+							curToken += char;
+							curNode.value = Number(curToken);
 							
 						} else if (char == ';') {
-							mode = RULE;
-							curNode = curNode.parent.parent;
-							curToken = '';
+							moveUp(2);
 						
 						} else if (char.match(isTextRegex)) {
 							if (curNode.unit == undefined) {
-								curNode.value = Number(curToken);
-								curNode.unit = char;
-							} else {
-								curNode.unit += char;
+								curNode.unit = '';
 							}
+							curNode.unit += char;
 								
 						} else if (char == ',') {
-							
+							moveUp();
 						
 						} else if (char == ')') {
-							mode = curNode.parent.parent.type;
-							if (mode == ATRULE) {
-								curNode = curNode.parent.parent;
-								curToken = '';
+							if (curNode.parent != undefined && 
+								curNode.parent.parent != undefined && 
+								curNode.parent.parent.value == 'media') 
+							{
+								moveUp();
+								
+							} else {
+								moveUp(2);
 							}
 						
 						} else {
@@ -530,8 +582,6 @@ var ps = {
 						break;
 						
 					case VALUE:
-					case VALFN:
-					case VALNUMBER:
 					case VALLIST:
 					default:
 				}
@@ -549,7 +599,7 @@ var ps = {
 			tree: tree
 		};
 		console.log(tree);
-		console.log(comments);
+		//console.log(comments);
 		
 		return parsed;
 		

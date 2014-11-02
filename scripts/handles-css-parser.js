@@ -307,7 +307,7 @@ var ps = {
 			VALTEXT = 8,
 			VALCOLOR = 9,
 			VALUNIT = 10,
-			//VALLIST = 11,
+			VALGROUP = 11,
 			VALUE = 12;
 			
 		var rules = [];
@@ -316,7 +316,7 @@ var ps = {
 		var curNode;
 		var tree = [];
 		var isNumberRegex = /[0-9-\.]/,
-			isTextRegex = /[a-zA-Z\%]/,
+			isTextRegex = /[a-zA-Z-\%]/,
 			isWhitespaceRegex = /\s/,
 			mode = RULE,
 			prevChar,
@@ -348,7 +348,23 @@ var ps = {
 			if (parent == undefined) {
 				tree.push(curNode);
 			} else {
-				if (parent.type != PROPERTY || parent.isShorthand || parent.isGrouped) {
+				if (parent.isShorthand && parent.isGrouped) {
+					if (parent.children == undefined) {
+						parent.children = [];
+					}
+					var groupedNode = {
+						parent: parent,
+						type: VALGROUP,
+						children: [curNode]
+					};
+					curNode.parent = groupedNode;
+					parent.children.push(groupedNode);
+				
+				} else if (parent.type != PROPERTY || 
+						   parent.type == VALGROUP || 
+						   parent.isShorthand || 
+						   parent.isGrouped) 
+				{
 					if (parent.children == undefined) {
 						parent.children = [];
 					}
@@ -374,6 +390,22 @@ var ps = {
 			}
 			curToken = '';
 			//console.log('move from '+prevNode.value+'('+prevNode.type+') to '+(curNode != undefined ? curNode.value+'('+curNode.type+')' : 'root'));
+		}
+		
+		function addGroup() {
+			curNode.value = curToken;
+			if (isShortGrouped()) {
+				moveUp(2);
+			} else {
+				moveUp();
+			}
+		}
+		
+		function isShortGrouped() {
+			return curNode.parent != undefined && 
+				   curNode.parent.parent != undefined && 
+				   curNode.parent.parent.isShorthand && 
+				   curNode.parent.parent.isGrouped;
 		}
 			
 		editor.eachLine(function(handle) {
@@ -441,7 +473,6 @@ var ps = {
 						
 					case MEDIAPROP:
 						if (char == ':') {
-							console.log('CHANGE TO PROPERTY');
 							curNode.type = PROPERTY;
 							curNode.value = curToken.trim();
 							curToken = '';
@@ -455,6 +486,7 @@ var ps = {
 						break;
 						
 					case PROPERTY:
+					case VALGROUP:
 					case PROPERTYFN:
 						if (char.match(isNumberRegex)) {
 							addNode(VALUNIT, Number(char), curNode);
@@ -512,10 +544,14 @@ var ps = {
 								
 							} else if (char == ';') {
 								curNode.value = curToken;
-								moveUp(2);
+								if (isShortGrouped()) {
+									moveUp(3);
+								} else {
+									moveUp(2);
+								}
 								
 							} else if (char == ',') {
-								
+								addGroup();
 							
 							} else if (char == '(') {
 								curNode.value = curToken;
@@ -540,10 +576,14 @@ var ps = {
 							
 						} else if (char == ';') {
 							curNode.value = curToken;
-							moveUp(2);
+							if (isShortGrouped()) {
+								moveUp(3);
+							} else {
+								moveUp(2);
+							}
 								
 						} else if (char == ',') {
-							
+							addGroup();
 						
 						} else {
 							curToken += char;
@@ -559,7 +599,11 @@ var ps = {
 							curNode.value = Number(curToken);
 							
 						} else if (char == ';') {
-							moveUp(2);
+							if (isShortGrouped()) {
+								moveUp(3);
+							} else {
+								moveUp(2);
+							}
 						
 						} else if (char.match(isTextRegex)) {
 							if (curNode.unit == undefined) {
@@ -568,7 +612,7 @@ var ps = {
 							curNode.unit += char;
 								
 						} else if (char == ',') {
-							moveUp();
+							addGroup();
 						
 						} else if (char == ')') {
 							if (curNode.parent != undefined && 
@@ -587,7 +631,7 @@ var ps = {
 						break;
 						
 					case VALUE:
-					case VALLIST:
+					//case VALLIST:
 					default:
 				}
 				
@@ -740,28 +784,21 @@ var ps = {
 						subval.fnValues = [];
 						
 						curFn = curToken;
-						//console.log(curToken);
 						curToken = '';
 					}
 					modes.unshift(FUNCTION);
 						
 				// end function
 				} else if (char == ')') {
-					//console.log('function value: ' + curToken);
-					//subval.value = curToken;
-					//console.log(curToken);
 					if (modes.indexOf(FUNCTION) != 0) {
 						if (subval.fnValues != undefined && subval.fnValues.length > 0) {
 							var fnVal = subval.fnValues[subval.fnValues.length-1];
 							var fnVal = ps.modifySubVal(mode, fnVal, curToken);
-							//console.log(fnVal);
 						}
 						curFn = '';
 						modes.shift();
 						modes.shift();
-						//console.log(modes);
 					}
-					//curToken = '';
 				
 				// parse commas
 				} else if (char == ',') {
@@ -769,13 +806,6 @@ var ps = {
 						curToken += char;
 						prevChar = char;
 					}
-					//console.log('comma');
-					/*if (mode = FUNCTION) {
-						console.log(subval);
-						console.log('function parameter: ' + curToken);
-					} else if (mode = VALUE) {
-						console.log('multi-part value');
-					}*/
 				
 				// end property value
 				} else if (char == ';') {
@@ -814,7 +844,6 @@ var ps = {
 							ch: j
 						};
 						if (mode == VALUE || mode == FUNCTION) {
-							//console.log('function mode: '+(mode == FUNCTION));
 							if (char.match(isNumberRegex)) {
 								modes.unshift(NUMBERVAL);
 								subval.type = 'number';
@@ -832,7 +861,6 @@ var ps = {
 					} else {
 						if (mode == NUMBERVAL && char.match(isTextRegex)) {
 							modes[0] = UNITVAL;
-							//console.log(modes.indexOf(FUNCTION));
 							if (modes.indexOf(FUNCTION) != -1) {
 								if (subval.fnValues != undefined) {
 									subval.fnValues.push({ value: Number(curToken) });

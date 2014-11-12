@@ -542,6 +542,16 @@
 					borderTop + (paddingTop + contentHeight + paddingBottom)/2 + offset.top
 				)">
 			</handle>
+			<handle class="ew-resize" prop="-webkit-transform:rotate"
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform:rotate')" 
+				dir="horiz" 
+				unit="deg" 
+				allownegative="true" 
+				ng-style="transform(
+					borderLeft + paddingLeft + contentWidth + borderRight + paddingRight + offset.left, 
+					offset.top
+				)">
+			</handle>
 		</div>
 	
 	</div>

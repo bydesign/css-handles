@@ -390,8 +390,13 @@ var ps = {
 			var prevNode = curNode;
 			if (num != undefined) {
 				if (num == 2) {
+					if (curNode.parent.pos != undefined) {
+						curNode.parent.pos.end = endPos;
+					}
 					curNode = curNode.parent.parent;
 				} else if (num == 3) {
+					//curNode.parent.pos.end = endPos;
+					//curNode.parent.parent.pos.end = endPos;
 					curNode = curNode.parent.parent.parent;
 				}
 			} else {

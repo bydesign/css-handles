@@ -198,9 +198,9 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				}
 			}
 		},
-		updateEditor: function(newVal, prop) {
+		updateEditor: function(newVal, prop, propName) {
 			var editor = prop.rule.sheet.editor;
-			var valObj = ds.getValObj(prop, prop.value);
+			var valObj = ds.getValObj(prop, propName);
 			var pos = valObj.pos;
 			var newStr = newVal + (valObj.unit ? valObj.unit : '');
 			if (pos) {
@@ -218,37 +218,68 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			
 			// create new rule
 			} else {
-				var def = '\t' + prop.name + ': ';
-				var startPos = def.length-1;
-				def += newStr + ';\n';
-				var line = editor.getLineNumber(prop.rule.pos.end.line);
-				editor.replaceRange(def, {
-					line: line,
-					ch: prop.rule.pos.end.ch
-				});
-				// set property's position
-				prop.valobj.pos = {
-					start: {
-						line: editor.getLineHandle(line),
-						ch: startPos+1
-					},
-					end: {
-						line: editor.getLineHandle(line),
-						ch: startPos + newStr.length+1
-					}
-				};
+				if (propName.indexOf(':') != -1) {
+					console.log(newVal);
+					console.log(prop);
+					console.log(propName);
+					var fn = propName.split(':')[1];
+					var def = ' ' + fn + '(' + newStr + ')';
+					var pos = prop.children[0].pos;
+					var startPos = pos.end.ch + 1;
+					var line = editor.getLineNumber(pos.end.line);
+					editor.replaceRange(def, {
+						line: line,
+						ch: startPos
+					});
+					
+					// set property's position
+					valObj.pos = {
+						start: {
+							line: editor.getLineHandle(line),
+							ch: startPos + fn.length + 2
+						},
+						end: {
+							line: editor.getLineHandle(line),
+							ch: startPos + def.length - 1
+						}
+					};
+				
+				} else {
+					var def = '\t' + prop.name + ': ';
+					var startPos = def.length-1;
+					def += newStr + ';\n';
+					var line = editor.getLineNumber(prop.rule.pos.end.line);
+					editor.replaceRange(def, {
+						line: line,
+						ch: prop.rule.pos.end.ch
+					});
+					// set property's position
+					valObj.pos = {
+						start: {
+							line: editor.getLineHandle(line),
+							ch: startPos+1
+						},
+						end: {
+							line: editor.getLineHandle(line),
+							ch: startPos + newStr.length+1
+						}
+					};
+				}
 			}
-			ds.selectValue(prop);
+			ds.selectValue(prop, propName);
 		},
 		
 		getValObj: function(rule, prop) {
 			var obj;
 			if (prop.indexOf(':') != -1) {
 				var fn = prop.split(':')[1];
-				for (var i=0, len=rule.children.length; i<len; i++) {
-					var child = rule.children[i];
-					if (child.value == fn) {
-						obj = child.children[0];
+				var children = rule.children;
+				if (children != undefined) {
+					for (var i=0, len=children.length; i<len; i++) {
+						var child = children[i];
+						if (child.value == fn) {
+							obj = child.children[0];
+						}
 					}
 				}
 				
@@ -313,15 +344,31 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		getRule: function(prop, create, unit) {
 			var rule;
+			var propName = prop;
 			if (prop.indexOf(':') != -1) {
 				var parts = prop.split(':');
 				prop = parts[0];
 				fn = parts[1];
-				var children = ds.properties[prop].children;
-				for (var i=0, len=children.length; i<len; i++) {
-					var child = children[i];
-					if (child.value == fn) {
-						rule = ds.properties[prop];
+				var posRule = ds.properties[prop];
+				var children = posRule.children;
+				if (children != undefined) {
+					for (var i=0, len=children.length; i<len; i++) {
+						var child = children[i];
+						if (child.value == fn) {
+							rule = ds.properties[prop];
+						}
+					}
+					if (rule == undefined && create) {
+						children.push({
+							value: fn,
+							type: 6,
+							parent: posRule,
+							children: [{
+								value: 0,
+								unit: unit
+							}]
+						});
+						rule = posRule;
 					}
 				}
 			} else {
@@ -390,7 +437,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			
 			// apply value to css rule
 			valObj.value = newNum;
-			ds.updateEditor(newNum, rule);
+			ds.updateEditor(newNum, rule, prop);
 		},
 		
 		finalizePixelMove: function(prop) {
@@ -415,7 +462,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					},
 					rule: ds.rules[ds.rules.length-1]
 				}
-				ds.updateEditor('0', rule);
+				ds.updateEditor('0', rule, prop);
 				ds.properties[prop] = rule;
 			}
 			$rootScope.$broadcast('handleStopDrag', rule);

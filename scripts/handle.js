@@ -21,11 +21,11 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 		var startX = 0, startY = 0, x = 0, y = 0,
 			prop = $scope.prop, valWrapper;
 			
-		if (prop.indexOf(':') != -1) {
+		/*if (prop.indexOf(':') != -1) {
 			var parts = prop.split(':');
 			prop = parts[0];
 			valWrapper = parts[1];
-		}
+		}*/
 		
 		element.on('mouseover', function(event) {
 			// call hover event for property

@@ -191,7 +191,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		// this number is used for color coding handles and rules
 		getRuleIndex: function(prop) {
 			if (ds.properties != undefined) {
-				var rule = ds.properties[prop];
+				var rule = ds.getRule(prop);
 				if (rule != undefined) {
 					return 1;
 					//return rule.rule.index;
@@ -200,7 +200,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		updateEditor: function(newVal, prop) {
 			var editor = prop.rule.sheet.editor;
-			var valObj = ds.getValObj(prop);
+			var valObj = ds.getValObj(prop, prop.value);
 			var pos = valObj.pos;
 			var newStr = newVal + (valObj.unit ? valObj.unit : '');
 			if (pos) {
@@ -241,10 +241,20 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			ds.selectValue(prop);
 		},
 		
-		getValObj: function(rule) {
+		getValObj: function(rule, prop) {
 			var obj;
-			if (rule.isShorthand) {	// need to add support for all box model arrangements
-				obj = rule.children[0];
+			if (prop.indexOf(':') != -1) {
+				var fn = prop.split(':')[1];
+				for (var i=0, len=rule.children.length; i<len; i++) {
+					var child = rule.children[i];
+					if (child.value == fn) {
+						obj = child.children[0];
+					}
+				}
+				
+			} else if (rule.isShorthand) {	// need to add support for all box model arrangements
+				 obj = rule.children[0];
+				
 			} else if (rule.valobj != undefined) {
 				obj = rule.valobj;
 			}
@@ -252,10 +262,10 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		
 		handleMouseOver: function(prop) {
-			var rule = ds.properties[prop];
+			var rule = ds.getRule(prop);
 			if (rule != undefined) {
 				var editor = rule.rule.sheet.editor;
-				var pos = ds.getValObj(rule).pos;
+				var pos = ds.getValObj(rule, prop).pos;
 				var line = editor.getLineNumber(pos.start.line);
 				editor.addLineClass(line, 'background', 'hoverLine');
 				editor.scrollIntoView({
@@ -267,26 +277,26 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		
 		handleMouseOut: function(prop) {
-			var rule = ds.properties[prop];
+			var rule = ds.getRule(prop);
 			if (rule != undefined) {
 				var editor = rule.rule.sheet.editor;
-				var pos = ds.getValObj(rule).pos;
+				var pos = ds.getValObj(rule, prop).pos;
 				editor.removeLineClass(pos.start.line, 'background', 'hoverLine');
 			}
 			$rootScope.$broadcast('handleMouseOut', prop);
 		},
 		
 		handleStartDrag: function(prop) {
-			var rule = ds.properties[prop];
+			var rule = ds.getRule(prop);
 			if (rule != undefined) {
-				ds.selectValue(rule);
+				ds.selectValue(rule, prop);
 			}
 			$rootScope.$broadcast('handleStartDrag', prop);
 		},
 		
-		selectValue: function(prop) {
-			var editor = prop.rule.sheet.editor;
-			var pos = ds.getValObj(prop).pos;
+		selectValue: function(rule, prop) {
+			var editor = rule.rule.sheet.editor;
+			var pos = ds.getValObj(rule, prop).pos;
 			if (pos) {
 				var start = editor.getLineNumber(pos.start.line);
 				var end = editor.getLineNumber(pos.end.line);
@@ -301,14 +311,44 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			}
 		},
 		
+		getRule: function(prop, create, unit) {
+			var rule;
+			if (prop.indexOf(':') != -1) {
+				var parts = prop.split(':');
+				prop = parts[0];
+				fn = parts[1];
+				var children = ds.properties[prop].children;
+				for (var i=0, len=children.length; i<len; i++) {
+					var child = children[i];
+					if (child.value == fn) {
+						rule = ds.properties[prop];
+					}
+				}
+			} else {
+				rule = ds.properties[prop];
+			}
+			
+			if (rule == undefined && create) {
+				rule = {
+					name: prop,
+					valobj: {
+						value: 0,
+						unit: unit,
+					},
+					rule: ds.rules[ds.rules.length-1]
+				}
+				ds.properties[prop] = rule;
+			}
+			return rule;
+		},
+		
 		proposePixelMove: function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
 			// add grid/object snapping
 			// determine active rule
 			//var activeRule = this.activeRule;
-			var rule = ds.properties[prop];
-			
+			//var rule = ds.properties[prop];
 			// define new style if property isn't defined yet
-			if (rule == undefined) {
+			/*if (rule == undefined) {
 				rule = {
 					name: prop,
 					valobj: {
@@ -318,24 +358,26 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					rule: ds.rules[ds.rules.length-1]
 				}
 				ds.properties[prop] = rule;
-			}
-			var valObj = ds.getValObj(rule);
+			}*/
+			var rule = ds.getRule(prop, true, defaultUnit);
+			var valObj = ds.getValObj(rule, prop);
+			var unit = valObj.unit;
 			if (valObj.originalValue == undefined) {
 				valObj.originalValue = valObj.value;
 			}
 			
 			// convert pixels to %, em, etc. when needed
-			if (valObj.unit == '%') {
+			if (unit == '%') {
 				if (percentDenom > 0 || percentDenom < 0) {
 					val = val / percentDenom * 100;
 				} else {
 					val = 0;
 				}
-			} else if (valObj.unit == 'em') {
+			} else if (unit == 'em') {
 				val = val / emDenom;
 			}
 			//val *= this.zoomFactor;
-			if (valObj.unit == 'px') {
+			if (unit == 'px') {
 				val = Math.round(val);
 			}
 			
@@ -352,8 +394,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		
 		finalizePixelMove: function(prop) {
-			var rule = ds.properties[prop];
-			var valObj = ds.getValObj(rule);
+			var rule = ds.getRule(prop);
+			var valObj = ds.getValObj(rule, prop);
 			// finalize property
 			if (rule != undefined) {
 				valObj.originalValue = undefined;
@@ -382,7 +424,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		// used for cancelling a handle drag before release
 		cancelPixelMove: function(prop) {
 			console.log('cancel drag: '+prop);
-			var rule = ds.properties[prop];
+			var rule = ds.getRule(prop);
 			rule.value = rule.originalValue;
 			rule.originalValue = undefined;
 		}

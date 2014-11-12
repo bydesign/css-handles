@@ -155,19 +155,22 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var that = this;
 			angular.forEach(ds.sheets, function(sheet) {
 				//var parsedSheet = css.parse(sheet.editor.getValue());
-				var parsedSheet = CssParser.parse(sheet.editor);
-				var parsedSheetAlt = CssParser.parseAlt(sheet.editor);
+				var parsedSheet = CssParser.parseAlt(sheet.editor);
+				//var parsedSheetAlt = CssParser.parse(sheet.editor);
 				that.parsedSheets.push(parsedSheet);
 				angular.forEach(parsedSheet.rules, function(rule) {
 					//if (rule.selector[0] != '@' && $element.is(rule.selector)) {
-					if (rule.selector[0] != '@' && element.matches(rule.selector)) {
+					//if (rule.selector[0] != '@' && element.matches(rule.selector)) {
+					//console.log(rule.value);
+					if (element.matches(rule.value)) {
 					
 						rule.sheet = sheet;
 						ds.rules.push(rule);
 						
-						angular.forEach(rule.properties, function(prop) {
+						angular.forEach(rule.children, function(prop) {
 							prop.rule = rule;
-							ds.properties[prop.name] = prop;
+							//console.log('--'+prop.value);
+							ds.properties[prop.value] = prop;
 						});
 						
 					}/* else if (rule.type == "media") {
@@ -197,19 +200,20 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		updateEditor: function(newVal, prop) {
 			var editor = prop.rule.sheet.editor;
-			var newStr = newVal + (prop.unit ? prop.unit : '');
-			if (prop.pos != undefined) {
+			var newStr = newVal + (prop.valobj.unit ? prop.valobj.unit : '');
+			if (prop.valobj.pos != undefined) {
+				var pos = prop.valobj.pos;
 				var start = {
-					line: editor.getLineNumber(prop.pos.start.line),
-					ch: prop.pos.start.ch
+					line: editor.getLineNumber(pos.start.line),
+					ch: pos.start.ch
 				};
 				var end = {
-					line: editor.getLineNumber(prop.pos.end.line),
-					ch: prop.pos.end.ch
+					line: editor.getLineNumber(pos.end.line),
+					ch: pos.end.ch
 				};
 				editor.replaceRange(newStr, start, end);
 				//editor.setCursor(start);
-				prop.pos.end.ch = start.ch + newStr.length;
+				pos.end.ch = start.ch + newStr.length;
 			
 			// create new rule
 			} else {
@@ -222,7 +226,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					ch: prop.rule.pos.end.ch
 				});
 				// set property's position
-				prop.pos = {
+				prop.valobj.pos = {
 					start: {
 						line: editor.getLineHandle(line),
 						ch: startPos+1
@@ -240,7 +244,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var rule = ds.properties[prop];
 			if (rule != undefined) {
 				var editor = rule.rule.sheet.editor;
-				var line = editor.getLineNumber(rule.pos.start.line);
+				var line = editor.getLineNumber(rule.valobj.pos.start.line);
 				editor.addLineClass(line, 'background', 'hoverLine');
 				editor.scrollIntoView({
 					line: line,
@@ -254,7 +258,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var rule = ds.properties[prop];
 			if (rule != undefined) {
 				var editor = rule.rule.sheet.editor;
-				editor.removeLineClass(rule.pos.start.line, 'background', 'hoverLine');
+				editor.removeLineClass(rule.valobj.pos.start.line, 'background', 'hoverLine');
 			}
 			$rootScope.$broadcast('handleMouseOut', prop);
 		},
@@ -269,16 +273,19 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		selectValue: function(prop) {
 			var editor = prop.rule.sheet.editor;
-			var start = editor.getLineNumber(prop.pos.start.line);
-			var end = editor.getLineNumber(prop.pos.end.line);
-			editor.setSelection({
-				line: start, 
-				ch: prop.pos.start.ch
-			}, {
-				line: end, 
-				ch: prop.pos.end.ch
-			});
-			editor.focus();
+			if (prop.valobj.pos != undefined) {
+				var pos = prop.valobj.pos;
+				var start = editor.getLineNumber(pos.start.line);
+				var end = editor.getLineNumber(pos.end.line);
+				editor.setSelection({
+					line: start, 
+					ch: pos.start.ch
+				}, {
+					line: end, 
+					ch: pos.end.ch
+				});
+				editor.focus();
+			}
 		},
 		
 		proposePixelMove: function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
@@ -291,29 +298,31 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			if (rule == undefined) {
 				rule = {
 					name: prop,
-					value: 0,
-					unit: defaultUnit,
+					valobj: {
+						value: 0,
+						unit: defaultUnit,
+					},
 					rule: ds.rules[ds.rules.length-1]
 				}
 				ds.properties[prop] = rule;
 			}
 			
 			if (rule.originalValue == undefined) {
-				rule.originalValue = rule.value;
+				rule.originalValue = rule.valobj.value;
 			}
 			
 			// convert pixels to %, em, etc. when needed
-			if (rule.unit == '%') {
+			if (rule.valobj.unit == '%') {
 				if (percentDenom > 0 || percentDenom < 0) {
 					val = val / percentDenom * 100;
 				} else {
 					val = 0;
 				}
-			} else if (rule.unit == 'em') {
+			} else if (rule.valobj.unit == 'em') {
 				val = val / emDenom;
 			}
 			//val *= this.zoomFactor;
-			if (rule.unit == 'px') {
+			if (rule.valobj.unit == 'px') {
 				val = Math.round(val);
 			}
 			
@@ -325,7 +334,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			newNum = Math.round(newNum * 1000) / 1000;
 			
 			// apply value to css rule
-			rule.value = newNum;
+			rule.valobj.value = newNum;
 			ds.updateEditor(newNum, rule);
 		},
 		
@@ -344,8 +353,10 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			} else {
 				rule = {
 					name: prop,
-					value: 0,
-					unit: '',
+					valobj: {
+						value: 0,
+						unit: ''
+					},
 					rule: ds.rules[ds.rules.length-1]
 				}
 				ds.updateEditor('0', rule);

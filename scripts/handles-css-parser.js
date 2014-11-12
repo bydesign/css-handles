@@ -323,20 +323,24 @@ var ps = {
 			startPos;
 			
 		
-		function addNode(type, value, parent) {
+		function addNode(type, value, parent, startPos) {
 			//console.log('add node '+value+'('+type + ') to '+(parent != undefined ? parent.value : 'root'));
 			curNode = {
 				parent: parent,
-				type: type
+				type: type,
+				pos: {
+					start: startPos
+				}
 			};
+			if (startPos != undefined) {
+				curNode.pos.start = startPos;
+			}
 			if (value != undefined) {
 				curNode.value = value;
 			}
 			
 			if (type == PROPERTY) {
 				if (MULTIPARTPROPS.indexOf(value) != -1) {	// is multipart rule
-					//curNode.valueGroups = [];
-					//curNode.children.push([]);
 					curNode.isGrouped = true;
 					
 				}
@@ -347,6 +351,7 @@ var ps = {
 			
 			if (parent == undefined) {
 				tree.push(curNode);
+				
 			} else {
 				if (parent.isShorthand && parent.isGrouped) {
 					if (parent.children == undefined) {
@@ -375,9 +380,13 @@ var ps = {
 				}
 			}
 			curToken = '';
+			if (type == RULE) {
+				rules.push(curNode);
+			}
 		}
 		
-		function moveUp(num) {
+		function moveUp(endPos, num) {
+			curNode.pos.end = endPos;
 			var prevNode = curNode;
 			if (num != undefined) {
 				if (num == 2) {
@@ -392,12 +401,12 @@ var ps = {
 			//console.log('move from '+prevNode.value+'('+prevNode.type+') to '+(curNode != undefined ? curNode.value+'('+curNode.type+')' : 'root'));
 		}
 		
-		function addGroup() {
+		function addGroup(endPos) {
 			curNode.value = curToken;
 			if (isShortGrouped()) {
-				moveUp(2);
+				moveUp(endPos, 2);
 			} else {
-				moveUp();
+				moveUp(endPos);
 			}
 		}
 		
@@ -423,19 +432,19 @@ var ps = {
 				switch(mode) {
 					case RULE:
 						if (char == '{') {
-							addNode(RULE, curToken.trim(), curNode);
+							addNode(RULE, curToken.trim(), curNode, { line:handle, ch:j });
 						
 						} else if (char == ':') {
-							addNode(PROPERTY, curToken.trim(), curNode);
+							addNode(PROPERTY, curToken.trim(), curNode, { line:handle, ch:j });
 						
 						} else if (char == '}') {
-							moveUp();
+							moveUp({ line:handle, ch:j });
 							
 						} else if (char == '@') {
-							addNode(ATRULE, undefined, curNode);
+							addNode(ATRULE, undefined, curNode, { line:handle, ch:j });
 							
 						} else if (char == '*' && prevChar == '/') {
-							addNode(COMMENT, undefined, curNode);
+							addNode(COMMENT, undefined, curNode, { line:handle, ch:j-1 });
 							curToken += char;
 							
 						} else {
@@ -445,12 +454,12 @@ var ps = {
 						
 					case ATRULE:
 						if (char == ':') {
-							addNode(PROPERTY, curToken.trim(), curNode);
+							addNode(PROPERTY, curToken.trim(), curNode, { line:handle, ch:j });
 						
 						} else if (char == '{') {
 							var tokenTrimmed = curToken.trim();
 							if (tokenTrimmed.length > 0 && curNode.value == 'media') {
-								addNode(RULE, tokenTrimmed, curNode);
+								addNode(RULE, tokenTrimmed, curNode, { line:handle, ch:j });
 								
 							} else {
 								curNode.value = tokenTrimmed;
@@ -458,13 +467,13 @@ var ps = {
 							}
 						
 						} else if (char == '}') {
-							moveUp();
+							moveUp({ line:handle, ch:j });
 							
 						} else if (curNode.value == undefined && curToken.length > 0 && char.match(isWhitespaceRegex)) {
 							curNode.value = curToken.trim();
 						
 						} else if (char == '(') {
-							addNode(MEDIAPROP, undefined, curNode);
+							addNode(MEDIAPROP, undefined, curNode, { line:handle, ch:j });
 							
 						} else {
 							curToken += char;
@@ -478,7 +487,7 @@ var ps = {
 							curToken = '';
 						
 						} else if (char == ')') {
-							moveUp();
+							moveUp({ line:handle, ch:j });
 							
 						} else {
 							curToken += char;
@@ -489,15 +498,15 @@ var ps = {
 					case VALGROUP:
 					case PROPERTYFN:
 						if (char.match(isNumberRegex)) {
-							addNode(VALUNIT, Number(char), curNode);
+							addNode(VALUNIT, Number(char), curNode, { line:handle, ch:j });
 							curToken += char;
 							
 						} else if (char.match(isTextRegex)) {
-							addNode(VALTEXT, char, curNode);
+							addNode(VALTEXT, char, curNode, { line:handle, ch:j });
 							curToken += char;
 							
 						} else if (char == '#') {
-							addNode(VALCOLOR, char, curNode);
+							addNode(VALCOLOR, char, curNode, { line:handle, ch:j });
 							curToken += char;
 							
 						} else if (char == '!') {
@@ -505,11 +514,11 @@ var ps = {
 							curToken += char;
 						
 						} else if (char == '"' || char == "'") {
-							addNode(VALTEXT, undefined, curNode);
+							addNode(VALTEXT, undefined, curNode, { line:handle, ch:j });
 							curNode.quoteChar = char;
 						
 						} else if (char == ')' || char == ';' || char == '{') {
-							moveUp();
+							moveUp({ line:handle, ch:j });
 						
 						} else {
 							curToken += char;
@@ -521,7 +530,7 @@ var ps = {
 							curToken += char;
 							curNode.value = curToken;
 							comments.push(curNode);
-							moveUp();
+							moveUp({ line:handle, ch:j });
 							
 						} else {
 							curToken += char;
@@ -532,7 +541,7 @@ var ps = {
 						if (curNode.quoteChar != undefined) {
 							if (char == curNode.quoteChar) {
 								curNode.value = curToken;
-								moveUp();
+								moveUp({ line:handle, ch:j });
 							} else {
 								curToken += char;
 							}
@@ -540,18 +549,18 @@ var ps = {
 						} else {
 							if (char.match(isWhitespaceRegex)) {
 								curNode.value = curToken;
-								moveUp();
+								moveUp({ line:handle, ch:j });
 								
 							} else if (char == ';') {
 								curNode.value = curToken;
 								if (isShortGrouped()) {
-									moveUp(3);
+									moveUp({ line:handle, ch:j }, 3);
 								} else {
-									moveUp(2);
+									moveUp({ line:handle, ch:j }, 2);
 								}
 								
 							} else if (char == ',') {
-								addGroup();
+								addGroup({ line:handle, ch:j });
 							
 							} else if (char == '(') {
 								curNode.value = curToken;
@@ -560,7 +569,7 @@ var ps = {
 								
 							} else if (char == ')') {
 								curNode.value = curToken;
-								moveUp(2);
+								moveUp({ line:handle, ch:j }, 2);
 							
 							} else {
 								curToken += char;
@@ -572,18 +581,18 @@ var ps = {
 					case VALCOLOR:
 						if (char.match(isWhitespaceRegex)) {
 							curNode.value = curToken;
-							moveUp();
+							moveUp({ line:handle, ch:j });
 							
 						} else if (char == ';') {
 							curNode.value = curToken;
 							if (isShortGrouped()) {
-								moveUp(3);
+								moveUp({ line:handle, ch:j }, 3);
 							} else {
-								moveUp(2);
+								moveUp({ line:handle, ch:j }, 2);
 							}
 								
 						} else if (char == ',') {
-							addGroup();
+							addGroup({ line:handle, ch:j });
 						
 						} else {
 							curToken += char;
@@ -592,7 +601,7 @@ var ps = {
 						
 					case VALUNIT:
 						if (char.match(isWhitespaceRegex)) {
-							moveUp();
+							moveUp({ line:handle, ch:j });
 							
 						} else if (char.match(isNumberRegex)) {
 							curToken += char;
@@ -600,9 +609,9 @@ var ps = {
 							
 						} else if (char == ';') {
 							if (isShortGrouped()) {
-								moveUp(3);
+								moveUp({ line:handle, ch:j }, 3);
 							} else {
-								moveUp(2);
+								moveUp({ line:handle, ch:j }, 2);
 							}
 						
 						} else if (char.match(isTextRegex)) {
@@ -612,17 +621,17 @@ var ps = {
 							curNode.unit += char;
 								
 						} else if (char == ',') {
-							addGroup();
+							addGroup({ line:handle, ch:j });
 						
 						} else if (char == ')') {
 							if (curNode.parent != undefined && 
 								curNode.parent.parent != undefined && 
 								curNode.parent.parent.value == 'media') 
 							{
-								moveUp();
+								moveUp({ line:handle, ch:j });
 								
 							} else {
-								moveUp(2);
+								moveUp({ line:handle, ch:j }, 2);
 							}
 						
 						} else {
@@ -876,6 +885,8 @@ var ps = {
 				prevChar = char;
 			}
 		});
+		
+		//console.log(parsed);
 		
 		var t1 = performance.now();
 		console.log("Parsing CSS took " + (t1 - t0) + " milliseconds.");

@@ -200,9 +200,10 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		updateEditor: function(newVal, prop) {
 			var editor = prop.rule.sheet.editor;
-			var newStr = newVal + (prop.valobj.unit ? prop.valobj.unit : '');
-			if (prop.valobj.pos != undefined) {
-				var pos = prop.valobj.pos;
+			var valObj = ds.getValObj(prop);
+			var pos = valObj.pos;
+			var newStr = newVal + (valObj.unit ? valObj.unit : '');
+			if (pos) {
 				var start = {
 					line: editor.getLineNumber(pos.start.line),
 					ch: pos.start.ch
@@ -240,11 +241,22 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			ds.selectValue(prop);
 		},
 		
+		getValObj: function(rule) {
+			var obj;
+			if (rule.isShorthand) {	// need to add support for all box model arrangements
+				obj = rule.children[0];
+			} else if (rule.valobj != undefined) {
+				obj = rule.valobj;
+			}
+			return obj;
+		},
+		
 		handleMouseOver: function(prop) {
 			var rule = ds.properties[prop];
 			if (rule != undefined) {
 				var editor = rule.rule.sheet.editor;
-				var line = editor.getLineNumber(rule.valobj.pos.start.line);
+				var pos = ds.getValObj(rule).pos;
+				var line = editor.getLineNumber(pos.start.line);
 				editor.addLineClass(line, 'background', 'hoverLine');
 				editor.scrollIntoView({
 					line: line,
@@ -258,7 +270,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var rule = ds.properties[prop];
 			if (rule != undefined) {
 				var editor = rule.rule.sheet.editor;
-				editor.removeLineClass(rule.valobj.pos.start.line, 'background', 'hoverLine');
+				var pos = ds.getValObj(rule).pos;
+				editor.removeLineClass(pos.start.line, 'background', 'hoverLine');
 			}
 			$rootScope.$broadcast('handleMouseOut', prop);
 		},
@@ -273,8 +286,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		selectValue: function(prop) {
 			var editor = prop.rule.sheet.editor;
-			if (prop.valobj.pos != undefined) {
-				var pos = prop.valobj.pos;
+			var pos = ds.getValObj(prop).pos;
+			if (pos) {
 				var start = editor.getLineNumber(pos.start.line);
 				var end = editor.getLineNumber(pos.end.line);
 				editor.setSelection({
@@ -306,50 +319,51 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				}
 				ds.properties[prop] = rule;
 			}
-			
-			if (rule.originalValue == undefined) {
-				rule.originalValue = rule.valobj.value;
+			var valObj = ds.getValObj(rule);
+			if (valObj.originalValue == undefined) {
+				valObj.originalValue = valObj.value;
 			}
 			
 			// convert pixels to %, em, etc. when needed
-			if (rule.valobj.unit == '%') {
+			if (valObj.unit == '%') {
 				if (percentDenom > 0 || percentDenom < 0) {
 					val = val / percentDenom * 100;
 				} else {
 					val = 0;
 				}
-			} else if (rule.valobj.unit == 'em') {
+			} else if (valObj.unit == 'em') {
 				val = val / emDenom;
 			}
 			//val *= this.zoomFactor;
-			if (rule.valobj.unit == 'px') {
+			if (valObj.unit == 'px') {
 				val = Math.round(val);
 			}
 			
 			// assign new value to CSS rule
-			var newNum = rule.originalValue + val;
+			var newNum = valObj.originalValue + val;
 			if (!allowNegative && newNum < 0) {
 				newNum = 0;
 			}
 			newNum = Math.round(newNum * 1000) / 1000;
 			
 			// apply value to css rule
-			rule.valobj.value = newNum;
+			valObj.value = newNum;
 			ds.updateEditor(newNum, rule);
 		},
 		
 		finalizePixelMove: function(prop) {
 			var rule = ds.properties[prop];
-			
+			var valObj = ds.getValObj(rule);
 			// finalize property
 			if (rule != undefined) {
-				rule.originalValue = undefined;
+				valObj.originalValue = undefined;
 				if (ds.selectedRule) {
 					rule.rule = ds.selectedRule;
 					rule.style = ds.selectedRule.style;
 				}
 			
 			// create empty property
+			// need to add support for shorthand properties
 			} else {
 				rule = {
 					name: prop,

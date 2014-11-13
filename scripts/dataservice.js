@@ -202,6 +202,9 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var editor = prop.rule.sheet.editor;
 			var valObj = ds.getValObj(prop, propName);
 			var pos = valObj.pos;
+			console.log(prop);
+			console.log(valObj);
+			console.log(pos);
 			var newStr = newVal + (valObj.unit ? valObj.unit : '');
 			if (pos) {
 				var start = {
@@ -220,29 +223,52 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			} else {
 				if (propName.indexOf(':') != -1) {
 					console.log(newVal);
-					console.log(prop);
 					console.log(propName);
-					var fn = propName.split(':')[1];
-					var def = ' ' + fn + '(' + newStr + ')';
-					var pos = prop.children[0].pos;
-					var startPos = pos.end.ch + 1;
-					var line = editor.getLineNumber(pos.end.line);
-					editor.replaceRange(def, {
-						line: line,
-						ch: startPos
-					});
+					if (prop.pos == undefined) {
+						var fn = propName.split(':')[1];
+						var def = '\t' + prop.name + ': ' + fn + '(';
+						var startPos = def.length-1;
+						def += newStr + ');\n';
+						var line = editor.getLineNumber(prop.rule.pos.end.line);
+						editor.replaceRange(def, {
+							line: line,
+							ch: prop.rule.pos.end.ch
+						});
+						// set property's position
+						valObj.pos = {
+							start: {
+								line: editor.getLineHandle(line),
+								ch: startPos+1
+							},
+							end: {
+								line: editor.getLineHandle(line),
+								ch: startPos + newStr.length+1
+							}
+						};
 					
-					// set property's position
-					valObj.pos = {
-						start: {
-							line: editor.getLineHandle(line),
-							ch: startPos + fn.length + 2
-						},
-						end: {
-							line: editor.getLineHandle(line),
-							ch: startPos + def.length - 1
-						}
-					};
+					} else {
+						var fn = propName.split(':')[1];
+						var def = ' ' + fn + '(' + newStr + ')';
+						var pos = prop.children[0].pos;
+						var startPos = pos.end.ch + 1;
+						var line = editor.getLineNumber(pos.end.line);
+						editor.replaceRange(def, {
+							line: line,
+							ch: startPos
+						});
+						
+						// set property's position
+						valObj.pos = {
+							start: {
+								line: editor.getLineHandle(line),
+								ch: startPos + fn.length + 2
+							},
+							end: {
+								line: editor.getLineHandle(line),
+								ch: startPos + def.length - 1
+							}
+						};
+					}
 				
 				} else {
 					var def = '\t' + prop.name + ': ';
@@ -350,40 +376,55 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				prop = parts[0];
 				fn = parts[1];
 				var posRule = ds.properties[prop];
-				var children = posRule.children;
-				if (children != undefined) {
-					for (var i=0, len=children.length; i<len; i++) {
-						var child = children[i];
-						if (child.value == fn) {
-							rule = ds.properties[prop];
+				if (posRule != undefined) {
+					var children = posRule.children;
+					if (children != undefined) {
+						for (var i=0, len=children.length; i<len; i++) {
+							var child = children[i];
+							if (child.value == fn) {
+								rule = ds.properties[prop];
+							}
 						}
-					}
-					if (rule == undefined && create) {
-						children.push({
-							value: fn,
-							type: 6,
-							parent: posRule,
-							children: [{
-								value: 0,
-								unit: unit
-							}]
-						});
-						rule = posRule;
+						if (rule == undefined && create) {
+							children.push({
+								value: fn,
+								type: 6,
+								parent: posRule,
+								children: [{
+									value: 0,
+									unit: unit
+								}]
+							});
+							rule = posRule;
+						}
 					}
 				}
 			} else {
 				rule = ds.properties[prop];
 			}
-			
 			if (rule == undefined && create) {
 				rule = {
 					name: prop,
-					valobj: {
-						value: 0,
-						unit: unit,
-					},
 					rule: ds.rules[ds.rules.length-1]
 				}
+				if (propName.indexOf(':') != -1) {
+					rule.children = [{
+						type: 6,
+						parent: rule,
+						value: propName.split(':')[1],
+						children: [{
+							value: 0,
+							unit: unit
+						}]
+					}];
+				
+				} else {
+					rule.valobj = {
+						value: 0,
+						unit: unit,
+					};
+				}
+				
 				ds.properties[prop] = rule;
 			}
 			return rule;

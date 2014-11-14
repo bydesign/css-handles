@@ -328,6 +328,7 @@ var ps = {
 			curNode = {
 				parent: parent,
 				type: type,
+				editor: editor,
 				pos: {
 					start: startPos
 				}

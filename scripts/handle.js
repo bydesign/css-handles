@@ -7,6 +7,7 @@ angular.module('cssHandles').directive('handle', function($document, DataService
     templateUrl: 'handle.html',
     scope: {
     	prop: '@',
+    	fn: '@',
     	dir: '@',
     	unit: '@',
     	posx: '@',
@@ -19,24 +20,18 @@ angular.module('cssHandles').directive('handle', function($document, DataService
     link: function($scope, element, attr, ctrl) {
 		// track drag-n-drop
 		var startX = 0, startY = 0, x = 0, y = 0,
-			prop = $scope.prop, valWrapper;
-			
-		/*if (prop.indexOf(':') != -1) {
-			var parts = prop.split(':');
-			prop = parts[0];
-			valWrapper = parts[1];
-		}*/
+			prop = $scope.prop,
+			fn = $scope.fn,
+			valWrapper;
 		
 		element.on('mouseover', function(event) {
 			// call hover event for property
 			DataService.handleMouseOver(prop);
-			//$scope.$emit('handleMouseOver', $scope.prop);
 		});
 		
 		element.on('mouseout', function(event) {
 			// call hover event for property
-			DataService.handleMouseOut(prop);
-			//$scope.$emit('handleMouseOut', $scope.prop);
+			DataService.handleMouseOut(prop, fn);
 		});
 		
 		element.on('mousedown', function(event) {
@@ -47,8 +42,7 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			$document.on('mousemove', mousemove);
 			$document.on('mouseup', mouseup);
 			element.toggleClass('dragging');
-			DataService.handleStartDrag(prop);
-			//$scope.$emit('handleStartDrag', $scope.prop);
+			DataService.handleStartDrag(prop, fn);
 		});
 		
 		function mousemove(event) {

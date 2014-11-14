@@ -498,8 +498,8 @@
 					top: transformOrigin.y + offset.top
 				}">
 			</handle>
-			<handle class="ew-resize" prop="-webkit-transform:scaleX" 
-				ng-class="'handleColor'+getRuleIndex('-webkit-transform:scaleX')" 
+			<handle class="ew-resize" prop="-webkit-transform" fn="scaleX" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform','scaleX')" 
 				dir="horiz" 
 				unit="" 
 				allownegative="true" 
@@ -510,8 +510,8 @@
 					borderTop + (paddingTop + contentHeight + paddingBottom)/2 + offset.top
 				)">
 			</handle>
-			<handle class="ns-resize" prop="-webkit-transform:scaleY" 
-				ng-class="'handleColor'+getRuleIndex('-webkit-transform:scaleY')" 
+			<handle class="ns-resize" prop="-webkit-transform" fn="scaleY" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform','scaleY')" 
 				dir="vert" 
 				unit="" 
 				allownegative="true" 
@@ -522,8 +522,8 @@
 					borderTop + paddingTop + contentHeight + paddingBottom + borderBottom + offset.top
 				)">
 			</handle>
-			<handle class="ew-resize" prop="-webkit-transform:skewX" 
-				ng-class="'handleColor'+getRuleIndex('-webkit-transform:skewX')" 
+			<handle class="ew-resize" prop="-webkit-transform" fn="skewX" 
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform', 'skewX')" 
 				dir="-horiz" 
 				unit="deg" 
 				allownegative="true" 
@@ -532,8 +532,8 @@
 					offset.top
 				)">
 			</handle>
-			<handle class="ns-resize" prop="-webkit-transform:skewY"
-				ng-class="'handleColor'+getRuleIndex('-webkit-transform:skewY')" 
+			<handle class="ns-resize" prop="-webkit-transform" fn="skewY"
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform','skewY')" 
 				dir="-vert" 
 				unit="deg" 
 				allownegative="true" 
@@ -542,8 +542,8 @@
 					borderTop + (paddingTop + contentHeight + paddingBottom)/2 + offset.top
 				)">
 			</handle>
-			<handle class="ew-resize" prop="-webkit-transform:rotate"
-				ng-class="'handleColor'+getRuleIndex('-webkit-transform:rotate')" 
+			<handle class="ew-resize" prop="-webkit-transform" fn="rotate"
+				ng-class="'handleColor'+getRuleIndex('-webkit-transform','rotate')" 
 				dir="horiz" 
 				unit="deg" 
 				allownegative="true" 

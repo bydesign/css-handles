@@ -19,7 +19,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	});
 	
 	$scope.cssEditorLoaded = function(editor, sheet) {
-		DataService.editorLoaded(editor, sheet);
+		DataService.cssEditorLoaded(editor, sheet);
 	};
 	
 	$scope.htmlLoaded = function(editor, model) {

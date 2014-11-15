@@ -1,9 +1,18 @@
 angular.module('cssHandles').factory('DataService', function($rootScope, CssParser, HtmlParser) {
 	function CssProperty(node) {
-		this.node = node,
-		this.name = node.value,
-		this.editor = node.editor,
-		this.rule = node.parent;
+		// create with node received
+		if (node != undefined) {
+			this.node = node,
+			this.name = node.value,
+			this.editor = node.editor,
+			this.rule = node.parent;
+		
+		// create new node
+		} else {
+			this.node = {
+				
+			};
+		}
 	};
 	CssProperty.prototype = {
 		getValueObj: function(fn) {
@@ -60,11 +69,22 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			editor.focus();
 		},
 		
-		setValue: function(val) {
+		setValue: function(val, fn) {
 			// set value in object model
+			this.node.value = val;
+			
 			// set value in editor
-			this.value = val;
+			this.updateEditor();
 		},
+		
+		updateEditor: function(fn) {
+			// create property definition in editor
+			if (node.pos == undefined) {
+				
+			}
+			this.selectValueCode(fn);
+		},
+		
 		toString: function() {
 			// build full value and return string
 			return '';
@@ -155,7 +175,56 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				}
 			},
 			
-			getRule: function(prop, fn, create, unit) {
+			getOrCreateProp: function(propName, fn, unit) {
+				var prop = ds.properties[propName];
+				
+				// create new rule
+				if (prop == undefined) {
+					var rule = ds.rules[ds.rules.length-1];
+					var node = {
+						unit: unit,
+						name: prop,
+						parent: rule
+					};
+					prop = new CssProperty(node);
+					
+					// handle function values
+					if (fn == undefined) {
+						prop.valobj = {
+							value: 0,
+							unit: unit,
+						};
+					}
+					ds.properties[propName] = prop;
+					rule.children.push(node);
+				}
+				
+				// define child function if not set
+				if (fn != undefined) {
+					var fnIsDefined = false;
+					for (var i=0, len=prop.children.length; i<len; i++) {
+						var child = prop.children[i];
+						if (child.value == fn) {
+							fnIsDefined = true;
+						}
+					}
+					if (!fnIsDefined) {
+						prop.children = [{
+							type: 6,
+							parent: prop,
+							value: fn,
+							children: [{
+								value: 0,
+								unit: unit
+							}]
+						}];
+					}
+				}
+				
+				return prop;
+			},
+			
+			/*getRule: function(prop, fn, create, unit) {
 				var rule;
 				var propName = prop;
 				if (prop.indexOf(':') != -1) {
@@ -215,7 +284,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					ds.properties[prop] = rule;
 				}
 				return rule;
-			},
+			},*/
 			
 			updateEditor: function(newVal, prop, propName) {
 				var editor = prop.rule.sheet.editor;
@@ -439,17 +508,15 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			}
 		},
 		
-		handleStartDrag: function(prop, fn) {
-			var prop = ds.properties[prop];
-			if (prop != undefined) {
-				prop.selectValueCode(fn);
-				$rootScope.$broadcast('handleStartDrag', prop);
-			}
+		handleStartDrag: function(prop, fn, defaultUnit) {
+			var prop = ds.CssEditorHelper.getOrCreateProp(prop, fn, defaultUnit);
+			prop.selectValueCode(fn);
+			$rootScope.$broadcast('handleStartDrag', prop);
 		},
 				
-		proposePixelMove: function(prop, val, defaultUnit, allowNegative, percentDenom, emDenom, valWrapper) {
-			var rule = ds.getRule(prop, true, defaultUnit);
-			var valObj = ds.getValObj(rule, prop);
+		proposePixelMove: function(propName, fn, val, allowNegative, percentDenom, emDenom, valWrapper) {
+			var prop = ds.properties[propName];
+			var valObj = prop.getValueObj(fn);
 			var unit = valObj.unit;
 			if (valObj.originalValue == undefined) {
 				valObj.originalValue = valObj.value;
@@ -478,8 +545,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			newNum = Math.round(newNum * 1000) / 1000;
 			
 			// apply value to css rule
-			valObj.value = newNum;
-			ds.updateEditor(newNum, rule, prop);
+			valObj.setValue(newNum);
 		},
 		
 		finalizePixelMove: function(prop) {

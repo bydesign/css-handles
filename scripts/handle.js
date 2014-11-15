@@ -42,7 +42,7 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			$document.on('mousemove', mousemove);
 			$document.on('mouseup', mouseup);
 			element.toggleClass('dragging');
-			DataService.handleStartDrag(prop, fn);
+			DataService.handleStartDrag(prop, fn, $scope.unit);
 		});
 		
 		function mousemove(event) {
@@ -62,7 +62,7 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 				val = -val;
 			}
 			
-			var change = DataService.proposePixelMove(prop, val, $scope.unit, $scope.allownegative, $scope.percentdenom, $scope.emdenom, valWrapper);
+			var change = DataService.proposePixelMove(prop, fn, val, $scope.allownegative, $scope.percentdenom, $scope.emdenom, valWrapper);
 		}
 		
 		function mouseup() {

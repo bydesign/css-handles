@@ -264,50 +264,99 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					};
 					prop = new CssProperty(node);
 					var str = '\t' + node.name + ': ';
-					var valobjStartPos = str.length;
+					var valStartPos = str.length;
+					var lineNum = editor.getLineNumber(rule.pos.end.line);
+					var handle;
+					var endProp = ';\n';
 					
-					// handle function values
+					var val = {
+						value: 0,
+						unit: unit,
+						type: 10,
+						editor: editor,
+					};
+					
+					// handle non-function values
 					if (fn == undefined) {
-						prop.node.valobj = {
-							value: 0,
-							unit: unit,
-							type: 10,
-							editor: editor,
-						};
-						str += prop.toString(prop.node.valobj) + ';\n';
-						var lineNum = editor.getLineNumber(rule.pos.end.line);
+						prop.node.valobj = val;
+						
+						// add property to code editor
+						str += prop.toString(val) + endProp;
 						rule.editor.replaceRange(str,
 							{
 								line: lineNum,
 								ch: 0
 							}
 						);
-						var handle = editor.getLineHandle(lineNum);
-						
-						// set position for property node
-						node.pos = {
-							start: {
-								line: handle,
-								ch: 1
-							},
-							end: {
-								line: handle,
-								ch: str.length-1
-							}
-						};
+						handle = editor.getLineHandle(lineNum);
 						
 						// set position for property value
-						node.valobj.pos = {
+						val.pos = {
 							start: {
 								line: handle,
-								ch: valobjStartPos
+								ch: valStartPos
 							},
 							end: {
 								line: handle,
 								ch: str.length-2
 							}
 						};
+					
+					// handle function values
+					} else {
+						// create CSS function objects
+						var fnObj = {
+							value: fn,
+							type: 6,
+							children: [val]
+						}
+						prop.node.children = [fnObj];
+						
+						// build string and add to editor
+						str += fn + '(' + prop.toString(val) + ')' + endProp;
+						rule.editor.replaceRange(str,
+							{
+								line: lineNum,
+								ch: 0
+							}
+						);
+						handle = editor.getLineHandle(lineNum);
+						
+						// add positions to function and value objects
+						fnObj.pos = {
+							start: {
+								line: handle,
+								ch: valStartPos
+							},
+							end: {
+								line: handle,
+								ch: str.length-2
+							}
+						};
+						val.pos = {
+							start: {
+								line: handle,
+								ch: valStartPos + fn.length + 1
+							},
+							end: {
+								line: handle,
+								ch: str.length-3
+							}
+						};
+						
 					}
+					
+					// set position for property node
+					node.pos = {
+						start: {
+							line: handle,
+							ch: 1
+						},
+						end: {
+							line: handle,
+							ch: str.length-1
+						}
+					};
 					
 					// add rule to object structure
 					ds.properties[propName] = prop;

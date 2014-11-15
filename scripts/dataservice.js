@@ -254,22 +254,62 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				// create new rule
 				if (prop == undefined) {
 					var rule = ds.rules[ds.rules.length-1];
+					var editor = rule.editor;
 					var node = {
 						unit: unit,
-						name: prop,
+						name: propName,
+						editor: editor,
+						type: 3,
 						parent: rule,
-						pos: {}
 					};
 					prop = new CssProperty(node);
+					var str = '\t' + node.name + ': ';
+					var valobjStartPos = str.length;
 					
 					// handle function values
 					if (fn == undefined) {
-						prop.valobj = {
+						prop.node.valobj = {
 							value: 0,
 							unit: unit,
-							pos: {}
+							type: 10,
+							editor: editor,
+						};
+						str += prop.toString(prop.node.valobj) + ';\n';
+						var lineNum = editor.getLineNumber(rule.pos.end.line);
+						rule.editor.replaceRange(str,
+							{
+								line: lineNum,
+								ch: 0
+							}
+						);
+						var handle = editor.getLineHandle(lineNum);
+						
+						// set position for property node
+						node.pos = {
+							start: {
+								line: handle,
+								ch: 1
+							},
+							end: {
+								line: handle,
+								ch: str.length-1
+							}
+						};
+						
+						// set position for property value
+						node.valobj.pos = {
+							start: {
+								line: handle,
+								ch: valobjStartPos
+							},
+							end: {
+								line: handle,
+								ch: str.length-2
+							}
 						};
 					}
+					
+					// add rule to object structure
 					ds.properties[propName] = prop;
 					rule.children.push(node);
 				}
@@ -284,6 +324,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 						children: [{
 							value: 0,
 							unit: unit,
+							type: 10,
 							pos: {}
 						}]
 					}];
@@ -352,7 +393,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					ds.properties[prop] = rule;
 				}
 				return rule;
-			},*/
+			},
 			
 			updateEditor: function(newVal, prop, propName) {
 				var editor = prop.rule.sheet.editor;
@@ -449,7 +490,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					}
 				}
 				ds.selectValue(prop, propName);
-			},
+			},*/
 		
 		},
 		

@@ -40,19 +40,24 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		highlightValueLine: function(fn) {
 			var node = this.getValueObj(fn);
-			var editor = node.editor;
-			var line = node.pos.start.line;
-			editor.addLineClass(line, 'background', 'hoverLine');
-			editor.scrollIntoView({
-				line: node.pos.start.line,
-				ch: 0
-			});
+			if (node != undefined) {
+				var editor = node.editor;
+				var line = node.pos.start.line;
+				editor.addLineClass(line, 'background', 'hoverLine');
+				var lineNum = editor.getLineNumber(line);
+				editor.scrollIntoView({
+					line: lineNum,
+					ch: 0
+				});
+			}
 		},
 		
 		unhighlightValueLine: function(fn) {
 			var node = this.getValueObj(fn);
-			var editor = node.editor;
-			editor.removeLineClass(node.pos.start.line, 'background', 'hoverLine');
+			if (node != undefined) {
+				var editor = node.editor;
+				editor.removeLineClass(node.pos.start.line, 'background', 'hoverLine');
+			}
 		},
 		
 		selectValueCode: function(fn) {
@@ -60,10 +65,10 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var pos = node.pos;
 			var editor = node.editor;
 			editor.setSelection({
-				line: pos.start.line, 
+				line: editor.getLineNumber(pos.start.line), 
 				ch: pos.start.ch
 			}, {
-				line: pos.end.line, 
+				line: editor.getLineNumber(pos.end.line), 
 				ch: pos.end.ch
 			});
 			editor.focus();
@@ -71,23 +76,78 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		setValue: function(val, fn) {
 			// set value in object model
-			this.node.value = val;
+			var node = this.getValueObj(fn);
+			node.value = val;
 			
-			// set value in editor
-			this.updateEditor();
-		},
-		
-		updateEditor: function(fn) {
 			// create property definition in editor
-			if (node.pos == undefined) {
-				
+			if (node.pos != undefined) {
+				var newStr = this.toString(node);
+				var editor = this.editor;
+				var start = {
+					line: editor.getLineNumber(node.pos.start.line),
+					ch: node.pos.start.ch
+				};
+				var end = {
+					line: editor.getLineNumber(node.pos.end.line),
+					ch: node.pos.end.ch
+				};
+				editor.replaceRange(newStr, start, end);
+				node.pos.end.ch = start.ch + newStr.length;
+				this.selectValueCode(fn);
 			}
-			this.selectValueCode(fn);
 		},
 		
-		toString: function() {
+		hasFnDefined: function(fn) {
+			var hasFn = false;
+			var children = this.node.children;
+			for (var i=0, len=children.length; i<len; i++) {
+				if (children[i].value == fn) {
+					hasFn = true;
+				}
+			}
+			return hasFn;
+		},
+		
+		toString: function(node) {
 			// build full value and return string
-			return '';
+			var str = '';
+			
+			// build string for value node
+			if (node.type == 10) {
+				str += node.value + node.unit;
+				
+			// build string for function node
+			} else if (node.type == 6) {
+				str += node.value + '(';
+				var values = [];
+				for (var i=0, len=node.children.length; i<len; i++) {
+					values.push(node.children[i].toString());
+				}
+				str += values.join(',') + ')';
+			
+			// build string for property node
+			} else {
+				str += prop.name + ': ';
+				if (node.isShorthand) {
+					var values = [];
+					for (var i=0, len=node.children.length; i<len; i++) {
+						values.push(node.children[i].toString());
+					}
+					str += values.join(' ');
+				
+				} else if (node.isGrouped) {
+						var values = [];
+						for (var i=0, len=node.children.length; i<len; i++) {
+							values.push(node.children[i].toString());
+						}
+						str += values.join(', ');
+				
+				} else {
+					str += node.valObj.toString();
+				}
+				str += ';\n'
+			}
+			return str;
 		},
 	};
 	
@@ -168,10 +228,23 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				});
 			},
 			
-			// determines whether property is defined for selected element
+			// determines whether a property is defined for selected element
 			isPropertyDefined: function(prop, fn) {
 				if (ds.properties != undefined) {
-					return ds.getRule(prop, fn) != undefined;
+					var propObj = ds.properties[prop];
+					
+					// if property doesn't exist then return false
+					if (propObj == undefined) {
+						return false;
+					}
+					
+					// if property exists, but function doesn't then return false
+					if (fn != undefined) {
+						return propObj.hasFnDefined(fn);
+					}
+					
+					// property exists
+					return true;
 				}
 			},
 			
@@ -184,7 +257,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					var node = {
 						unit: unit,
 						name: prop,
-						parent: rule
+						parent: rule,
+						pos: {}
 					};
 					prop = new CssProperty(node);
 					
@@ -193,6 +267,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 						prop.valobj = {
 							value: 0,
 							unit: unit,
+							pos: {}
 						};
 					}
 					ds.properties[propName] = prop;
@@ -200,25 +275,18 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				}
 				
 				// define child function if not set
-				if (fn != undefined) {
-					var fnIsDefined = false;
-					for (var i=0, len=prop.children.length; i<len; i++) {
-						var child = prop.children[i];
-						if (child.value == fn) {
-							fnIsDefined = true;
-						}
-					}
-					if (!fnIsDefined) {
-						prop.children = [{
-							type: 6,
-							parent: prop,
-							value: fn,
-							children: [{
-								value: 0,
-								unit: unit
-							}]
-						}];
-					}
+				if (fn != undefined && !prop.hasFnDefined(fn)) {
+					prop.children = [{
+						type: 6,
+						parent: prop,
+						value: fn,
+						pos: {},
+						children: [{
+							value: 0,
+							unit: unit,
+							pos: {}
+						}]
+					}];
 				}
 				
 				return prop;
@@ -471,7 +539,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				var element = ds.HtmlEditorHelper.getHtmlElement(pos);
 				if (element != undefined && element != ds.selected) {
 						ds.selected = element;
-						ds.CssEditorHelper.selectRules(element);
+						ds.CssEditorHelper.foldCssRules(element);
 						$rootScope.$broadcast('select', element);
 				}
 			});
@@ -489,7 +557,9 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		
 		getRuleIndex: function(prop, fn) {
-			return ds.CssEditorHelper.isPropertyDefined(prop, fn);
+			if (ds.CssEditorHelper.isPropertyDefined(prop, fn)) {
+				return 1;
+			};
 		},
 		
 		handleMouseOver: function(prop, fn) {
@@ -500,7 +570,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			}
 		},
 		
-		handleMouseOut: function(prop) {
+		handleMouseOut: function(prop, fn) {
 			var prop = ds.properties[prop];
 			if (prop != undefined) {
 				prop.unhighlightValueLine(fn);
@@ -545,43 +615,28 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			newNum = Math.round(newNum * 1000) / 1000;
 			
 			// apply value to css rule
-			valObj.setValue(newNum);
+			prop.setValue(newNum, fn);
 		},
 		
-		finalizePixelMove: function(prop) {
-			var rule = ds.getRule(prop);
-			var valObj = ds.getValObj(rule, prop);
-			// finalize property
-			if (rule != undefined) {
+		finalizePixelMove: function(propName, fn) {
+			var prop = ds.properties[propName];
+			if (prop != undefined) {
+				var valObj = prop.getValueObj(fn);
 				valObj.originalValue = undefined;
-				if (ds.selectedRule) {
-					rule.rule = ds.selectedRule;
-					rule.style = ds.selectedRule.style;
-				}
-			
-			// create empty property
-			// need to add support for shorthand properties
-			} else {
-				rule = {
-					name: prop,
-					valobj: {
-						value: 0,
-						unit: ''
-					},
-					rule: ds.rules[ds.rules.length-1]
-				}
-				ds.updateEditor('0', rule, prop);
-				ds.properties[prop] = rule;
+				$rootScope.$broadcast('handleStopDrag', prop);
+				
+				// need to add support for making single history item for dragging
 			}
-			$rootScope.$broadcast('handleStopDrag', rule);
 		},
 		
 		// used for cancelling a handle drag before release
-		cancelPixelMove: function(prop) {
-			console.log('cancel drag: '+prop);
-			var rule = ds.getRule(prop);
-			rule.value = rule.originalValue;
-			rule.originalValue = undefined;
+		cancelPixelMove: function(propName, fn) {
+			var prop = ds.properties[prop];
+			if (prop != undefined) {
+				var valObj = prop.getValueObj(fn);
+				prop.setValue(valObj.originalValue, fn);
+				valObj.originalValue = undefined;
+			}
 		}
 		
 	};

@@ -38,12 +38,10 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	
 	$scope.$on('handleStartDrag', function(evt, prop) {
 		$scope.dragging = true;
-		//DataService.handleStartDrag(prop);
 	});
 	
 	$scope.$on('handleStopDrag', function(evt, prop) {
 		$scope.dragging = false;
-		//DataService.handleStopDrag(prop);
 		$scope.$apply();
 	});
 	
@@ -62,8 +60,8 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	
 	// returns the numbered index of the rule for specified property
 	// this number is used for color coding handles and rules
-	$scope.getRuleIndex = function(prop) {
-		return DataService.getRuleIndex(prop);
+	$scope.getRuleIndex = function(prop, fn) {
+		return DataService.getRuleIndex(prop, fn);
 	};
 	
 	$scope.$on('cssChangeAfter', function(event, sheet, change) {

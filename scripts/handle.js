@@ -69,7 +69,7 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			$document.unbind('mousemove', mousemove);
 			$document.unbind('mouseup', mouseup);
 			element.toggleClass('dragging');
-			DataService.finalizePixelMove(prop);
+			DataService.finalizePixelMove(prop, fn);
 		}
     },
   };

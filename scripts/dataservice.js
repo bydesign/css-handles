@@ -6,6 +6,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			this.name = node.value,
 			this.editor = node.editor,
 			this.rule = node.parent;
+			this.endStr = ';\n';
 		
 		// create new node
 		} else {
@@ -36,6 +37,197 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				node = rule.valobj;
 			}
 			return node;
+		},
+		
+		setValueObj: function(val) {
+			this.node.valobj = val;
+		},
+		
+		createFnObj: function(val, fn) {
+			var fnObj = {
+				value: fn,
+				type: 6,
+				parent: val,
+				editor: this.editor,
+				children: [val]
+			}
+			if (this.node.children == undefined) {
+				this.node.children = [];
+			}
+			this.node.children.push(fnObj);
+		},
+		
+		getPosObj: function(handle, startCh, endCh) {
+			return {
+				start: {
+					line: handle,
+					ch: startCh
+				},
+				end: {
+					line: handle,
+					ch: endCh
+				}
+			};
+		},
+		
+		addToEditor: function(afterRule, fn) {
+			var node = this.node;
+			var editor = this.editor;
+			var str = '';
+			var lineNum = editor.getLineNumber(afterRule.pos.end.line);
+			var handle, valStartPos, addProperty = false;
+			
+			// start node string
+			if (node.pos == undefined) {
+				str += '\t' + this.name + ': ';
+				valStartPos = str.length;
+				addProperty = true;
+			}
+			
+			// set str in editor and set valobj position if it has none
+			if (node.valobj != undefined && node.valobj.pos == undefined) {
+				str += this.toString(node.valobj) + this.endStr;
+				editor.replaceRange(str, 
+					{ line: lineNum, ch: 0 }
+				);
+				
+				// set position of value object
+				handle = editor.getLineHandle(lineNum);
+				node.valobj.pos = this.getPosObj(handle, valStartPos, str.length-2);
+							
+			// check if children have positions
+			} else if (node.children != undefined) {
+				var prevChildPos;
+				for (var i=0, len=node.children.length; i<len; i++) {
+					var childNode = node.children[i];
+					console.log(childNode);
+					if (childNode.pos == undefined) {
+						var valNode = childNode.children[0];
+						var fnStr = childNode.value + '(' + this.toString(valNode) + ')';
+						
+						// add whole property
+						if (addProperty) {
+							str += fnStr + this.endStr;
+							editor.replaceRange(str,
+								{ line: lineNum, ch: 0 }
+							);
+							handle = editor.getLineHandle(lineNum);
+							childNode.pos = this.getPosObj(handle, valStartPos, valStartPos + fnStr.length);
+							valNode.pos = this.getPosObj(handle, 
+								valStartPos + childNode.value.length+1, 
+								valStartPos + fnStr.length-1
+							);
+						
+						// add function to existing property
+						} else {
+							var valStartPos = prevChildPos.end.ch + 1;
+							editor.replaceRange(' ' + fnStr,
+								{ line: lineNum, ch: valStartPos }
+							);
+							handle = prevChildPos.start.line;
+							childNode.pos = this.getPosObj(handle, valStartPos, valStartPos + fnStr.length);
+							valNode.pos = this.getPosObj(handle, 
+								valStartPos + childNode.value.length+1, 
+								valStartPos + fnStr.length-1
+							);
+						}
+					}
+					prevChildPos = childNode.pos;
+				}
+			}
+			
+			// set node end position
+			if (addProperty) {
+				node.pos = this.getPosObj(handle, 1, str.length-1);
+			}
+			
+			
+			// build string and add to editor
+			/*str += fn + '(' + prop.toString(val) + ')' + endProp;
+			editor.replaceRange(str,
+				{
+					line: lineNum,
+					ch: 0
+				}
+			);
+			handle = editor.getLineHandle(lineNum);
+			
+			
+			
+			var str = '\t' + node.name + ': ';
+			var valStartPos = str.length;
+			var lineNum = editor.getLineNumber(rule.pos.end.line);
+			var handle;
+			var endProp = ';\n';
+			
+			var val = ds.CssEditorHelper.createValNode(unit, editor);
+			
+			// handle non-function values
+			if (fn == undefined) {
+				prop.node.valobj = val;
+				
+				// add property to code editor
+				str += prop.toString(val) + endProp;
+				rule.editor.replaceRange(str,
+					{
+						line: lineNum,
+						ch: 0
+					}
+				);
+				handle = editor.getLineHandle(lineNum);
+				
+				// set position for property value
+				val.pos = {
+					start: {
+						line: handle,
+						ch: valStartPos
+					},
+					end: {
+						line: handle,
+						ch: str.length-2
+					}
+				};
+			
+			// handle function values
+			} else {
+				var fnObj = ds.CssEditorHelper.createFnNode(unit, editor);
+			}
+			
+			// set position for property node
+			node.pos = {
+				start: {
+					line: handle,
+					ch: 1
+				},
+				end: {
+					line: handle,
+					ch: str.length-1
+				}
+			};
+			
+			
+			
+			// add positions to function and value objects
+			fnObj.pos = {
+				start: {
+					line: handle,
+					ch: valStartPos
+				},
+				end: {
+					line: handle,
+					ch: str.length-2
+				}
+			};
+			val.pos = {
+				start: {
+					line: handle,
+					ch: valStartPos + fn.length + 1
+				},
+				end: {
+					line: handle,
+					ch: str.length-3
+				}
+			};*/
 		},
 		
 		highlightValueLine: function(fn) {
@@ -251,133 +443,53 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			getOrCreateProp: function(propName, fn, unit) {
 				var prop = ds.properties[propName];
 				
-				// create new rule
-				if (prop == undefined) {
-					var rule = ds.rules[ds.rules.length-1];
-					var editor = rule.editor;
-					var node = {
-						unit: unit,
-						name: propName,
-						editor: editor,
-						type: 3,
-						parent: rule,
-					};
-					prop = new CssProperty(node);
-					var str = '\t' + node.name + ': ';
-					var valStartPos = str.length;
-					var lineNum = editor.getLineNumber(rule.pos.end.line);
-					var handle;
-					var endProp = ';\n';
+				// just in case we need to create a rule or fn
+				var rule = ds.rules[ds.rules.length-1];
+				var editor = rule.editor;
+				
+				var valobj = {
+					value: 0,
+					unit: unit,
+					type: 10,
+					editor: editor
+				};
+				
+				if (prop != undefined) {
 					
-					var val = {
-						value: 0,
-						unit: unit,
-						type: 10,
-						editor: editor,
-					};
-					
-					// handle non-function values
 					if (fn == undefined) {
-						prop.node.valobj = val;
+						return prop;
 						
-						// add property to code editor
-						str += prop.toString(val) + endProp;
-						rule.editor.replaceRange(str,
-							{
-								line: lineNum,
-								ch: 0
-							}
-						);
-						handle = editor.getLineHandle(lineNum);
-						
-						// set position for property value
-						val.pos = {
-							start: {
-								line: handle,
-								ch: valStartPos
-							},
-							end: {
-								line: handle,
-								ch: str.length-2
-							}
-						};
-					
-					// handle function values
 					} else {
-						// create CSS function objects
-						var fnObj = {
-							value: fn,
-							type: 6,
-							children: [val]
-						}
-						prop.node.children = [fnObj];
+						prop.createFnObj(valobj, fn);
+						prop.addToEditor(rule);
 						
-						// build string and add to editor
-						str += fn + '(' + prop.toString(val) + ')' + endProp;
-						rule.editor.replaceRange(str,
-							{
-								line: lineNum,
-								ch: 0
-							}
-						);
-						handle = editor.getLineHandle(lineNum);
-						
-						// add positions to function and value objects
-						fnObj.pos = {
-							start: {
-								line: handle,
-								ch: valStartPos
-							},
-							end: {
-								line: handle,
-								ch: str.length-2
-							}
-						};
-						val.pos = {
-							start: {
-								line: handle,
-								ch: valStartPos + fn.length + 1
-							},
-							end: {
-								line: handle,
-								ch: str.length-3
-							}
-						};
-						
+						return prop;
 					}
-					
-					// set position for property node
-					node.pos = {
-						start: {
-							line: handle,
-							ch: 1
-						},
-						end: {
-							line: handle,
-							ch: str.length-1
-						}
-					};
-					
-					// add rule to object structure
-					ds.properties[propName] = prop;
-					rule.children.push(node);
 				}
 				
-				// define child function if not set
-				if (fn != undefined && !prop.hasFnDefined(fn)) {
-					prop.children = [{
-						type: 6,
-						parent: prop,
-						value: fn,
-						pos: {},
-						children: [{
-							value: 0,
-							unit: unit,
-							type: 10,
-							pos: {}
-						}]
-					}];
+				// create new rule
+				var node = {
+					value: propName,
+					editor: editor,
+					type: 3,
+					parent: rule,
+				};
+				prop = new CssProperty(node);
+				
+				// if non-function value, add value object
+				if (fn == undefined) {
+					prop.setValueObj(valobj);
+				
+				// if function value, add function object
+				} else {
+					prop.createFnObj(valobj, fn);
 				}
+				// update editor
+				prop.addToEditor(rule);
+				
+				// add rule to object structure
+				ds.properties[propName] = prop;
+				rule.children.push(node);
 				
 				return prop;
 			},

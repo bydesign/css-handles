@@ -94,13 +94,13 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				// set position of value object
 				handle = editor.getLineHandle(lineNum);
 				node.valobj.pos = this.getPosObj(handle, valStartPos, str.length-2);
+				node.pos = this.getPosObj(handle, 1, str.length-1);
 							
 			// check if children have positions
 			} else if (node.children != undefined) {
-				var prevChildPos;
+				var prevChildPos, childNode;
 				for (var i=0, len=node.children.length; i<len; i++) {
-					var childNode = node.children[i];
-					console.log(childNode);
+					childNode = node.children[i];
 					if (childNode.pos == undefined) {
 						var valNode = childNode.children[0];
 						var fnStr = childNode.value + '(' + this.toString(valNode) + ')';
@@ -121,24 +121,21 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 						// add function to existing property
 						} else {
 							var valStartPos = prevChildPos.end.ch + 1;
+							handle = prevChildPos.end.line;
+							lineNum = editor.getLineNumber(handle);
 							editor.replaceRange(' ' + fnStr,
 								{ line: lineNum, ch: valStartPos }
 							);
-							handle = prevChildPos.start.line;
-							childNode.pos = this.getPosObj(handle, valStartPos, valStartPos + fnStr.length);
+							childNode.pos = this.getPosObj(handle, valStartPos, valStartPos + fnStr.length+1);
 							valNode.pos = this.getPosObj(handle, 
-								valStartPos + childNode.value.length+1, 
-								valStartPos + fnStr.length-1
+								valStartPos + childNode.value.length+2, 
+								valStartPos + fnStr.length
 							);
 						}
 					}
 					prevChildPos = childNode.pos;
 				}
-			}
-			
-			// set node end position
-			if (addProperty) {
-				node.pos = this.getPosObj(handle, 1, str.length-1);
+				node.pos = this.getPosObj(handle, 1, childNode.pos.end.ch);
 			}
 			
 			
@@ -456,7 +453,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				
 				if (prop != undefined) {
 					
-					if (fn == undefined) {
+					if (fn == undefined || prop.hasFnDefined(fn)) {
 						return prop;
 						
 					} else {

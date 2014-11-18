@@ -436,22 +436,31 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			},
 			
 			// select text in editor corresponding to element
-			selectElementCode: function(element) {
+			selectElement: function(element, suppressTextSelect) {
 		    var tag = element.tagName.toLowerCase();
 		    var allTags = $(ds.doc).find(tag);
 		    var index = allTags.index(element);
 		    var tags = ds.html.types[tag];
 		    if (tags != undefined && tags.length > index) {
-		    	var position = tags[index].pos;
-		    	var editor = ds.editor;
-		    	if (position != undefined) {
-		    		ds.isClickSelected = true;
-		    		editor.setSelection(position.start, position.end);
-		    		editor.scrollIntoView(position.start);
-		    		editor.focus();
+		    	var tag = tags[index];
+		    	if (!suppressTextSelect) {
+			    	var position = tag.pos;
+			    	var editor = ds.editor;
+			    	if (position != undefined) {
+			    		ds.isClickSelected = true;
+			    		editor.setSelection(position.start, position.end);
+			    		editor.scrollIntoView(position.start);
+			    		editor.focus();
+			    	}
 		    	}
 		    }
-		    
+		    var curNode = tag;
+		    var nodeList = [curNode];
+		    while (curNode.parent != undefined) {
+		    	curNode = curNode.parent;
+		    	nodeList.push(curNode);
+		    }
+		    return nodeList;
 				
 			},
 		
@@ -469,11 +478,19 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			ds.doc = doc;
 		},
 		
+		selectNode: function(node) {
+			var tagName = node.tagName;
+			var allTags = $(ds.doc).find(tagName);
+			var index = ds.html.types[tagName].indexOf(node);
+
+			ds.select(allTags[index]);
+		},
+		
 		// on-page select of an element
-		select: function(element) {
+		select: function(element, suppressTextSelect) {
 			ds.selected = element;
 			ds.CssEditorHelper.foldCssRules(element);
-			ds.HtmlEditorHelper.selectElementCode(element);
+			ds.domList = ds.HtmlEditorHelper.selectElement(element, suppressTextSelect).reverse();
 			$rootScope.$broadcast('select', element);
 		},
 		
@@ -489,9 +506,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				var pos = editor.getCursor('anchor');
 				var element = ds.HtmlEditorHelper.getHtmlElement(pos);
 				if (element != undefined && element != ds.selected) {
-						ds.selected = element;
-						ds.CssEditorHelper.foldCssRules(element);
-						$rootScope.$broadcast('select', element);
+						ds.select(element, true);
 				}
 			});
 		},
@@ -511,6 +526,10 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			if (ds.CssEditorHelper.isPropertyDefined(prop, fn)) {
 				return 1;
 			};
+		},
+		
+		unfoldCode: function() {
+			ds.CssEditorHelper.unfoldCode();
 		},
 		
 		handleMouseOver: function(prop, fn) {

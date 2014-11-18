@@ -46,6 +46,13 @@ var ps = {
 					ch: j+1
 				}
 			};
+			curTag.str = curTag.tagName;
+			if (curTag.id != undefined) {
+				curTag.str += '#' + curTag.id;
+			}
+			if (curTag.class != undefined) {
+				curTag.str += '.' + curTag.class.replace(' ','.');
+			}
 			// add tag parent
 			var parent = curTag;
 			if (curTag.selfclosing) {
@@ -62,6 +69,7 @@ var ps = {
 			curTag = {
 				parent: parent
 			};
+			
 			token = '';
 			mode = TEXT;
 		}

@@ -30,9 +30,14 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		DataService.unfoldCode();
 	};
 	
+	$scope.select = function(node) {
+		DataService.selectNode(node);
+	};
+	
 	$scope.$on('select', function(event, element) {
 		that.selected = element;
 		$scope.isSelected = true;
+		$scope.domList = DataService.domList;
 		that.update(element);
 	});
 	

@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="scripts/codemirror/addon/lint/lint.css">
 <link rel="stylesheet" href="scripts/codemirror/addon/fold/foldgutter.css" />
 <link rel="stylesheet" href="default.css" />
+<meta charset="utf-8">
 </head>
 <body>
 
@@ -610,6 +611,9 @@
 	></page>
 
 	<div class="dragCover" ng-show="dragging" ng-show="pan"></div>
+	<ul class="domList">
+		<li ng-repeat="node in domList" ng-click="select(node)">{{node.str}}</li>
+	</ul>
 </div>
 
 </div>

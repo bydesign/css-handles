@@ -1,4 +1,4 @@
-angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $window, $timeout, DataService) {
+angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $window, $timeout, DataService, CssPropTabMapping) {
 	$scope.pageSrc = $sce.trustAsResourceUrl('page.html');
 	$.get($scope.pageSrc, function(data) {
 		$scope.html = data;
@@ -56,12 +56,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	});
 	
 	$scope.$on('selectCssProp', function(evt, prop) {
-		var propsToTabIds = {
-			'padding-top': 1,
-			'top': 3,
-			'height': 2,
-		};
-		var tabId = propsToTabIds[prop.name];
+		var tabId = CssPropTabMapping[prop.name];
 		if (tabId != undefined) {
 			$scope.tabId = tabId;
 			$scope.$apply();

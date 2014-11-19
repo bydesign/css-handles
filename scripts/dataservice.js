@@ -86,7 +86,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			
 			// set str in editor and set valobj position if it has none
 			if (node.valobj != undefined && node.valobj.pos == undefined) {
-				str += this.toString(node.valobj) + this.endStr;
+				str += this.nodeToString(node.valobj) + this.endStr;
 				editor.replaceRange(str, 
 					{ line: lineNum, ch: 0 }
 				);
@@ -103,7 +103,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					childNode = node.children[i];
 					if (childNode.pos == undefined) {
 						var valNode = childNode.children[0];
-						var fnStr = childNode.value + '(' + this.toString(valNode) + ')';
+						var fnStr = childNode.value + '(' + this.nodeToString(valNode) + ')';
 						
 						// add whole property
 						if (addProperty) {
@@ -182,7 +182,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			
 			// create property definition in editor
 			if (node.pos != undefined) {
-				var newStr = this.toString(node);
+				var newStr = this.nodeToString(node);
 				var editor = this.editor;
 				var start = {
 					line: editor.getLineNumber(node.pos.start.line),
@@ -209,7 +209,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			return hasFn;
 		},
 		
-		toString: function(node) {
+		nodeToString: function(node) {
 			// build full value and return string
 			var str = '';
 			
@@ -222,7 +222,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				str += node.value + '(';
 				var values = [];
 				for (var i=0, len=node.children.length; i<len; i++) {
-					values.push(node.children[i].toString());
+					values.push(node.children[i].nodeToString());
 				}
 				str += values.join(',') + ')';
 			
@@ -232,19 +232,19 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				if (node.isShorthand) {
 					var values = [];
 					for (var i=0, len=node.children.length; i<len; i++) {
-						values.push(node.children[i].toString());
+						values.push(node.children[i].nodeToString());
 					}
 					str += values.join(' ');
 				
 				} else if (node.isGrouped) {
 						var values = [];
 						for (var i=0, len=node.children.length; i<len; i++) {
-							values.push(node.children[i].toString());
+							values.push(node.children[i].nodeToString());
 						}
 						str += values.join(', ');
 				
 				} else {
-					str += node.valObj.toString();
+					str += node.valObj.nodeToString();
 				}
 				str += ';\n'
 			}
@@ -278,7 +278,16 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 							ds.rules.push(rule);
 							
 							angular.forEach(rule.children, function(prop) {
-								ds.properties[prop.value] = new CssProperty(prop);
+								var val = prop.value;
+								var propObj = ds.properties[val];
+								
+								// strike through overridden properties
+								if (propObj != undefined) {
+									ds.overriddenRules.push(propObj);
+									var startLine = propObj.node.pos.start.line;
+									editor.addLineClass(startLine, 'text', 'overridden');
+								}
+								ds.properties[val] = new CssProperty(prop);
 							});
 							
 							// fold code before rule
@@ -327,6 +336,12 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 						editor.foldCode({line: i, ch: 0}, null, "unfold");
 					}
 				});
+				// remove strike-through on overridden rules
+				angular.forEach(ds.overriddenRules, function(rule) {
+					var startLine = rule.node.pos.start.line;
+					rule.editor.removeLineClass(startLine, 'text', 'overridden');
+				});
+				ds.overriddenRules = [];
 			},
 			
 			// determines whether a property is defined for selected element
@@ -401,7 +416,26 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				rule.children.push(node);
 				
 				return prop;
-			}		
+			},
+			
+			getCursorProperty: function(editor, pos) {
+				var props = ds.properties;
+				var propObj;
+				angular.forEach(ds.properties, function(prop) {
+					var startLine = editor.getLineNumber(prop.node.pos.start.line);
+					var startChar = prop.node.pos.start.ch;
+					var endLine = editor.getLineNumber(prop.node.pos.end.line);
+					var endChar = prop.node.pos.end.ch;
+					if (startLine <= pos.line &&
+							endLine >= pos.line &&
+							startChar <= pos.ch && 
+							endChar >= pos.ch
+					) {
+						propObj = prop;
+					}
+				});
+				return propObj;
+			}
 		},
 		
 		HtmlEditorHelper: {
@@ -473,6 +507,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		// load editors and match them up with stylesheets
 		sheets: [],
+		overriddenRules: [],
 		
 		doc: function(doc) {
 			ds.doc = doc;
@@ -519,6 +554,13 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			ds.sheets.push(sheetObj);
 			editor.on('changes', function(editor, change) {
 				$rootScope.$broadcast('cssChange', sheetObj, change);
+			});
+			editor.on('cursorActivity', function(editor) {
+				var pos = editor.getCursor('anchor');
+				var prop = ds.CssEditorHelper.getCursorProperty(editor, pos);
+				if (prop != undefined) {
+					$rootScope.$broadcast('selectCssProp', prop);
+				}
 			});
 		},
 		

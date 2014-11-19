@@ -390,14 +390,15 @@ var ps = {
 			curNode.pos.end = endPos;
 			var prevNode = curNode;
 			if (num != undefined) {
+				var parentEnd = { line: endPos.line, ch: endPos.ch+1 };
 				if (num == 2) {
 					if (curNode.parent.pos != undefined) {
-						curNode.parent.pos.end = endPos;
+						curNode.parent.pos.end = parentEnd;
 					}
 					curNode = curNode.parent.parent;
 				} else if (num == 3) {
 					//curNode.parent.pos.end = endPos;
-					//curNode.parent.parent.pos.end = endPos;
+					curNode.parent.parent.pos.end = parentEnd;
 					curNode = curNode.parent.parent.parent;
 				}
 			} else {
@@ -441,7 +442,9 @@ var ps = {
 							addNode(RULE, curToken.trim(), curNode, { line:handle, ch:j });
 						
 						} else if (char == ':') {
-							addNode(PROPERTY, curToken.trim(), curNode, { line:handle, ch:j });
+							var tokenTrim = curToken.trim();
+							var char = j-tokenTrim.length;
+							addNode(PROPERTY, tokenTrim, curNode, { line:handle, ch:char });
 						
 						} else if (char == '}') {
 							moveUp({ line:handle, ch:j });

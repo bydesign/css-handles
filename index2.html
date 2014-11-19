@@ -577,7 +577,7 @@
 	</div>
 	<div class="editor editCss">
 		<h2>CSS <a ng-click="unfoldCode()" class="unfoldCode">unfold all</a></h2>
-		<div class="scrollable">
+		<div class="scrollable" id="cssScroll">
 			<div class="textEditor" ng-repeat="sheet in sheets">
 				<h3><a href="{{sheet.href}}">{{sheet.filename}}</a></h3>
 				<textarea ng-model="sheet.text" ui-codemirror="{

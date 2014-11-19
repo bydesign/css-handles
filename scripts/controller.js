@@ -39,6 +39,11 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		$scope.isSelected = true;
 		$scope.domList = DataService.domList;
 		that.update(element);
+		
+		// hacky non-angular way to scroll css editors to the bottom
+		var $cssScroll = $('#cssScroll');
+		var top = $cssScroll[0].scrollHeight;
+		$cssScroll.scrollTop(top);
 	});
 	
 	$scope.$on('handleStartDrag', function(evt, prop) {
@@ -48,6 +53,19 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.$on('handleStopDrag', function(evt, prop) {
 		$scope.dragging = false;
 		$scope.$apply();
+	});
+	
+	$scope.$on('selectCssProp', function(evt, prop) {
+		var propsToTabIds = {
+			'padding-top': 1,
+			'top': 3,
+			'height': 2,
+		};
+		var tabId = propsToTabIds[prop.name];
+		if (tabId != undefined) {
+			$scope.tabId = tabId;
+			$scope.$apply();
+		}
 	});
 	
 	$scope.cssLoaded = function(sheets) {

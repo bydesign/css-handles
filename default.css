@@ -281,7 +281,7 @@ handle.dragging.handleColor5 > .handleCt { border-color: #A300D9; color: #A300D9
 	float: left;
 	list-style: none;
 	margin-right: 4px;
-	padding: 1px 2px;
+	padding: 1px 4px 4px;
 	cursor: default;
 }
 .domList > li:hover {
@@ -296,4 +296,11 @@ handle.dragging.handleColor5 > .handleCt { border-color: #A300D9; color: #A300D9
 }
 .domList > li:last-child {
 	background-color: #ccc;
+}
+.overridden, .overridden * {
+	text-decoration: line-through;
+	color: #999 !important;
+}
+.overridden .cm-tab {
+	text-decoration: none;
 }

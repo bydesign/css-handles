@@ -559,7 +559,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				var pos = editor.getCursor('anchor');
 				var prop = ds.CssEditorHelper.getCursorProperty(editor, pos);
 				if (prop != undefined) {
-					console.log(prop);
 					$rootScope.$broadcast('selectCssProp', prop);
 				}
 			});

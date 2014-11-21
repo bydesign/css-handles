@@ -526,25 +526,48 @@ var ps = {
 				if (parent.isShorthand) {
 					var shorthand = SHORTHAND_STYLES[parent.value];
 					if (shorthand != undefined) {
-						parent.hasBoxModel = shorthand.hasBoxModel;
-						var propName;
+						var propNames = [];
 						var typeName = TYPE_NAMES[curNode.type];
 						if (typeName != undefined) {
-							propName = shorthand[typeName][parent[typeName+'Count']];
+							var count = parent[typeName+'Count'];
+							
+							// assign property based on count
+							if (shorthand.hasBoxModel) {
+								parent.hasBoxModel = true;
+								// assign all 4 properties
+								if (count == 0) {
+									propNames = shorthand[typeName];
+									
+								// assign 2nd and 4th properties
+								} else if (count == 1) {
+									propNames.push(shorthand[typeName][1]);
+									propNames.push(shorthand[typeName][3]);
+									
+								// assign matching 3rd or 4th property
+								} else {
+									propNames.push(shorthand[typeName][count]);
+									
+								}
+								
+							// assign single property
+							} else {
+								propNames.push(shorthand[typeName][count]);
+							}
 							parent[typeName+'Count']++;
 						}
 						
-						node = {
-							value: propName,
-							parent: parent.parent,
-							type: PROPERTY,
-							editor: editor,
-							pos: curNode.pos,
-							valobj: curNode,
-							implicit: true
-						};
-						console.log(propName);
-						parent.parent.children.push(node);
+						angular.forEach(propNames, function(propName) {
+							node = {
+								value: propName,
+								parent: parent.parent,
+								type: PROPERTY,
+								editor: editor,
+								pos: curNode.pos,
+								valobj: curNode,
+								implicit: true
+							};
+							parent.parent.children.push(node);
+						});
 					}
 					// add to shorthand property counter by type
 				}

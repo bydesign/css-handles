@@ -311,13 +311,24 @@ var SHORTHAND_STYLES = {
 		'color': ['border-color']
 	},
 	'margin': {
-		'number': ['margin-top','margin-right','margin-bottom','margin-left']
+		'number': ['margin-top','margin-right','margin-bottom','margin-left'],
+		hasBoxModel: true
 	},
 	'padding': {
-		'number': ['padding-top','padding-right','padding-bottom','padding-left']
+		'number': ['padding-top','padding-right','padding-bottom','padding-left'],
+		hasBoxModel: true
 	},
 	'border-width': {
-		'number': ['border-top-width','border-right-width','border-bottom-width','border-left-width']
+		'number': ['border-top-width','border-right-width','border-bottom-width','border-left-width'],
+		hasBoxModel: true
+	},
+	'border-style': {
+		'text': ['border-top-style','border-right-style','border-bottom-style','border-left-style'],
+		hasBoxModel: true
+	},
+	'border-color': {
+		'color': ['border-top-color','border-right-color','border-bottom-color','border-left-color'],
+		hasBoxModel: true
 	},
 	'background': {
 		'number': ['background-position-x', 'background-position-y'],
@@ -333,7 +344,8 @@ var SHORTHAND_STYLES = {
 	},
 	// need to add support for second radius numbers on this shorthand property
 	'border-radius': {
-		'number': ['border-top-left-radius', 'border-top-right-radius', 'border-bottom-right-radius', 'border-bottom-left-radius']
+		'number': ['border-top-left-radius', 'border-top-right-radius', 'border-bottom-right-radius', 'border-bottom-left-radius'],
+		hasBoxModel: true
 	},
 	'box-shadow': {
 		'number': ['box-shadow-h', 'box-shadow-v', 'blur', 'spread'],
@@ -457,6 +469,12 @@ var ps = {
 			VALGROUP = 11,
 			VALUE = 12;
 			
+		var TYPE_NAMES = {};
+		TYPE_NAMES[VALTEXT] = 'text';
+		TYPE_NAMES[VALUNIT] = 'number';
+		TYPE_NAMES[VALCOLOR] = 'color';
+		
+			
 		var rules = [];
 		var comments = [];
 		var curToken = '';
@@ -495,12 +513,43 @@ var ps = {
 				if (SHORTHAND_STYLES[value] != undefined || value.indexOf('transform') != -1) {
 					curNode.isShorthand = true;
 				}
+				curNode.colorCount = 0;
+				curNode.textCount = 0;
+				curNode.numberCount = 0;
 			}
 			
 			if (parent == undefined) {
 				tree.push(curNode);
 				
 			} else {
+				// add any new properties defined in shorthand
+				if (parent.isShorthand) {
+					var shorthand = SHORTHAND_STYLES[parent.value];
+					if (shorthand != undefined) {
+						parent.hasBoxModel = shorthand.hasBoxModel;
+						var propName;
+						var typeName = TYPE_NAMES[curNode.type];
+						if (typeName != undefined) {
+							propName = shorthand[typeName][parent[typeName+'Count']];
+							parent[typeName+'Count']++;
+						}
+						
+						node = {
+							value: propName,
+							parent: parent.parent,
+							type: PROPERTY,
+							editor: editor,
+							pos: curNode.pos,
+							valobj: curNode,
+							implicit: true
+						};
+						console.log(propName);
+						parent.parent.children.push(node);
+					}
+					// add to shorthand property counter by type
+				}
+				
+				// add child structure for grouped and shorthand properties
 				if (parent.isShorthand && parent.isGrouped) {
 					if (parent.children == undefined) {
 						parent.children = [];

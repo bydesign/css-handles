@@ -38,6 +38,19 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		that.selected = element;
 		$scope.isSelected = true;
 		$scope.domList = DataService.domList;
+		
+		var effects = DataService.getEffects();
+		
+		$scope.textShadows = effects.textShadows;
+		if ($scope.textShadows > 0) {
+			$scope.curShadow = $scope.textShadows[0];
+		}
+		$scope.boxShadows = effects.boxShadows;
+		if ($scope.boxShadows.length > 0) {
+			$scope.curShadow = $scope.boxShadows[0];
+		}
+		//$scope.effects = effects.effects;
+		
 		that.update(element);
 		
 		// hacky non-angular way to scroll css editors to the bottom

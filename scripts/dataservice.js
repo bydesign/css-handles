@@ -529,6 +529,24 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			$rootScope.$broadcast('select', element);
 		},
 		
+		getEffects: function() {
+			var boxShadowProp = ds.properties['box-shadow'];
+			var boxShadows = [];
+			if (boxShadowProp != undefined) {
+				boxShadows = boxShadowProp.node.children;
+			}
+			var textShadowProp = ds.properties['text-shadow'];
+			var textShadows = [];
+			if (textShadowProp != undefined) {
+				textShadows = textShadowProp.node.children;
+			}
+			return {
+				boxShadows: boxShadows,
+				textShadows: textShadows,
+				//effects: []
+			};
+		},
+		
 		// HTML editor loads
 		// handles parsing html when editor changes
 		// handles changing selected element, when editor's cursor changes

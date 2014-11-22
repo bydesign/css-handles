@@ -589,6 +589,7 @@ var ps = {
 					var groupedNode = {
 						parent: parent,
 						type: VALGROUP,
+						pos: startPos,
 						children: [curNode]
 					};
 					curNode.parent = groupedNode;
@@ -755,6 +756,9 @@ var ps = {
 							curNode.quoteChar = char;
 						
 						} else if (char == ')' || char == ';' || char == '{') {
+							moveUp({ line:handle, ch:j });
+						
+						} else if (char == ',' && mode == VALGROUP) {
 							moveUp({ line:handle, ch:j });
 						
 						} else {

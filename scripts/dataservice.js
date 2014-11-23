@@ -627,14 +627,16 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		
 		setCurShadow: function(valObj) {
-			var shadowProps = ['box-shadow-v', 'box-shadow-h', 'box-shadow-blur', 'box-shadow-spread', 'box-shadow-color', 'box-shadow-inset'];
-			
-			angular.forEach(shadowProps, function(propName) {
-				var prop = valObj[propName];
-				if (prop != undefined) {
-					ds.properties[propName] = new CssProperty(prop);
-				}
-			});
+			if (valObj != undefined) {
+				var shadowProps = ['box-shadow-v', 'box-shadow-h', 'box-shadow-blur', 'box-shadow-spread', 'box-shadow-color', 'box-shadow-inset'];
+				
+				angular.forEach(shadowProps, function(propName) {
+					var prop = valObj[propName];
+					if (prop != undefined) {
+						ds.properties[propName] = new CssProperty(prop);
+					}
+				});
+			}
 		},
 				
 		proposePixelMove: function(propName, fn, val, allowNegative, percentDenom, emDenom, valWrapper, defaultUnit) {

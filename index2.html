@@ -460,18 +460,50 @@
 		</div>
 		
 		<div ng-show="tabId == 8">
-			<handle class="ew-resize" prop="-webkit-column-count" 
-				ng-class="'handleColor'+getRuleIndex('-webkit-column-count')" 
-				dir="-horiz" 
-				unit="" 
+			<handle class="ew-resize" prop="box-shadow-h" 
+				ng-class="'handleColor'+getRuleIndex('box-shadow-h')" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="transform(
+					offset.left, 
+					contentHeight/2 + borderTop + paddingTop + offset.top
+				)">
+			</handle>
+			<handle class="ns-resize" prop="box-shadow-v" 
+				ng-class="'handleColor'+getRuleIndex('box-shadow-v')" 
+				dir="vert" 
+				unit="px" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="transform(
+					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					offset.top
+				)">
+			</handle>
+			<handle class="ns-resize" prop="box-shadow-blur" 
+				ng-class="'handleColor'+getRuleIndex('box-shadow-blur')" 
+				dir="vert" 
+				unit="px" 
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="transform(
-					borderLeft + paddingLeft + contentWidth/columnCount + offset.left, 
-					borderTop + paddingTop - handleSize/2 + offset.top
+					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
+					borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top
 				)">
 			</handle>
+			
+			<ul class="shadows">
+				<li ng-repeat="shadow in boxShadows" ng-click="selectShadow(shadow)" ng-class="{active:curShadow==shadow}">Box</li>
+				<li ng-repeat="shadow in textShadows" ng-click="selectShadow(shadow)" ng-class="{active:curShadow==shadow}">Aa</li>
+				<li ng-click="addBoxShadow()">+ Box</li>
+				<li ng-click="addTextShadow()">+ Text</li>
+			</ul>
+			
 		</div>
 		
 		<div ng-show="tabId == 9">

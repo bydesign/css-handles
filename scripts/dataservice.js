@@ -175,6 +175,10 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			editor.focus();
 		},
 		
+		setCurShadow: function(valObj) {
+			this.curShadow = valObj;
+		},
+		
 		setValue: function(val, fn) {
 			// set value in object model
 			var node = this.getValueObj(fn);
@@ -347,7 +351,12 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			// determines whether a property is defined for selected element
 			isPropertyDefined: function(prop, fn) {
 				if (ds.properties != undefined) {
+					//console.log(ds.properties);
 					var propObj = ds.properties[prop];
+					/*if (prop.indexOf('shadow') != -1) {
+						console.log(prop);
+						console.log(propObj);
+					}*/
 					
 					// if property doesn't exist then return false
 					if (propObj == undefined) {
@@ -366,6 +375,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			
 			getOrCreateProp: function(propName, fn, unit) {
 				var prop = ds.properties[propName];
+				console.log(prop);
 				
 				// just in case we need to create a rule or fn
 				var rule = ds.rules[ds.rules.length-1];
@@ -379,7 +389,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				};
 				
 				if (prop != undefined) {
-					
 					if (fn == undefined || prop.hasFnDefined(fn)) {
 						return prop;
 						
@@ -525,6 +534,9 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		select: function(element, suppressTextSelect) {
 			ds.selected = element;
 			ds.CssEditorHelper.foldCssRules(element);
+			
+			console.log(ds.properties);
+			
 			ds.domList = ds.HtmlEditorHelper.selectElement(element, suppressTextSelect).reverse();
 			$rootScope.$broadcast('select', element);
 		},
@@ -613,11 +625,25 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			prop.selectValueCode(fn);
 			$rootScope.$broadcast('handleStartDrag', prop);
 		},
+		
+		setCurShadow: function(valObj) {
+			var shadowProps = ['box-shadow-v', 'box-shadow-h', 'box-shadow-blur', 'box-shadow-spread', 'box-shadow-color', 'box-shadow-inset'];
+			
+			angular.forEach(shadowProps, function(propName) {
+				var prop = valObj[propName];
+				if (prop != undefined) {
+					ds.properties[propName] = new CssProperty(prop);
+				}
+			});
+		},
 				
-		proposePixelMove: function(propName, fn, val, allowNegative, percentDenom, emDenom, valWrapper) {
+		proposePixelMove: function(propName, fn, val, allowNegative, percentDenom, emDenom, valWrapper, defaultUnit) {
 			var prop = ds.properties[propName];
 			var valObj = prop.getValueObj(fn);
 			var unit = valObj.unit;
+			if (valObj.unit == undefined) {
+				valObj.unit = defaultUnit;
+			}
 			if (valObj.originalValue == undefined) {
 				valObj.originalValue = valObj.value;
 			}

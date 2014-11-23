@@ -62,7 +62,7 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 				val = -val;
 			}
 			
-			var change = DataService.proposePixelMove(prop, fn, val, $scope.allownegative, $scope.percentdenom, $scope.emdenom, valWrapper);
+			var change = DataService.proposePixelMove(prop, fn, val, $scope.allownegative, $scope.percentdenom, $scope.emdenom, valWrapper, $scope.unit);
 		}
 		
 		function mouseup() {

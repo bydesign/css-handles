@@ -304,3 +304,28 @@ handle.dragging.handleColor5 > .handleCt { border-color: #A300D9; color: #A300D9
 .overridden .cm-tab {
 	text-decoration: none;
 }
+.shadows {
+	position: absolute;
+	top: 32px;
+	left: 33%;
+	margin: 0;
+	padding: 0;
+	z-index: 800;
+}
+.shadows > li {
+	float: left;
+	margin: 4px;
+	margin-right: 0;
+	padding: 4px 8px;
+	background-color: rgba(0,0,0,.3);
+	list-style: none;
+	border-radius: 3px;
+	border: solid 2px transparent;
+	cursor:  default;
+}
+.shadows > li.active {
+	border-color: #00ADEF;
+}
+.shadows > li:hover {
+	color: #fff;
+}

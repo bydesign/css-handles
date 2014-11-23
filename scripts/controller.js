@@ -34,6 +34,19 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		DataService.selectNode(node);
 	};
 	
+	$scope.selectShadow = function(shadow) {
+		$scope.curShadow = shadow;
+		DataService.setCurShadow(shadow);
+	};
+	
+	$scope.addBoxShadow = function() {
+		console.log('add box shadow');
+	};
+	
+	$scope.addTextShadow = function() {
+		console.log('add text shadow');
+	};
+	
 	$scope.$on('select', function(event, element) {
 		that.selected = element;
 		$scope.isSelected = true;
@@ -49,6 +62,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		if ($scope.boxShadows.length > 0) {
 			$scope.curShadow = $scope.boxShadows[0];
 		}
+		DataService.setCurShadow($scope.curShadow);
 		//$scope.effects = effects.effects;
 		
 		that.update(element);

@@ -348,9 +348,9 @@ var SHORTHAND_STYLES = {
 		hasBoxModel: true
 	},
 	'box-shadow': {
-		'number': ['box-shadow-h', 'box-shadow-v', 'blur', 'spread'],
+		'number': ['box-shadow-h', 'box-shadow-v', 'box-shadow-blur', 'box-shadow-spread'],
 		'color': ['box-shadow-color'],
-		'text': ['inset']
+		'text': ['box-shadow-inset']
 	},
 	'column-rule': {
 		'color': ['column-rule-color'],
@@ -476,6 +476,11 @@ var ps = {
 		
 			
 		var rules = [];
+		var shorthandCounter = {
+			colorCount: 0,
+			textCount: 0,
+			numberCount: 0
+		};
 		var comments = [];
 		var curToken = '';
 		var curNode;
@@ -494,7 +499,7 @@ var ps = {
 				var propNames = [];
 				var typeName = TYPE_NAMES[curNode.type];
 				if (typeName != undefined) {
-					var count = parent[typeName+'Count'];
+					var count = shorthandCounter[typeName+'Count'];
 					if (secondLevel) {
 						count = 0;
 					}
@@ -514,36 +519,43 @@ var ps = {
 						// assign matching 3rd or 4th property
 						} else {
 							propNames.push(shorthand[typeName][count]);
-							
 						}
 						
 					// assign single property
 					} else {
 						propNames.push(shorthand[typeName][count]);
 					}
-					parent[typeName+'Count']++;
+					shorthandCounter[typeName+'Count']++;
 				}
-				
 				angular.forEach(propNames, function(propName) {
-					node = {
-						value: propName,
-						parent: parent.parent,
-						type: PROPERTY,
-						editor: editor,
-						pos: curNode.pos,
-						valobj: curNode,
-						implicit: true
-					};
-					parent.parent.children.push(node);
-					addSubNodes(parent, propName, true);
+					if (propName != undefined) {
+						node = {
+							value: propName,
+							parent: parent.parent,
+							type: PROPERTY,
+							editor: editor,
+							pos: curNode.pos,
+							valobj: curNode,
+							implicit: true
+						};
+						parent[propName] = node;
+						if (parent.type == PROPERTY) {
+							parent.parent.children.push(node);
+							addSubNodes(parent, propName, true);
+						}
+					}
 				});
 			}
 			// add to shorthand property counter by type
 		}
-			
+		
+		function resetShorthandCounter() {
+			shorthandCounter.colorCount = 0;
+			shorthandCounter.textCount = 0;
+			shorthandCounter.numberCount = 0;
+		}
 		
 		function addNode(type, value, parent, startPos) {
-			//console.log('add node '+value+'('+type + ') to '+(parent != undefined ? parent.value : 'root'));
 			curNode = {
 				parent: parent,
 				type: type,
@@ -567,20 +579,13 @@ var ps = {
 				if (SHORTHAND_STYLES[value] != undefined || value.indexOf('transform') != -1) {
 					curNode.isShorthand = true;
 				}
-				curNode.colorCount = 0;
-				curNode.textCount = 0;
-				curNode.numberCount = 0;
+				resetShorthandCounter();
 			}
 			
 			if (parent == undefined) {
 				tree.push(curNode);
 				
 			} else {
-				// add any new properties defined in shorthand
-				if (parent.isShorthand) {
-					addSubNodes(parent, parent.value);
-				}
-				
 				// add child structure for grouped and shorthand properties
 				if (parent.isShorthand && parent.isGrouped) {
 					if (parent.children == undefined) {
@@ -590,10 +595,11 @@ var ps = {
 						parent: parent,
 						type: VALGROUP,
 						pos: startPos,
-						children: [curNode]
+						children: [curNode],
 					};
 					curNode.parent = groupedNode;
 					parent.children.push(groupedNode);
+					resetShorthandCounter();
 				
 				} else if (parent.type != PROPERTY || 
 						   parent.type == VALGROUP || 
@@ -608,6 +614,13 @@ var ps = {
 				} else {
 					parent.valobj = curNode;
 				}
+				
+				// add any new properties defined in shorthand
+				if (parent.isShorthand || parent.isGrouped || parent.type == VALGROUP) {
+					var propName = (parent.type == VALGROUP) ? parent.parent.value : parent.value;
+					addSubNodes(curNode.parent, propName);
+				}
+				
 			}
 			curToken = '';
 			if (type == RULE) {
@@ -617,21 +630,27 @@ var ps = {
 		
 		function moveUp(endPos, num) {
 			curNode.pos.end = endPos;
+			var parent = curNode.parent;
+			if (parent && parent.colorCount != undefined) {
+				parent.colorCount = 0;
+				parent.textCount = 0;
+				parent.numberCount = 0;
+			}
 			var prevNode = curNode;
 			if (num != undefined) {
 				var parentEnd = { line: endPos.line, ch: endPos.ch+1 };
 				if (num == 2) {
-					if (curNode.parent.pos != undefined) {
-						curNode.parent.pos.end = parentEnd;
+					if (parent.pos != undefined) {
+						parent.pos.end = parentEnd;
 					}
-					curNode = curNode.parent.parent;
+					curNode = parent.parent;
 				} else if (num == 3) {
 					//curNode.parent.pos.end = endPos;
-					curNode.parent.parent.pos.end = parentEnd;
-					curNode = curNode.parent.parent.parent;
+					parent.parent.pos.end = parentEnd;
+					curNode = parent.parent.parent;
 				}
 			} else {
-				curNode = curNode.parent;
+				curNode = parent;
 			}
 			curToken = '';
 			//console.log('move from '+prevNode.value+'('+prevNode.type+') to '+(curNode != undefined ? curNode.value+'('+curNode.type+')' : 'root'));

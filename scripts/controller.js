@@ -52,19 +52,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		$scope.isSelected = true;
 		$scope.domList = DataService.domList;
 		
-		var effects = DataService.getEffects();
-		
-		$scope.textShadows = effects.textShadows;
-		if ($scope.textShadows > 0) {
-			$scope.curShadow = $scope.textShadows[0];
-		}
-		$scope.boxShadows = effects.boxShadows;
-		if ($scope.boxShadows.length > 0) {
-			$scope.curShadow = $scope.boxShadows[0];
-		}
-		DataService.setCurShadow($scope.curShadow);
-		//$scope.effects = effects.effects;
-		
+		that.getEffects();
 		that.update(element);
 		
 		// hacky non-angular way to scroll css editors to the bottom
@@ -79,6 +67,8 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	
 	$scope.$on('handleStopDrag', function(evt, prop) {
 		$scope.dragging = false;
+		that.getEffects();
+		that.update(that.selected);
 		$scope.$apply();
 	});
 	
@@ -89,6 +79,20 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 			$scope.$apply();
 		}
 	});
+	
+	this.getEffects = function() {
+		var effects = DataService.getEffects();
+		
+		$scope.textShadows = effects.textShadows;
+		if ($scope.textShadows > 0) {
+			$scope.curShadow = $scope.textShadows[0];
+		}
+		$scope.boxShadows = effects.boxShadows;
+		if ($scope.boxShadows.length > 0) {
+			$scope.curShadow = $scope.boxShadows[0];
+		}
+		DataService.setCurShadow($scope.curShadow);
+	};
 	
 	$scope.cssLoaded = function(sheets) {
 		$scope.sheets = sheets;

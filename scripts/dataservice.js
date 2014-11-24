@@ -175,10 +175,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			editor.focus();
 		},
 		
-		setCurShadow: function(valObj) {
-			this.curShadow = valObj;
-		},
-		
 		setValue: function(val, fn) {
 			// set value in object model
 			var node = this.getValueObj(fn);
@@ -552,6 +548,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			if (textShadowProp != undefined) {
 				textShadows = textShadowProp.node.children;
 			}
+			
 			return {
 				boxShadows: boxShadows,
 				textShadows: textShadows,
@@ -681,6 +678,10 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			if (prop != undefined) {
 				var valObj = prop.getValueObj(fn);
 				valObj.originalValue = undefined;
+				
+				// reparse CSS after stop drag
+				ds.CssEditorHelper.foldCssRules(ds.selected);
+				
 				$rootScope.$broadcast('handleStopDrag', prop);
 				
 				// need to add support for making single history item for dragging

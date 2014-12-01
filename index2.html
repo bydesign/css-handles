@@ -468,8 +468,8 @@
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="transform(
-					offset.left, 
-					contentHeight/2 + borderTop + paddingTop + offset.top
+					offset.left + shadowH, 
+					contentHeight/2 + borderTop + paddingTop + offset.top + shadowV
 				)">
 			</handle>
 			<handle class="ns-resize" prop="box-shadow-v" 
@@ -480,8 +480,8 @@
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="transform(
-					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
-					offset.top
+					contentWidth/2 + borderLeft + paddingLeft + offset.left + shadowH, 
+					offset.top + shadowV
 				)">
 			</handle>
 			<handle class="ns-resize" prop="box-shadow-blur" 
@@ -492,14 +492,26 @@
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="transform(
-					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
-					borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top
+					contentWidth/2 + borderLeft + paddingLeft + offset.left + shadowH, 
+					borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top + shadowV + shadowBlur
+				)">
+			</handle>
+			<handle class="ew-resize" prop="box-shadow-spread" 
+				ng-class="'handleColor'+getRuleIndex('box-shadow-spread')" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="transform(
+					borderLeft+paddingLeft+width+paddingRight+borderRight + offset.left + shadowH + shadowSpread, 
+					contentHeight/2 + borderTop + paddingTop + offset.top + shadowV
 				)">
 			</handle>
 			
 			<ul class="shadows">
-				<li ng-repeat="shadow in boxShadows" ng-click="selectShadow(shadow)" ng-class="{active:curShadow==shadow}">Box</li>
-				<li ng-repeat="shadow in textShadows" ng-click="selectShadow(shadow)" ng-class="{active:curShadow==shadow}">Aa</li>
+				<li ng-repeat="shadow in boxShadows" ng-click="selectShadow(shadow, $index)" ng-class="{active:curShadow==shadow}">Box</li>
+				<li ng-repeat="shadow in textShadows" ng-click="selectShadow(shadow, $index)" ng-class="{active:curShadow==shadow}">Aa</li>
 				<li ng-click="addBoxShadow()">+ Box</li>
 				<li ng-click="addTextShadow()">+ Text</li>
 			</ul>

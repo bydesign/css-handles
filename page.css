@@ -64,7 +64,7 @@
 
 .box2 {
 	-webkit-transform: translateX(50px) translateY(-50px);
-	box-shadow: 5px 5px 10px rgba(0,0,0,.3), 0 0 50px rgb(50,100,100) inset;
+	box-shadow: .5em 5px 1em .1em rgba(0,0,0,.3), 0 0 50px rgb(50,100,100) inset;
 }
 .box3 {
 	-webkit-transform: skewX(15deg);

@@ -12,6 +12,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.sheets = [];
 	this.sheetsDict = {};
 	this.selected;
+	this.shadowIndex = 0;
 	var that = this;
 	emmetPlugin.setKeymap({
 		'Alt-Up': 'balance_outward',
@@ -83,17 +84,20 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	});
 	
 	this.getEffects = function() {
-		var effects = DataService.getEffects();
-		that.shadowIndex = 0;
-		$scope.textShadows = effects.textShadows;
-		if ($scope.textShadows > 0) {
-			$scope.curShadow = $scope.textShadows[0];
+		$scope.shadows = DataService.getEffects();
+		//that.shadowIndex = 0;
+		if ($scope.shadows.length > 0) {
+			$scope.curShadow = $scope.shadows[that.shadowIndex];
+			/*$scope.shadows = effects.textShadows;
+			if ($scope.textShadows > 0) {
+				$scope.curShadow = $scope.textShadows[0];
+			}
+			$scope.boxShadows = effects.boxShadows;
+			if ($scope.boxShadows.length > 0) {
+				$scope.curShadow = $scope.boxShadows[0];
+			}*/
+			DataService.setCurShadow($scope.curShadow);
 		}
-		$scope.boxShadows = effects.boxShadows;
-		if ($scope.boxShadows.length > 0) {
-			$scope.curShadow = $scope.boxShadows[0];
-		}
-		DataService.setCurShadow($scope.curShadow);
 	};
 	
 	$scope.cssLoaded = function(sheets) {

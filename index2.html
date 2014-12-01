@@ -510,8 +510,7 @@
 			</handle>
 			
 			<ul class="shadows">
-				<li ng-repeat="shadow in boxShadows" ng-click="selectShadow(shadow, $index)" ng-class="{active:curShadow==shadow}">Box</li>
-				<li ng-repeat="shadow in textShadows" ng-click="selectShadow(shadow, $index)" ng-class="{active:curShadow==shadow}">Aa</li>
+				<li ng-repeat="shadow in shadows" ng-click="selectShadow(shadow, $index)" ng-class="{active:curShadow==shadow}">Shadow</li>
 				<li ng-click="addBoxShadow()">+ Box</li>
 				<li ng-click="addTextShadow()">+ Text</li>
 			</ul>

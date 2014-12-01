@@ -549,11 +549,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				textShadows = textShadowProp.node.children;
 			}
 			
-			return {
-				boxShadows: boxShadows,
-				textShadows: textShadows,
-				//effects: []
-			};
+			return boxShadows.concat(textShadows);
 		},
 		
 		// HTML editor loads

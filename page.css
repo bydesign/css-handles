@@ -30,7 +30,7 @@
 
 .box2 {
 	padding: 5%;
-	background: #eee url(myimage.png) no-repeat, transparent url(myotherimage.png) 50% 10px;
+	background: #eee url(barn.jpg) no-repeat 0 0, transparent url(sky.jpg) 50% 10px no-repeat;
 	left: 500px;
 	margin-left: -2.55%;
 }

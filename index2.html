@@ -51,6 +51,8 @@
 			<div class="propDel" ng-click="deleteProperty(propName)" ng-hide="propVal==undefined">x</div>
 		</div>-->
 	
+		
+		<!-- SPACING -->
 		<div ng-show="tabId == 1">
 			<handle class="s-resize" prop="padding-top" 
 				ng-class="'handleColor'+getRuleIndex('padding-top')" 
@@ -151,6 +153,8 @@
 			</handle>
 		</div>
 		
+		
+		<!-- SIZE -->
 		<div ng-show="tabId == 2">
 			<handle class="ew-resize" prop="min-width" 
 				ng-class="'handleColor'+getRuleIndex('min-width')" 
@@ -227,6 +231,8 @@
 			</handle>
 		</div>
 		
+		
+		<!-- POSITION -->
 		<div ng-show="tabId == 3">
 			<handle class="ns-resize" prop="top" 
 				ng-class="'handleColor'+getRuleIndex('top')" 
@@ -278,6 +284,8 @@
 			</handle>
 		</div>
 		
+		
+		<!-- BORDER -->
 		<div ng-show="tabId == 4">
 			<handle class="ns-resize" prop="border-top-width" 
 				ng-class="'handleColor'+getRuleIndex('border-top-width')" 
@@ -342,21 +350,66 @@
 			</handle>
 		</div>
 		
+		<!-- BACKGROUNDS -->
 		<div ng-show="tabId == 5">
-			<handle class="ns-resize" prop="top" 
+			<handle class="ew-resize" prop="background-position-x" 
+				ng-class="'handleColor'+getRuleIndex('background-position-x')" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="true" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="transform(
+					offset.left + bgPosX, 
+					contentHeight/2 + borderTop + paddingTop + offset.top + bgPosY
+				)">
+			</handle>
+			<handle class="ns-resize" prop="background-position-y" 
+				ng-class="'handleColor'+getRuleIndex('background-position-y')" 
 				dir="vert" 
 				unit="px" 
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
-				move="proposePixelMove()" 
 				ng-style="transform(
-					contentWidth/2 + borderLeft + paddingLeft + offset.left, 
-					offset.top
+					contentWidth/2 + borderLeft + paddingLeft + offset.left + bgPosX, 
+					offset.top + bgPosY
 				)">
 			</handle>
+			<handle class="ew-resize" prop="background-size-x" 
+				ng-class="'handleColor'+getRuleIndex('background-size-x')" 
+				dir="horiz" 
+				unit="px" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="transform(
+					borderLeft+paddingLeft+width+paddingRight+borderRight + offset.left + bgPosX + bgSizeX, 
+					contentHeight/2 + borderTop + paddingTop + offset.top + bgPosY + bgSizeY
+				)">
+			</handle>
+			<handle class="ns-resize" prop="background-size-y" 
+				ng-class="'handleColor'+getRuleIndex('background-size-y')" 
+				dir="vert" 
+				unit="px" 
+				allownegative="false" 
+				percentdenom="parentWidth" 
+				emdenom="parentFontSize" 
+				ng-style="transform(
+					contentWidth/2 + borderLeft + paddingLeft + offset.left + bgPosX + bgSizeX, 
+					borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top + bgPosY + bgSizeY
+				)">
+			</handle>
+			
+			<ul class="shadows">
+				<li ng-repeat="bg in backgrounds" ng-click="selectBackground(bg, $index)" ng-class="{active:curBackground==bg}">Bg</li>
+				<li ng-click="addGradientBackground()">+ Gradient</li>
+				<li ng-click="addImageBackground()">+ Image</li>
+			</ul>
 		</div>
 		
+		
+		<!-- FONT -->
 		<div ng-show="tabId == 6">
 			<handle class="ns-resize" prop="font-size" 
 				ng-class="'handleColor'+getRuleIndex('font-size')" 
@@ -420,6 +473,8 @@
 			</handle>
 		</div>
 		
+		
+		<!-- COLUMNS -->
 		<div ng-show="tabId == 7">
 			<handle class="ew-resize" prop="-webkit-column-count" 
 				ng-class="'handleColor'+getRuleIndex('-webkit-column-count')" 
@@ -459,6 +514,8 @@
 			</handle>
 		</div>
 		
+		
+		<!-- EFFECTS -->
 		<div ng-show="tabId == 8">
 			<handle class="ew-resize" prop="shadow-h" 
 				ng-class="'handleColor'+getRuleIndex('shadow-h')" 
@@ -514,9 +571,10 @@
 				<li ng-click="addBoxShadow()">+ Box</li>
 				<li ng-click="addTextShadow()">+ Text</li>
 			</ul>
-			
 		</div>
 		
+		
+		<!-- TRANSFORM -->
 		<div ng-show="tabId == 9">
 			<handle class="move originHandle" prop="-webkit-transform-origin" 
 				ng-class="'handleColor'+getRuleIndex('-webkit-transform-origin')" 

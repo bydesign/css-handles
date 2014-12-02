@@ -30,9 +30,12 @@
 
 .box2 {
 	padding: 5%;
-	background: #eee url(barn.jpg) no-repeat 0 0, transparent url(sky.jpg) 50% 10px no-repeat;
-	left: 500px;
+	background: url(barn.jpg) no-repeat 50% 0, #eee url(sky.jpg) 50% 100% no-repeat;
+	background-size: 100%;
+	left: 310px;
 	margin-left: -2.55%;
+	width: 180px;
+	height: 240px;
 }
 .box3 {
 	top: 350px;

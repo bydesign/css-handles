@@ -371,7 +371,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			
 			getOrCreateProp: function(propName, fn, unit) {
 				var prop = ds.properties[propName];
-				console.log(prop);
 				
 				// just in case we need to create a rule or fn
 				var rule = ds.rules[ds.rules.length-1];
@@ -541,12 +540,20 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var boxShadowProp = ds.properties['box-shadow'];
 			var boxShadows = [];
 			if (boxShadowProp != undefined) {
-				boxShadows = boxShadowProp.node.children;
+				if (boxShadowProp.node.isGrouped) {
+					boxShadows = boxShadowProp.node.children;
+				} else {
+					boxShadows = [boxShadowProp.node];
+				}
 			}
 			var textShadowProp = ds.properties['text-shadow'];
 			var textShadows = [];
 			if (textShadowProp != undefined) {
-				textShadows = textShadowProp.node.children;
+				if (textShadowProp.node.isGrouped) {
+					textShadows = textShadowProp.node.children;
+				} else {
+					textShadows = [textShadowProp.node];
+				}
 			}
 			
 			return boxShadows.concat(textShadows);

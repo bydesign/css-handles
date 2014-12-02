@@ -621,7 +621,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		setCurShadow: function(valObj) {
 			if (valObj != undefined) {
-				var shadowProps = ['box-shadow-v', 'box-shadow-h', 'box-shadow-blur', 'box-shadow-spread', 'box-shadow-color', 'box-shadow-inset'];
+				var shadowProps = ['shadow-v', 'shadow-h', 'shadow-blur', 'shadow-spread', 'shadow-color', 'shadow-inset'];
 				
 				angular.forEach(shadowProps, function(propName) {
 					var prop = valObj[propName];

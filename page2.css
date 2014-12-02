@@ -5,3 +5,9 @@
 .mobydick {
 	font-family: 'Merriweather', serif;
 }
+
+
+h2 {
+	font-size: 3em;
+	text-shadow: .1em .1em .25em rgba(0,0,0,.25);
+}

@@ -348,9 +348,9 @@ var SHORTHAND_STYLES = {
 		hasBoxModel: true
 	},
 	'box-shadow': {
-		'number': ['box-shadow-h', 'box-shadow-v', 'box-shadow-blur', 'box-shadow-spread'],
-		'color': ['box-shadow-color'],
-		'text': ['box-shadow-inset']
+		'number': ['shadow-h', 'shadow-v', 'shadow-blur', 'shadow-spread'],
+		'color': ['shadow-color'],
+		'text': ['shadow-inset']
 	},
 	'column-rule': {
 		'color': ['column-rule-color'],
@@ -379,8 +379,8 @@ var SHORTHAND_STYLES = {
 		'text': ['outline-style']
 	},
 	'text-shadow': {
-		'color': ['text-shadow-color'],
-		'number': ['text-shadow-h','text-shadow-v', 'text-shadow-blur']
+		'color': ['shadow-color'],
+		'number': ['shadow-h','shadow-v', 'shadow-blur']
 	},
 	'transform-origin': {
 		'number': ['transform-origin-x', 'transform-origin-y', 'transform-origin-z']
@@ -523,7 +523,9 @@ var ps = {
 						
 					// assign single property
 					} else {
-						propNames.push(shorthand[typeName][count]);
+						if (shorthand[typeName] != undefined) {
+							propNames.push(shorthand[typeName][count]);
+						}
 					}
 					shorthandCounter[typeName+'Count']++;
 				}

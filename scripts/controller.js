@@ -85,17 +85,8 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	
 	this.getEffects = function() {
 		$scope.shadows = DataService.getEffects();
-		//that.shadowIndex = 0;
 		if ($scope.shadows.length > 0) {
 			$scope.curShadow = $scope.shadows[that.shadowIndex];
-			/*$scope.shadows = effects.textShadows;
-			if ($scope.textShadows > 0) {
-				$scope.curShadow = $scope.textShadows[0];
-			}
-			$scope.boxShadows = effects.boxShadows;
-			if ($scope.boxShadows.length > 0) {
-				$scope.curShadow = $scope.boxShadows[0];
-			}*/
 			DataService.setCurShadow($scope.curShadow);
 		}
 	};
@@ -152,28 +143,30 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 			// parse shadow parts
 			var shadows = computed['box-shadow'].replace(/\([^\)]+\)/g, '').split(',');
 			var shadow = shadows[that.shadowIndex];
-			var shadowProps = shadow.trim().split(' ');
-			var index = 0;
-			angular.forEach(shadowProps, function(prop) {
-				var prop = prop.trim();
-				if (prop.match(/^-?\d.*/)) {
-					switch (index) {
-						case 0:
-							$scope.shadowH = that.getComputedNum(prop);
-							break;
-						case 1:
-							$scope.shadowV = that.getComputedNum(prop);
-							break;
-						case 2:
-							$scope.shadowBlur = that.getComputedNum(prop);
-							break;
-						case 3:
-							$scope.shadowSpread = that.getComputedNum(prop);
-							break;
+			if (shadow != undefined) {
+				var shadowProps = shadow.trim().split(' ');
+				var index = 0;
+				angular.forEach(shadowProps, function(prop) {
+					var prop = prop.trim();
+					if (prop.match(/^-?\d.*/)) {
+						switch (index) {
+							case 0:
+								$scope.shadowH = that.getComputedNum(prop);
+								break;
+							case 1:
+								$scope.shadowV = that.getComputedNum(prop);
+								break;
+							case 2:
+								$scope.shadowBlur = that.getComputedNum(prop);
+								break;
+							case 3:
+								$scope.shadowSpread = that.getComputedNum(prop);
+								break;
+						}
+						index++;
 					}
-					index++;
-				}
-			});
+				});
+			}
 			
 			selected.css('-webkit-transform', 'translateX(0) translateY(0) rotate(0) scale(1)');
 			$scope.offset = selected.offset();

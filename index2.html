@@ -361,7 +361,7 @@
 				emdenom="parentFontSize" 
 				ng-style="transform(
 					offset.left + bgPosX, 
-					contentHeight/2 + borderTop + paddingTop + offset.top + bgPosY
+					borderTop + offset.top + bgPosY
 				)">
 			</handle>
 			<handle class="ns-resize" prop="background-position-y" 
@@ -372,7 +372,7 @@
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="transform(
-					contentWidth/2 + borderLeft + paddingLeft + offset.left + bgPosX, 
+					borderLeft + offset.left + bgPosX + bgSizeX/2, 
 					offset.top + bgPosY
 				)">
 			</handle>
@@ -384,8 +384,8 @@
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="transform(
-					borderLeft+paddingLeft+width+paddingRight+borderRight + offset.left + bgPosX + bgSizeX, 
-					contentHeight/2 + borderTop + paddingTop + offset.top + bgPosY + bgSizeY
+					borderLeft + offset.left + bgPosX + bgSizeX, 
+					borderTop + offset.top + bgPosY + bgSizeY/2
 				)">
 			</handle>
 			<handle class="ns-resize" prop="background-size-y" 
@@ -396,8 +396,8 @@
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
 				ng-style="transform(
-					contentWidth/2 + borderLeft + paddingLeft + offset.left + bgPosX + bgSizeX, 
-					borderTop+paddingTop+height+paddingBottom+borderBottom + offset.top + bgPosY + bgSizeY
+					borderLeft + offset.left + bgPosX + bgSizeX/2, 
+					borderTop + offset.top + bgPosY + bgSizeY
 				)">
 			</handle>
 			

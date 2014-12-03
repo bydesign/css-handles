@@ -244,32 +244,24 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 			var width = $scope.width + $scope.paddingLeft + $scope.paddingRight;
 			var bgPos = computed['background-position'];
 			if (bgPos != undefined) {
-				console.log(bgPos);
 				bgPos = bgPos.split(',')[that.bgIndex];
 				var posParts = bgPos.split(' ');
-				console.log(posParts);
 				$scope.bgPosX = that.getNumber(posParts[0], width);
 				$scope.bgPosY = $scope.bgPosX;
 				if (posParts.length > 1) {
 					$scope.bgPosY = that.getNumber(posParts[1], width);
 				}
-				console.log($scope.bgPosX);
-				console.log($scope.bgPosY);
 				
 			}
 			var bgSize = computed['background-size'];
 			if (bgSize != undefined) {
-				console.log(bgSize);
 				bgSize = bgSize.split(',')[that.bgIndex];
 				var sizeParts = bgSize.split(' ');
-				console.log(sizeParts);
 				$scope.bgSizeX = that.getNumber(sizeParts[0], width);
 				$scope.bgSizeY = $scope.bgSizeX;
 				if (sizeParts.length > 1) {
 					$scope.bgSizeY = that.getNumber(sizeParts[1], width);
 				}
-				console.log($scope.bgSizeX);
-				console.log($scope.bgSizeY);
 			}
 			
 			$scope.transform = function(x, y) {

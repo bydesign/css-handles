@@ -30,8 +30,8 @@
 
 .box2 {
 	padding: 5%;
-	background: url(barn.jpg) no-repeat 50% 0, #eee url(sky.jpg) 50% 100% no-repeat;
-	background-size: 66%;
+	background: url(barn.jpg) no-repeat 20px 50px, #eee url(sky.jpg) 50% 90% no-repeat;
+	background-size: 100px, 66%;
 	left: 310px;
 	margin-left: -2.55%;
 	width: 180px;

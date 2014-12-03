@@ -659,7 +659,6 @@ var ps = {
 		}
 		
 		function addGroup(endPos) {
-			curNode.value = curToken;
 			if (isShortGrouped()) {
 				moveUp(endPos, 2);
 			} else {
@@ -802,19 +801,18 @@ var ps = {
 					case VALTEXT:
 						if (curNode.quoteChar != undefined) {
 							if (char == curNode.quoteChar) {
-								curNode.value = curToken;
+								//curNode.value = curToken;
 								moveUp({ line:handle, ch:j });
 							} else {
 								curToken += char;
+								curNode.value = curToken;
 							}
 						
 						} else {
 							if (char.match(isWhitespaceRegex)) {
-								curNode.value = curToken;
 								moveUp({ line:handle, ch:j });
 								
 							} else if (char == ';') {
-								curNode.value = curToken;
 								if (isShortGrouped()) {
 									moveUp({ line:handle, ch:j }, 3);
 								} else {
@@ -825,16 +823,15 @@ var ps = {
 								addGroup({ line:handle, ch:j });
 							
 							} else if (char == '(') {
-								curNode.value = curToken;
 								curNode.type = PROPERTYFN;
 								curToken = '';
 								
 							} else if (char == ')') {
-								curNode.value = curToken;
 								moveUp({ line:handle, ch:j }, 2);
 							
 							} else {
 								curToken += char;
+								curNode.value = curToken;
 							}
 						}
 						break;
@@ -842,11 +839,9 @@ var ps = {
 						
 					case VALCOLOR:
 						if (char.match(isWhitespaceRegex)) {
-							curNode.value = curToken;
 							moveUp({ line:handle, ch:j });
 							
 						} else if (char == ';') {
-							curNode.value = curToken;
 							if (isShortGrouped()) {
 								moveUp({ line:handle, ch:j }, 3);
 							} else {
@@ -858,6 +853,7 @@ var ps = {
 						
 						} else {
 							curToken += char;
+							curNode.value = curToken;
 						}
 						break;
 						
@@ -868,6 +864,11 @@ var ps = {
 						} else if (char.match(isNumberRegex)) {
 							curToken += char;
 							curNode.value = Number(curToken);
+							if (curToken == '50' && curNode.parent.parent.value == 'background') {
+								console.log(curNode);
+								console.log(curToken);
+								console.log(typeof(curNode.value));
+							}
 							
 						} else if (char == ';') {
 							if (isShortGrouped()) {

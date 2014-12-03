@@ -667,6 +667,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 				
 		proposePixelMove: function(propName, fn, val, allowNegative, percentDenom, emDenom, valWrapper, defaultUnit) {
+			console.log(val);
 			var prop = ds.properties[propName];
 			var valObj = prop.getValueObj(fn);
 			var unit = valObj.unit;
@@ -676,6 +677,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			if (valObj.originalValue == undefined) {
 				valObj.originalValue = valObj.value;
 			}
+			console.log(valObj);
+			console.log(typeof(valObj.originalValue));
 			
 			// convert pixels to %, em, etc. when needed
 			if (unit == '%') {
@@ -698,7 +701,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				newNum = 0;
 			}
 			newNum = Math.round(newNum * 1000) / 1000;
-			
+			console.log(newNum);
 			// apply value to css rule
 			prop.setValue(newNum, fn);
 		},

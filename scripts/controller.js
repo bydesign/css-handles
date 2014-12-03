@@ -13,6 +13,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	this.sheetsDict = {};
 	this.selected;
 	this.shadowIndex = 0;
+	this.bgIndex = 0;
 	var that = this;
 	emmetPlugin.setKeymap({
 		'Alt-Up': 'balance_outward',
@@ -42,6 +43,13 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		that.update(that.selected);
 	};
 	
+	$scope.selectBackground = function(background, bgIndex) {
+		$scope.curBackground = background;
+		that.bgIndex = bgIndex;
+		DataService.setCurBackground(background);
+		that.update(that.selected);
+	};
+	
 	$scope.addBoxShadow = function() {
 		console.log('add box shadow');
 	};
@@ -56,6 +64,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		$scope.domList = DataService.domList;
 		
 		that.getEffects();
+		that.getBackgrounds();
 		that.update(element);
 		
 		// hacky non-angular way to scroll css editors to the bottom
@@ -71,6 +80,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.$on('handleStopDrag', function(evt, prop) {
 		$scope.dragging = false;
 		that.getEffects();
+		that.getBackgrounds();
 		that.update(that.selected);
 		$scope.$apply();
 	});
@@ -88,6 +98,14 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		if ($scope.shadows.length > 0) {
 			$scope.curShadow = $scope.shadows[that.shadowIndex];
 			DataService.setCurShadow($scope.curShadow);
+		}
+	};
+	
+	this.getBackgrounds = function() {
+		$scope.backgrounds = DataService.getBackgrounds();
+		if ($scope.backgrounds.length > 0) {
+			$scope.curBackground = $scope.backgrounds[that.bgIndex];
+			DataService.setCurBackground($scope.curBackground);
 		}
 	};
 	
@@ -222,6 +240,38 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 			$scope.transformOrigin = this.getComputedNumPair(computed['-webkit-transform-origin']);
 			//console.log($scope.transformOrigin);
 			
+			// background position properties
+			var width = $scope.width + $scope.paddingLeft + $scope.paddingRight;
+			var bgPos = computed['background-position'];
+			if (bgPos != undefined) {
+				console.log(bgPos);
+				bgPos = bgPos.split(',')[that.bgIndex];
+				var posParts = bgPos.split(' ');
+				console.log(posParts);
+				$scope.bgPosX = that.getNumber(posParts[0], width);
+				$scope.bgPosY = $scope.bgPosX;
+				if (posParts.length > 1) {
+					$scope.bgPosY = that.getNumber(posParts[1], width);
+				}
+				console.log($scope.bgPosX);
+				console.log($scope.bgPosY);
+				
+			}
+			var bgSize = computed['background-size'];
+			if (bgSize != undefined) {
+				console.log(bgSize);
+				bgSize = bgSize.split(',')[that.bgIndex];
+				var sizeParts = bgSize.split(' ');
+				console.log(sizeParts);
+				$scope.bgSizeX = that.getNumber(sizeParts[0], width);
+				$scope.bgSizeY = $scope.bgSizeX;
+				if (sizeParts.length > 1) {
+					$scope.bgSizeY = that.getNumber(sizeParts[1], width);
+				}
+				console.log($scope.bgSizeX);
+				console.log($scope.bgSizeY);
+			}
+			
 			$scope.transform = function(x, y) {
 				// subtract page offset (use local coordinates)
 				x -= $scope.offset.left + $scope.transformOrigin.x;
@@ -281,7 +331,16 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		}
 	};
 	
-	
+	this.getNumber = function(str, size) {
+		if (str.indexOf('%') != -1) {
+			var num = Number(str.replace('%',''));
+			return Math.round(num/100 * size);
+			
+		} else {
+			return that.getComputedNum(str);
+		}
+		
+	};
 	
 	this.getComputedNumPair = function(str) {
 		var parts = str.replace('px','').replace('px','').split(' ');

@@ -559,6 +559,20 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			return boxShadows.concat(textShadows);
 		},
 		
+		getBackgrounds: function() {
+			var bgProp = ds.properties['background'];
+			if (bgProp != undefined) {
+				if (bgProp.node.isGrouped) {
+					return bgProp.node.children;
+				} else {
+					return [bgProp.node];
+				}
+				
+			} else {
+				return [];
+			}
+		},
+		
 		// HTML editor loads
 		// handles parsing html when editor changes
 		// handles changing selected element, when editor's cursor changes
@@ -629,6 +643,19 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		setCurShadow: function(valObj) {
 			if (valObj != undefined) {
 				var shadowProps = ['shadow-v', 'shadow-h', 'shadow-blur', 'shadow-spread', 'shadow-color', 'shadow-inset'];
+				
+				angular.forEach(shadowProps, function(propName) {
+					var prop = valObj[propName];
+					if (prop != undefined) {
+						ds.properties[propName] = new CssProperty(prop);
+					}
+				});
+			}
+		},
+		
+		setCurBackground: function(valObj) {
+			if (valObj != undefined) {
+				var shadowProps = ['background-position-x', 'background-position-y', 'background-color', 'background-repeat', 'background-attachment', 'background-image'];
 				
 				angular.forEach(shadowProps, function(propName) {
 					var prop = valObj[propName];

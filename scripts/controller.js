@@ -10,6 +10,8 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.zoom = 1;
 	$scope.zoomLevels = [1, 1.5, 2, 3, 4];
 	$scope.sheets = [];
+	$scope.editorWidth = 350;
+	$scope.pageWidth = $(window).width() - $scope.editorWidth;
 	this.sheetsDict = {};
 	this.selected;
 	this.shadowIndex = 0;
@@ -19,6 +21,13 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		'Alt-Up': 'balance_outward',
 		'Alt-Down': 'balance_inward'
 	});
+	
+	$scope.scopePropFn = function(prop, val) {
+		$scope[prop] += val;
+		/*console.log($scope[prop]);
+		console.log(val);*/
+		that.update(that.selected);
+	};
 	
 	$scope.cssEditorLoaded = function(editor, sheet) {
 		DataService.cssEditorLoaded(editor, sheet);
@@ -75,6 +84,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	
 	$scope.$on('handleStartDrag', function(evt, prop) {
 		$scope.dragging = true;
+		$scope.$apply();
 	});
 	
 	$scope.$on('handleStopDrag', function(evt, prop) {
@@ -95,7 +105,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	
 	this.getEffects = function() {
 		$scope.shadows = DataService.getEffects();
-		if ($scope.shadows.length > 0) {
+		if ($scope.shadows != undefined && $scope.shadows.length > 0) {
 			$scope.curShadow = $scope.shadows[that.shadowIndex];
 			DataService.setCurShadow($scope.curShadow);
 		}
@@ -103,7 +113,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	
 	this.getBackgrounds = function() {
 		$scope.backgrounds = DataService.getBackgrounds();
-		if ($scope.backgrounds.length > 0) {
+		if ($scope.backgrounds != undefined && $scope.backgrounds.length > 0) {
 			$scope.curBackground = $scope.backgrounds[that.bgIndex];
 			DataService.setCurBackground($scope.curBackground);
 		}

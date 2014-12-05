@@ -37,6 +37,7 @@
 		</div>
 	</div>
 	
+	
 	<div class="handles" ng-class="'rule'+activeRule.index" ng-show="isSelected && showControls">
 		
 		<!--<div class="curProp" ng-mouseover="keepVisible()" ng-mouseout="timeoutHide()" ng-show="showCurProp" ng-style="{
@@ -645,9 +646,29 @@
 		</div>
 	
 	</div>
+	
+	
+	<!-- window resize handle -->
+	<handle class="ew-resize" prop="pageWidth" 
+		dir="horiz" 
+		unit="px" 
+		scope-fn="scopePropFn"
+		allownegative="true" 
+		ng-style="{left: pageWidth + editorWidth, top:'50%'}">
+	</handle>
+	
+	<!-- editor resize handle -->
+	<handle class="ew-resize" prop="editorWidth" 
+		dir="horiz" 
+		unit="px" 
+		scope-fn="scopePropFn"
+		allownegative="true" 
+		ng-style="{left:editorWidth, top:'50%'}">
+	</handle>
+	
 </div>
 
-<div class="editors">
+<div class="editors" ng-style="{width:editorWidth+'px'}">
 	<div class="editor editHtml">
 		<h2>HTML</h2>
 		<div class="textEditor">
@@ -687,7 +708,7 @@
 	</div>
 </div>
 
-<div class="page" id="pageHolder">
+<div class="page" id="pageHolder" ng-style="{left:editorWidth+'px'}">
 	<page ng-class="'zoom'+zoom" 
 		url="pageSrc"
 		pannable="true" 
@@ -696,7 +717,7 @@
 		css="sheets"
 		on-scroll="onScroll" 
 		on-load="cssLoaded" 
-		ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')'}"
+		ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')', width:pageWidth+'px'}"
 	></page>
 
 	<div class="dragCover" ng-show="dragging" ng-show="pan"></div>

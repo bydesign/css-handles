@@ -537,39 +537,43 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		},
 		
 		getEffects: function() {
-			var boxShadowProp = ds.properties['box-shadow'];
-			var boxShadows = [];
-			if (boxShadowProp != undefined) {
-				if (boxShadowProp.node.isGrouped) {
-					boxShadows = boxShadowProp.node.children;
-				} else {
-					boxShadows = [boxShadowProp.node];
+			if (ds.properties != undefined) {
+				var boxShadowProp = ds.properties['box-shadow'];
+				var boxShadows = [];
+				if (boxShadowProp != undefined) {
+					if (boxShadowProp.node.isGrouped) {
+						boxShadows = boxShadowProp.node.children;
+					} else {
+						boxShadows = [boxShadowProp.node];
+					}
 				}
-			}
-			var textShadowProp = ds.properties['text-shadow'];
-			var textShadows = [];
-			if (textShadowProp != undefined) {
-				if (textShadowProp.node.isGrouped) {
-					textShadows = textShadowProp.node.children;
-				} else {
-					textShadows = [textShadowProp.node];
+				var textShadowProp = ds.properties['text-shadow'];
+				var textShadows = [];
+				if (textShadowProp != undefined) {
+					if (textShadowProp.node.isGrouped) {
+						textShadows = textShadowProp.node.children;
+					} else {
+						textShadows = [textShadowProp.node];
+					}
 				}
+				
+				return boxShadows.concat(textShadows);
 			}
-			
-			return boxShadows.concat(textShadows);
 		},
 		
 		getBackgrounds: function() {
-			var bgProp = ds.properties['background'];
-			if (bgProp != undefined) {
-				if (bgProp.node.isGrouped) {
-					return bgProp.node.children;
+			if (ds.properties != undefined) {
+				var bgProp = ds.properties['background'];
+				if (bgProp != undefined) {
+					if (bgProp.node.isGrouped) {
+						return bgProp.node.children;
+					} else {
+						return [bgProp.node];
+					}
+					
 				} else {
-					return [bgProp.node];
+					return [];
 				}
-				
-			} else {
-				return [];
 			}
 		},
 		
@@ -637,7 +641,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		handleStartDrag: function(prop, fn, defaultUnit) {
 			var prop = ds.CssEditorHelper.getOrCreateProp(prop, fn, defaultUnit);
 			prop.selectValueCode(fn);
-			$rootScope.$broadcast('handleStartDrag', prop);
+			//$rootScope.$broadcast('handleStartDrag', prop);
 		},
 		
 		setCurShadow: function(valObj) {
@@ -725,7 +729,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				// reparse CSS after stop drag
 				ds.CssEditorHelper.foldCssRules(ds.selected);
 				
-				$rootScope.$broadcast('handleStopDrag', prop);
+				//$rootScope.$broadcast('handleStopDrag', prop);
 				
 				// need to add support for making single history item for dragging
 			}

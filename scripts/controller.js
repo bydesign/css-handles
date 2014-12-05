@@ -240,7 +240,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 			$scope.transformOrigin = this.getComputedNumPair(computed['-webkit-transform-origin']);
 			//console.log($scope.transformOrigin);
 			
-			// background position properties
+			// background properties
 			var width = $scope.width + $scope.paddingLeft + $scope.paddingRight;
 			var bgPos = computed['background-position'];
 			if (bgPos != undefined) {
@@ -258,7 +258,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 				bgSize = bgSize.split(',')[that.bgIndex];
 				var sizeParts = bgSize.split(' ');
 				$scope.bgSizeX = that.getNumber(sizeParts[0], width);
-				$scope.bgSizeY = $scope.bgSizeX;
+				$scope.bgSizeY = DataService.getCurBackgroundHeight($scope.bgSizeX);
 				if (sizeParts.length > 1) {
 					$scope.bgSizeY = that.getNumber(sizeParts[1], width);
 				}

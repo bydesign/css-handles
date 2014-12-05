@@ -665,22 +665,22 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				});
 				
 				// get image aspect ratio
-				/*var bgImg = ds.properties['background-image'];
-				console.log(bgImg);
+				var bgImg = ds.properties['background-image'];
 				if (bgImg != undefined) {
-					console.log(bgImg.node.children[0].value);
-					var imageSrc = bgImg.node.children[0].value;
+					var imageSrc = bgImg.node.valobj.children[0].value;
 					var image = new Image();
 					    image.src = imageSrc;
-					
-			    var width = image.width,
-			        height = image.height;
-				}*/
+			    		
+			    this.bgSizeRatio = image.height / image.width;
+				}
 			}
+		},
+		
+		getCurBackgroundHeight: function(width) {
+			return width * this.bgSizeRatio;
 		},
 				
 		proposePixelMove: function(propName, fn, val, allowNegative, percentDenom, emDenom, valWrapper, defaultUnit) {
-			console.log(val);
 			var prop = ds.properties[propName];
 			var valObj = prop.getValueObj(fn);
 			var unit = valObj.unit;
@@ -690,8 +690,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			if (valObj.originalValue == undefined) {
 				valObj.originalValue = valObj.value;
 			}
-			console.log(valObj);
-			console.log(typeof(valObj.originalValue));
 			
 			// convert pixels to %, em, etc. when needed
 			if (unit == '%') {
@@ -714,7 +712,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 				newNum = 0;
 			}
 			newNum = Math.round(newNum * 1000) / 1000;
-			console.log(newNum);
 			// apply value to css rule
 			prop.setValue(newNum, fn);
 		},

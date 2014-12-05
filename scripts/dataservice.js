@@ -663,6 +663,19 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 						ds.properties[propName] = new CssProperty(prop);
 					}
 				});
+				
+				// get image aspect ratio
+				/*var bgImg = ds.properties['background-image'];
+				console.log(bgImg);
+				if (bgImg != undefined) {
+					console.log(bgImg.node.children[0].value);
+					var imageSrc = bgImg.node.children[0].value;
+					var image = new Image();
+					    image.src = imageSrc;
+					
+			    var width = image.width,
+			        height = image.height;
+				}*/
 			}
 		},
 				

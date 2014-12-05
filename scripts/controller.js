@@ -242,29 +242,39 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 			
 			// background properties
 			var width = $scope.width + $scope.paddingLeft + $scope.paddingRight;
+			$scope.bgPosX = 0;
+			$scope.bgPosY = 0;
 			var bgPos = computed['background-position'];
 			if (bgPos != undefined) {
 				bgPos = bgPos.split(',')[that.bgIndex];
-				var posParts = bgPos.split(' ');
-				$scope.bgPosX = that.getNumber(posParts[0], width);
-				$scope.bgPosY = $scope.bgPosX;
-				if (posParts.length > 1) {
-					$scope.bgPosY = that.getNumber(posParts[1], width);
+				if (bgPos != undefined) {
+					var posParts = bgPos.split(' ');
+					$scope.bgPosX = that.getNumber(posParts[0], width);
+					$scope.bgPosY = $scope.bgPosX;
+					if (posParts.length > 1) {
+						$scope.bgPosY = that.getNumber(posParts[1], width);
+					}
 				}
-				
 			}
+			
 			var bgSize = computed['background-size'];
+			$scope.bgSizeX = 0;
+			$scope.bgSizeY = 0;
 			if (bgSize != undefined) {
 				bgSize = bgSize.split(',')[that.bgIndex];
-				var sizeParts = bgSize.split(' ');
-				$scope.bgSizeX = that.getNumber(sizeParts[0], width);
-				$scope.bgSizeY = DataService.getCurBackgroundHeight($scope.bgSizeX);
-				if (sizeParts.length > 1) {
-					$scope.bgSizeY = that.getNumber(sizeParts[1], width);
+				if (bgSize != undefined && bgSize != 'auto') {
+					var sizeParts = bgSize.split(' ');
+					$scope.bgSizeX = that.getNumber(sizeParts[0], width);
+					$scope.bgSizeY = DataService.getCurBackgroundHeight($scope.bgSizeX);
+					if (sizeParts.length > 1) {
+						$scope.bgSizeY = that.getNumber(sizeParts[1], width);
+					}
 				}
 			}
 			
 			$scope.transform = function(x, y) {
+				//console.log(x);
+				//console.log(y);
 				// subtract page offset (use local coordinates)
 				x -= $scope.offset.left + $scope.transformOrigin.x;
 				y -= $scope.offset.top + $scope.transformOrigin.y;

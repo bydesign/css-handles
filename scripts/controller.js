@@ -22,10 +22,27 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		'Alt-Down': 'balance_inward'
 	});
 	
-	$scope.scopePropFn = function(prop, val) {
+	/*$scope.scopePropFn = function(prop, val) {
 		$scope[prop] += val;
-		/*console.log($scope[prop]);
-		console.log(val);*/
+		that.update(that.selected);
+	};*/
+	
+	$scope.changeEditorWidth = function(prop, val) {
+		var editorWidth = $scope.editorWidth + val;
+		var windowWidth = $(window).width();
+		$scope.editorWidth = editorWidth;
+		if (editorWidth + $scope.pageWidth > windowWidth) {
+			$scope.pageWidth = windowWidth - $scope.editorWidth;
+		}
+		that.update(that.selected);
+	};
+	
+	$scope.changePageWidth = function(prop, val) {
+		var maxPageWidth = $(window).width() - $scope.editorWidth; 
+		var pageWidth = $scope.pageWidth + val;
+		if (pageWidth > 0 && pageWidth <= maxPageWidth) {
+			$scope.pageWidth = pageWidth;
+		}
 		that.update(that.selected);
 	};
 	

@@ -652,7 +652,7 @@
 	<handle class="ew-resize" prop="pageWidth" 
 		dir="horiz" 
 		unit="px" 
-		scope-fn="scopePropFn"
+		scope-fn="changePageWidth"
 		allownegative="true" 
 		ng-style="{left: pageWidth + editorWidth, top:'50%'}">
 	</handle>
@@ -661,7 +661,7 @@
 	<handle class="ew-resize" prop="editorWidth" 
 		dir="horiz" 
 		unit="px" 
-		scope-fn="scopePropFn"
+		scope-fn="changeEditorWidth"
 		allownegative="true" 
 		ng-style="{left:editorWidth, top:'50%'}">
 	</handle>

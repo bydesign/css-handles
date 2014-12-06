@@ -29,11 +29,17 @@
 				<li ng-click="tabId = 9" ng-class="{active:tabId==9}"><u>T</u>ransform</li>
 				<li ng-click="tabId = 10" ng-class="{active:tabId==10}">3<u>D</u></li>
 			</ul>
-			<ul class="tabs rules">
+			<!--<ul class="tabs rules">
 				<li ng-repeat="rule in rules" ng-class="{active: rule == activeRule}" ng-click="toggleRule(rule)">
 					<i ng-class="'dot color'+rule.index"></i> {{rule.selectorText}}
 				</li>
+			</ul>-->
+			
+			<ul class="zoomControls">
+				<li ng-click="zoomOut()"><span class="zoomBtn">-</span></li>
+				<li ng-click="zoomIn()"><span class="zoomBtn">+</span></li>
 			</ul>
+			
 		</div>
 	</div>
 	
@@ -402,7 +408,7 @@
 				)">
 			</handle>
 			
-			<ul class="shadows">
+			<ul class="subSelectors shadows" ng-style="{left:editorWidth+'px'}">
 				<li ng-repeat="bg in backgrounds" ng-click="selectBackground(bg, $index)" ng-class="{active:curBackground==bg}">Bg</li>
 				<li ng-click="addGradientBackground()">+ Gradient</li>
 				<li ng-click="addImageBackground()">+ Image</li>
@@ -567,7 +573,7 @@
 				)">
 			</handle>
 			
-			<ul class="shadows">
+			<ul class="subSelectors backgrounds" ng-style="{left:editorWidth+'px'}">
 				<li ng-repeat="shadow in shadows" ng-click="selectShadow(shadow, $index)" ng-class="{active:curShadow==shadow}">Shadow</li>
 				<li ng-click="addBoxShadow()">+ Box</li>
 				<li ng-click="addTextShadow()">+ Text</li>
@@ -657,13 +663,13 @@
 		ng-style="{left: pageWidth + editorWidth, top:'50%'}">
 	</handle>
 	
-	<!-- editor resize handle -->
+	<!-- editor width resize handle -->
 	<handle class="ew-resize" prop="editorWidth" 
 		dir="horiz" 
 		unit="px" 
 		scope-fn="changeEditorWidth"
 		allownegative="true" 
-		ng-style="{left:editorWidth, top:'50%'}">
+		ng-style="{left:editorWidth+'px', top:'50%'}">
 	</handle>
 	
 </div>
@@ -709,7 +715,7 @@
 </div>
 
 <div class="page" id="pageHolder" ng-style="{left:editorWidth+'px'}">
-	<page ng-class="'zoom'+zoom" 
+	<page class="pageTransform"
 		url="pageSrc"
 		pannable="true" 
 		source="pageSrc" 
@@ -717,7 +723,7 @@
 		css="sheets"
 		on-scroll="onScroll" 
 		on-load="cssLoaded" 
-		ng-style="{webkitTransformOrigin: originX+' '+originY, webkitTransform: 'translate('+panX+'px,'+panY+'px) scale('+zoomLevels[zoom-1]+')', width:pageWidth+'px'}"
+		ng-style="{webkitTransform: 'scale('+zoomAmount+') translateZ(0)', width:pageWidth+'px'}"
 	></page>
 
 	<div class="dragCover" ng-show="dragging" ng-show="pan"></div>

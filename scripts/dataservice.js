@@ -512,9 +512,14 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		// load editors and match them up with stylesheets
 		sheets: [],
 		overriddenRules: [],
+		zoomAmount: 1,
 		
 		doc: function(doc) {
 			ds.doc = doc;
+		},
+		
+		setZoom: function(amt) {
+			this.zoomAmount = amt;
 		},
 		
 		selectNode: function(node) {

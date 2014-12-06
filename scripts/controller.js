@@ -12,6 +12,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.sheets = [];
 	$scope.editorWidth = 350;
 	$scope.pageWidth = $(window).width() - $scope.editorWidth;
+	$scope.zoomAmount = 1;
 	this.sheetsDict = {};
 	this.selected;
 	this.shadowIndex = 0;
@@ -26,6 +27,18 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		$scope[prop] += val;
 		that.update(that.selected);
 	};*/
+	
+	$scope.zoomIn = function() {
+		$scope.zoomAmount += $scope.zoomAmount * .5;
+		DataService.setZoom($scope.zoomAmount);
+		that.update(that.selected);
+	};
+	
+	$scope.zoomOut = function() {
+		$scope.zoomAmount -= $scope.zoomAmount * .3333333333333333332;
+		DataService.setZoom($scope.zoomAmount);
+		that.update(that.selected);
+	};
 	
 	$scope.changeEditorWidth = function(prop, val) {
 		var editorWidth = $scope.editorWidth + val;

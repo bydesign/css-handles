@@ -312,7 +312,7 @@ page {
 .overridden .cm-tab {
 	text-decoration: none;
 }
-.shadows {
+.subSelectors {
 	position: absolute;
 	top: 32px;
 	left: 33%;
@@ -320,7 +320,7 @@ page {
 	padding: 0;
 	z-index: 800;
 }
-.shadows > li {
+.subSelectors > li {
 	float: left;
 	margin: 4px;
 	margin-right: 0;
@@ -331,9 +331,46 @@ page {
 	border: solid 2px transparent;
 	cursor:  default;
 }
-.shadows > li.active {
+.subSelectors > li.active {
 	border-color: #00ADEF;
 }
-.shadows > li:hover {
+.subSelectors > li:hover {
 	color: #fff;
+}
+.zoomControls {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 0;
+	margin: 0;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.zoomControls > li {
+	float: left;
+	margin: .1em;
+	list-style: none;
+}
+.zoomBtn {
+	display: inline-block;
+	border-radius: 100%;
+	border: solid 1px #ccc;
+	font-size: 1.5em;
+	line-height: 1.1em;
+	text-align: center;
+	width: 1.1em;
+	height: 1.1em;
+	cursor: default;
+}
+.zoomBtn:hover {
+	background-color: #ccc;
+	color: #fff;
+}
+.pageTransform {
+	-webkit-transform-origin: 0 0;
+	/*-webkit-transition: -webkit-transform .1s linear;*/
 }

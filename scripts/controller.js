@@ -40,6 +40,12 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		that.update(that.selected);
 	};
 	
+	$scope.zoomNormal = function() {
+		$scope.zoomAmount = 1;
+		DataService.setZoom($scope.zoomAmount);
+		that.update(that.selected);
+	};
+	
 	$scope.changeEditorWidth = function(prop, val) {
 		var editorWidth = $scope.editorWidth + val;
 		var windowWidth = $(window).width();

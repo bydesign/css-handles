@@ -332,10 +332,14 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 				//console.log(result);
 				
 				//console.log(result);
+				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x - scrollOffsetLeft;
+				newX *= $scope.zoomAmount;
+				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y - scrollOffsetTop;
+				newY *= $scope.zoomAmount;
 				
 				// extract new position
-				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x + iframeOffset.left - scrollOffsetLeft;
-				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y + iframeOffset.top - scrollOffsetTop;
+				newX += iframeOffset.left;
+				newY += iframeOffset.top;
 				//var newX = result.e + $scope.offset.left;
 				//var newY = result.f + $scope.offset.top;
 				//console.log(newX);

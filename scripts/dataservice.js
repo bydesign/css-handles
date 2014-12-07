@@ -710,7 +710,8 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			} else if (unit == 'em') {
 				val = val / emDenom;
 			}
-			//val *= this.zoomFactor;
+			val /= this.zoomAmount;
+			
 			if (unit == 'px') {
 				val = Math.round(val);
 			}

@@ -14,6 +14,11 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.pageWidth = $(window).width() - $scope.editorWidth;
 	$scope.zoomAmount = 1;
 	$scope.mediaQueries = [];
+	$scope.gridSnap = true;
+	$scope.gridCount = 12;
+	$scope.gridPadding = 12;
+	$scope.gridColSize = 100 / $scope.gridCount;
+	$scope.gridLineHeight = 12;
 	this.sheetsDict = {};
 	this.selected;
 	this.shadowIndex = 0;

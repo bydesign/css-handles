@@ -226,6 +226,22 @@ page {
 	bottom: 0;
 	z-index: 1000;
 }
+.gridDisplay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 300;
+	opacity: .2;
+	background-repeat: repeat;
+	pointer-events: none;
+}
+.gridSnapControl {
+	position: absolute;
+	top: 6px;
+	right: 130px;
+}
 .editor h2 {
 	height: 20px;
 	line-height: 20px;

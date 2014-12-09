@@ -35,6 +35,8 @@
 				</li>
 			</ul>-->
 			
+			<div class="gridSnapControl"><label><input ng-model="gridSnap" type="checkbox"> Grid Snap</label></div>
+			
 			<ul class="zoomControls">
 				<li ng-click="zoomOut()"><span class="zoomBtn">-</span></li>
 				<li ng-click="zoomNormal()">{{zoomAmount*100}}%</li>
@@ -728,6 +730,21 @@
 	></page>
 
 	<div class="dragCover" ng-show="dragging" ng-show="pan"></div>
+	<div class="gridDisplay" ng-show="gridSnap" ng-style="{backgroundImage:'linear-gradient(90deg, 
+		rgba(0,0,0,1.0) 0, 
+		rgba(0,0,0,1.0) '+ gridPadding +'%, 
+		rgba(0,0,0,0) '+ gridPadding +'%, 
+		rgba(0,0,0,0) '+ (99-gridPadding) +'%, 
+		rgba(0,0,0,1.0) '+ (99-gridPadding) +'%, 
+		rgba(0,0,0,1.0) 99.5%, 
+		rgba(0,0,0,0) 99.5%
+	),
+	linear-gradient(0deg,
+			rgba(0,0,0,0.0) '+ (gridLineHeight-1) +'px, 
+			rgba(0,0,0,0.25) '+ (gridLineHeight-1) +'px
+	)',
+	backgroundSize: gridColSize + '% 100%, 100% '+ gridLineHeight +'px',
+	width:pageWidth+'px'}"></div>
 	<ul class="domList">
 		<li ng-repeat="node in domList" ng-click="select(node)">{{node.str}}</li>
 	</ul>

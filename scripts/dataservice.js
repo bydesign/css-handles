@@ -120,7 +120,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 						
 						// add function to existing property
 						} else {
-							var valStartPos = prevChildPos.end.ch + 1;
+							var valStartPos = prevChildPos.end.ch;
 							handle = prevChildPos.end.line;
 							lineNum = editor.getLineNumber(handle);
 							editor.replaceRange(' ' + fnStr,
@@ -260,7 +260,6 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		// CssHelper is where all interactions with parsed CSS come from
 		/*****************************/
 		CssEditorHelper: {
-		
 			// builds a list of rules that apply to element
 			// builds object with all defined properties for element
 			// collapses code between applicable rules
@@ -273,6 +272,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					var editor = sheet.editor;
 					var start = { line:0, ch:0 };
 					var parsedSheet = CssParser.parseAlt(editor);
+					sheet.parsed = parsedSheet;
 					angular.forEach(parsedSheet.rules, function(rule) {
 						if (element.matches(rule.value)) {
 							ds.rules.push(rule);
@@ -342,6 +342,32 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 					rule.editor.removeLineClass(startLine, 'text', 'overridden');
 				});
 				ds.overriddenRules = [];
+			},
+			
+			// return list of media queries
+			getMediaQueries: function() {
+				var mqs = [];
+				angular.forEach(ds.sheets, function(sheet) {
+					var parsedSheet = sheet.parsed;
+					angular.forEach(parsedSheet.rules, function(rule) {
+						var parent = rule.parent;
+						if (parent != undefined && parent.type == 1 && parent.value == 'media') {
+							var mq = {};
+							angular.forEach(parent.children, function(child) {
+								if (child.type == 3) {
+									if (child.value == 'max-width') {
+										mq.maxWidth = child;
+									} else if (child.value == 'min-width') {
+										mq.minWidth = child;
+									}
+								}
+							});
+							mqs.push(mq);
+						}
+					});
+				});
+				
+				return mqs;
 			},
 			
 			// determines whether a property is defined for selected element
@@ -528,6 +554,10 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 			var index = ds.html.types[tagName].indexOf(node);
 
 			ds.select(allTags[index]);
+		},
+		
+		getMediaQueries: function() {
+			return ds.CssEditorHelper.getMediaQueries();
 		},
 		
 		// on-page select of an element

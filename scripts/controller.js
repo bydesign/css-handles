@@ -13,6 +13,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.editorWidth = 350;
 	$scope.pageWidth = $(window).width() - $scope.editorWidth;
 	$scope.zoomAmount = 1;
+	$scope.mediaQueries = [];
 	this.sheetsDict = {};
 	this.selected;
 	this.shadowIndex = 0;
@@ -103,11 +104,17 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		console.log('add text shadow');
 	};
 	
+	$scope.highlightMediaQuery = function(mq) {
+		DataService.unfoldCode();
+		
+	};
+	
 	$scope.$on('select', function(event, element) {
 		that.selected = element;
 		$scope.isSelected = true;
 		$scope.domList = DataService.domList;
 		
+		$scope.mediaQueries = DataService.getMediaQueries();
 		that.getEffects();
 		that.getBackgrounds();
 		that.update(element);

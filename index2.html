@@ -731,6 +731,12 @@
 	<ul class="domList">
 		<li ng-repeat="node in domList" ng-click="select(node)">{{node.str}}</li>
 	</ul>
+	<ul class="mediaQueries" ng-show="mediaQueries">
+		<li ng-repeat="query in mediaQueries" ng-style="{
+			left: query.minWidth.valobj.value + query.minWidth.valobj.unit, 
+			width: (query.maxWidth.valobj.value - query.minWidth.valobj.value) + query.maxWidth.valobj.unit
+		}" ng-click="highlightMediaQuery(query)" class="mediaQuery">query</li>
+	</ul>
 </div>
 
 </div>

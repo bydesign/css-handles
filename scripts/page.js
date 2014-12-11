@@ -1,4 +1,4 @@
-angular.module('cssHandles').directive('page', ['$document', 'DataService', function($document, DataService){
+angular.module('cssHandles').directive('page', ['$document', 'DataService', '$rootScope', function($document, DataService, $rootScope){
 	return {
 		restrict: 'E',
 		templateUrl: 'frame.html',
@@ -53,6 +53,8 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', func
 				that.$page[0].contentWindow.onscroll = function(event) {
 					$scope.onScroll(event);
 				};
+				
+				$rootScope.$broadcast('pageLoaded', that.doc);
 			});
 			
 			this.replaceStyleSheets = function() {

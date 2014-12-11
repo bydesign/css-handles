@@ -233,7 +233,7 @@ page {
 	right: 0;
 	bottom: 0;
 	z-index: 300;
-	opacity: .2;
+	opacity: .1;
 	background-repeat: repeat;
 	pointer-events: none;
 }

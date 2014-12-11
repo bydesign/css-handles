@@ -741,11 +741,11 @@
 	),
 	linear-gradient(0deg,
 			rgba(0,0,0,0.0) '+ (gridLineHeight*zoomAmount-1) +'px, 
-			rgba(0,0,0,0.25) '+ (gridLineHeight*zoomAmount-1) +'px
+			rgba(0,0,0,0.5) '+ (gridLineHeight*zoomAmount-1) +'px
 	)',
-	backgroundSize: gridColSize*zoomAmount + '% 100%, 100% '+ gridLineHeight*zoomAmount +'px',
-	backgroundPosition: gridOffsetLeft + 'px ' + gridOffsetTop + 'px',
-	width:gridWidth+'px', left:gridLeft }"></div>
+	backgroundSize: gridColSize*zoomAmount + 'px 100%, 100% '+ gridLineHeight*zoomAmount +'px',
+	backgroundPosition: gridLeft*zoomAmount+gridOffsetLeft + 'px ' + gridOffsetTop + 'px',
+	width:pageWidth+'px' }"></div>
 	<ul class="domList">
 		<li ng-repeat="node in domList" ng-click="select(node)">{{node.str}}</li>
 	</ul>

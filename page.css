@@ -28,6 +28,11 @@
     src: url(sansation_light.woff);
 }
 
+.doc {
+	margin: 0 auto;
+	max-width: 550px;
+}
+
 .box2 {
 	padding: 5%;
 	background: url(barn.jpg) no-repeat 20px 50px, #eee url(sky.jpg) 50% 90% no-repeat;

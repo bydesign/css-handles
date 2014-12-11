@@ -11,15 +11,13 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 	$scope.zoomLevels = [1, 1.5, 2, 3, 4];
 	$scope.sheets = [];
 	$scope.editorWidth = 350;
-	$scope.pageWidth = $(window).width() - $scope.editorWidth;
 	$scope.zoomAmount = 1;
 	$scope.mediaQueries = [];
 	$scope.gridSnap = true;
 	$scope.gridCount = 12;
 	$scope.gridPadding = 12;
-	$scope.gridColSize = 100 / $scope.gridCount;
 	$scope.gridLineHeight = 12;
-	$scope.gridTargetSelector = 'body';
+	$scope.gridTargetSelector = '.doc';
 	$scope.gridWidth = $scope.pageWidth;
 	$scope.gridOffsetLeft = 0;
 	$scope.gridOffsetTop = 0;
@@ -35,12 +33,11 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 	});
 	
 	$scope.$watch('pageWidth', function(oldWidth, newWidth) {
-		var $page = $('#page');
-		if ($page.length > 0) {
-			var doc = $page[0].contentWindow.document;
-			var $target = $(doc).find($scope.gridTargetSelector);
+		if (that.doc != undefined) {
+			var $target = $(that.doc).find($scope.gridTargetSelector);
 			$scope.gridLeft = $target.offset().left;
 			$scope.gridWidth = $target.width();
+			$scope.gridColSize = $scope.gridWidth / $scope.gridCount;
 		}
 	});
 	
@@ -93,6 +90,12 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 	$scope.htmlLoaded = function(editor, model) {
 		DataService.htmlEditorLoaded(editor, model);
 	};
+	
+	$scope.$on('pageLoaded', function(evt, doc) {
+		that.doc = doc;
+		$scope.pageWidth = $(window).width() - $scope.editorWidth;
+		that.update();
+	});
 	
 	$scope.unfoldCode = function() {
 		DataService.unfoldCode();

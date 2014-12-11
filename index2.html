@@ -740,11 +740,12 @@
 		rgba(0,0,0,0) 99.5%
 	),
 	linear-gradient(0deg,
-			rgba(0,0,0,0.0) '+ (gridLineHeight-1) +'px, 
-			rgba(0,0,0,0.25) '+ (gridLineHeight-1) +'px
+			rgba(0,0,0,0.0) '+ (gridLineHeight*zoomAmount-1) +'px, 
+			rgba(0,0,0,0.25) '+ (gridLineHeight*zoomAmount-1) +'px
 	)',
-	backgroundSize: gridColSize + '% 100%, 100% '+ gridLineHeight +'px',
-	width:pageWidth+'px'}"></div>
+	backgroundSize: gridColSize*zoomAmount + '% 100%, 100% '+ gridLineHeight*zoomAmount +'px',
+	backgroundPosition: gridOffsetLeft + 'px ' + gridOffsetTop + 'px',
+	width:gridWidth+'px', left:gridLeft }"></div>
 	<ul class="domList">
 		<li ng-repeat="node in domList" ng-click="select(node)">{{node.str}}</li>
 	</ul>

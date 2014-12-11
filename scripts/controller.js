@@ -1,4 +1,4 @@
-angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $window, $timeout, DataService, CssPropTabMapping) {
+angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $rootScope, $window, $timeout, DataService, CssPropTabMapping) {
 	$scope.pageSrc = $sce.trustAsResourceUrl('page.html');
 	$.get($scope.pageSrc, function(data) {
 		$scope.html = data;
@@ -19,6 +19,11 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	$scope.gridPadding = 12;
 	$scope.gridColSize = 100 / $scope.gridCount;
 	$scope.gridLineHeight = 12;
+	$scope.gridTargetSelector = 'body';
+	$scope.gridWidth = $scope.pageWidth;
+	$scope.gridOffsetLeft = 0;
+	$scope.gridOffsetTop = 0;
+	$scope.gridLeft = 0;
 	this.sheetsDict = {};
 	this.selected;
 	this.shadowIndex = 0;
@@ -27,6 +32,16 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	emmetPlugin.setKeymap({
 		'Alt-Up': 'balance_outward',
 		'Alt-Down': 'balance_inward'
+	});
+	
+	$scope.$watch('pageWidth', function(oldWidth, newWidth) {
+		var $page = $('#page');
+		if ($page.length > 0) {
+			var doc = $page[0].contentWindow.document;
+			var $target = $(doc).find($scope.gridTargetSelector);
+			$scope.gridLeft = $target.offset().left;
+			$scope.gridWidth = $target.width();
+		}
 	});
 	
 	/*$scope.scopePropFn = function(prop, val) {
@@ -175,9 +190,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 	};
 	
 	$scope.onScroll = function() {
-		if (that.selected != undefined) {
-			that.update(that.selected);
-		}
+		that.update(that.selected);
 	};
 	
 	// returns the numbered index of the rule for specified property
@@ -205,15 +218,19 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $wind
 		$scope.panX = 0;
 		$scope.panY = 0;
 		$scope.$apply();
+		
+		var iframe = $('#page')[0];
+		var scrollOffsetLeft = $(iframe.contentWindow).scrollLeft();
+		var scrollOffsetTop = $(iframe.contentWindow).scrollTop();
+		
+		$scope.gridOffsetLeft = -scrollOffsetLeft * $scope.zoomAmount;
+		$scope.gridOffsetTop = -scrollOffsetTop * $scope.zoomAmount;
+		
 		if (element != undefined) {
 			// local variables
+			var iframeOffset = $(iframe).offset();
 			var computed = window.getComputedStyle(element);
 			var parent = selected.parent();
-			var $iframe = $('#page');
-			var iframe = $iframe[0];
-			var iframeOffset = $iframe.offset();
-			var scrollOffsetTop = $(iframe.contentWindow).scrollTop();
-			var scrollOffsetLeft = $(iframe.contentWindow).scrollLeft();
 			var parentComputed = window.getComputedStyle(parent[0]);
 			
 			// parse shadow parts

@@ -211,6 +211,7 @@ page {
 	left: 33%;
 	top: 32px;
 	border: solid 1px #ccc;
+	overflow: hidden;
 }
 .page iframe {
 	background-color: #fff;
@@ -301,6 +302,7 @@ page {
 	border-top: 1px solid #ccc;
 	padding: 0;
 	padding-left: 6px;
+	z-index: 900;
 }
 .domList > li {
 	float: left;

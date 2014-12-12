@@ -32,22 +32,24 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 		'Alt-Down': 'balance_inward'
 	});
 	
-	$scope.$watch('pageWidth', function(oldWidth, newWidth) {
+	$scope.$on('pageResize', function(doc) {
 		if (that.doc != undefined) {
 			var $target = $(that.doc).find($scope.gridTargetSelector);
-			$scope.gridLeft = $target.offset().left + 1;
+			$scope.gridLeft = $target.offset().left;
 			$scope.gridWidth = $target.width();
-			$scope.gridColSize = $scope.gridWidth / $scope.gridCount;
+			var gridCount = $scope.gridCount;
+			$scope.gridColSize = $scope.gridWidth / gridCount;
+			var gray = 'rgba(0,0,0,0.75)';
 			var black = 'rgba(0,0,0,1.0)';
 			var transp = 'rgba(0,0,0,0)';
-			var gridGradient = black + ' 0, ';
-			gridGradient += black + ' '+ $scope.gridPadding +'%, ';
-			gridGradient += transp + ' '+ $scope.gridPadding +'%, ';
-			gridGradient += transp + ' '+ (99-$scope.gridPadding) +'%, ';
-			gridGradient += black + ' '+ (99-$scope.gridPadding) +'%, ';
-			gridGradient += black + ' 99.5%, ';
-			gridGradient += transp + ' 100%';
+			var gridGradient = gray + ' 0, ';
+			gridGradient += gray + ' '+ $scope.gridPadding/gridCount +'%, ';
+			gridGradient += transp + ' '+ $scope.gridPadding/gridCount +'%, ';
+			gridGradient += transp + ' '+ (99-$scope.gridPadding)/gridCount +'%, ';
+			gridGradient += gray + ' '+ (99-$scope.gridPadding)/gridCount +'%, ';
+			gridGradient += gray + ' '+ 99.5/gridCount +'%';
 			$scope.gridGradient = gridGradient;
+			$scope.$apply();
 		}
 	});
 	

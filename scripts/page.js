@@ -13,7 +13,9 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', '$ro
 		},
 		link: function($scope, element, attr, ctrl) {
 			this.$page = element.find('#page');
-			this.doc = this.$page[0].contentWindow.document;
+			var page = this.$page[0];
+			this.window = page.contentWindow;
+			this.doc = page.contentWindow.document;
 			DataService.doc(this.doc);
 			this.$doc = $(doc);
 			this.sheetsDict = {};
@@ -53,6 +55,10 @@ angular.module('cssHandles').directive('page', ['$document', 'DataService', '$ro
 				that.$page[0].contentWindow.onscroll = function(event) {
 					$scope.onScroll(event);
 				};
+				
+				$(page.contentWindow).resize(function(evt) {
+					$rootScope.$broadcast('pageResize', that.doc);
+				});
 				
 				$rootScope.$broadcast('pageLoaded', that.doc);
 			});

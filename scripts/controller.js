@@ -35,9 +35,19 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 	$scope.$watch('pageWidth', function(oldWidth, newWidth) {
 		if (that.doc != undefined) {
 			var $target = $(that.doc).find($scope.gridTargetSelector);
-			$scope.gridLeft = $target.offset().left;
+			$scope.gridLeft = $target.offset().left + 1;
 			$scope.gridWidth = $target.width();
 			$scope.gridColSize = $scope.gridWidth / $scope.gridCount;
+			var black = 'rgba(0,0,0,1.0)';
+			var transp = 'rgba(0,0,0,0)';
+			var gridGradient = black + ' 0, ';
+			gridGradient += black + ' '+ $scope.gridPadding +'%, ';
+			gridGradient += transp + ' '+ $scope.gridPadding +'%, ';
+			gridGradient += transp + ' '+ (99-$scope.gridPadding) +'%, ';
+			gridGradient += black + ' '+ (99-$scope.gridPadding) +'%, ';
+			gridGradient += black + ' 99.5%, ';
+			gridGradient += transp + ' 100%';
+			$scope.gridGradient = gridGradient;
 		}
 	});
 	

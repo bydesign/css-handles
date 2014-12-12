@@ -210,13 +210,14 @@ page {
 .page {
 	left: 33%;
 	top: 32px;
+	border: solid 1px #ccc;
 }
 .page iframe {
-	border: solid 1px #ccc;
 	background-color: #fff;
 	top: 0;
 	width: 100%;
 	height: 100%;
+	border: none;
 }
 .dragCover {
 	position: absolute;

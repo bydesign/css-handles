@@ -731,21 +731,15 @@
 
 	<div class="dragCover" ng-show="dragging" ng-show="pan"></div>
 	<div class="gridDisplay" ng-show="gridSnap" ng-style="{backgroundImage:'linear-gradient(90deg, 
-		rgba(0,0,0,1.0) 0, 
-		rgba(0,0,0,1.0) '+ gridPadding +'%, 
-		rgba(0,0,0,0) '+ gridPadding +'%, 
-		rgba(0,0,0,0) '+ (99-gridPadding) +'%, 
-		rgba(0,0,0,1.0) '+ (99-gridPadding) +'%, 
-		rgba(0,0,0,1.0) 99.5%, 
-		rgba(0,0,0,0) 99.5%
+		'+ gridGradient +'
 	),
 	linear-gradient(0deg,
 			rgba(0,0,0,0.0) '+ (gridLineHeight*zoomAmount-1) +'px, 
 			rgba(0,0,0,0.5) '+ (gridLineHeight*zoomAmount-1) +'px
 	)',
-	backgroundSize: gridColSize*zoomAmount + 'px 100%, 100% '+ gridLineHeight*zoomAmount +'px',
-	backgroundPosition: gridLeft*zoomAmount+gridOffsetLeft + 'px ' + gridOffsetTop + 'px',
-	width:pageWidth+'px' }"></div>
+	backgroundSize: gridWidth+'px 100%, 100% '+ gridLineHeight*zoomAmount +'px',
+	backgroundPosition: '0 ' + gridOffsetTop + 'px',
+	left: gridLeft+'px', width:gridWidth+'px' }"></div>
 	<ul class="domList">
 		<li ng-repeat="node in domList" ng-click="select(node)">{{node.str}}</li>
 	</ul>

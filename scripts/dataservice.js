@@ -539,6 +539,7 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		sheets: [],
 		overriddenRules: [],
 		zoomAmount: 1,
+		snapHoriz: [],
 		
 		doc: function(doc) {
 			ds.doc = doc;
@@ -546,6 +547,14 @@ angular.module('cssHandles').factory('DataService', function($rootScope, CssPars
 		
 		setZoom: function(amt) {
 			this.zoomAmount = amt;
+		},
+		
+		setGridLineHeight: function(lineHeight) {
+			ds.gridLineHeight = lineHeight;
+		},
+		
+		addSnapHoriz: function(snap) {
+			ds.snapHoriz.push(snap);
 		},
 		
 		selectNode: function(node) {

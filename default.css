@@ -212,6 +212,7 @@ page {
 	top: 32px;
 	border: solid 1px #ccc;
 	overflow: hidden;
+	background-color: #ccc;
 }
 .page iframe {
 	background-color: #fff;

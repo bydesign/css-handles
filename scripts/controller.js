@@ -11,17 +11,19 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 	$scope.zoomLevels = [1, 1.5, 2, 3, 4];
 	$scope.sheets = [];
 	$scope.editorWidth = 350;
-	$scope.zoomAmount = 1;
 	$scope.mediaQueries = [];
 	$scope.gridSnap = true;
 	$scope.gridCount = 12;
 	$scope.gridPadding = 12;
-	$scope.gridLineHeight = 12;
+	$rootScope.zoomAmount = 1;
+	$rootScope.gridLineHeight = 16;
 	$scope.gridTargetSelector = '.doc';
 	$scope.gridWidth = $scope.pageWidth;
 	$scope.gridOffsetLeft = 0;
 	$scope.gridOffsetTop = 0;
 	$scope.gridLeft = 0;
+	$scope.pageOffsetX = 0;
+	$scope.pageOffsetY = 0;
 	this.sheetsDict = {};
 	this.selected;
 	this.shadowIndex = 0;
@@ -49,6 +51,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 			gridGradient += gray + ' '+ (99-$scope.gridPadding)/gridCount +'%, ';
 			gridGradient += gray + ' '+ 99.5/gridCount +'%';
 			$scope.gridGradient = gridGradient;
+			
 			$scope.$apply();
 		}
 	});
@@ -59,20 +62,20 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 	};*/
 	
 	$scope.zoomIn = function() {
-		$scope.zoomAmount += $scope.zoomAmount * .5;
-		DataService.setZoom($scope.zoomAmount);
+		$rootScope.zoomAmount += $rootScope.zoomAmount * .5;
+		DataService.setZoom($rootScope.zoomAmount);
 		that.update(that.selected);
 	};
 	
 	$scope.zoomOut = function() {
-		$scope.zoomAmount -= $scope.zoomAmount * .3333333333333333332;
-		DataService.setZoom($scope.zoomAmount);
+		$rootScope.zoomAmount -= $rootScope.zoomAmount * .3333333333333333332;
+		DataService.setZoom($rootScope.zoomAmount);
 		that.update(that.selected);
 	};
 	
 	$scope.zoomNormal = function() {
-		$scope.zoomAmount = 1;
-		DataService.setZoom($scope.zoomAmount);
+		$rootScope.zoomAmount = 1;
+		DataService.setZoom($rootScope.zoomAmount);
 		that.update(that.selected);
 	};
 	
@@ -80,6 +83,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 		var editorWidth = $scope.editorWidth + val;
 		var windowWidth = $(window).width();
 		$scope.editorWidth = editorWidth;
+		$scope.pageOffset = $('#pageHolder').offset();
 		if (editorWidth + $scope.pageWidth > windowWidth) {
 			$scope.pageWidth = windowWidth - $scope.editorWidth;
 		}
@@ -105,6 +109,7 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 	
 	$scope.$on('pageLoaded', function(evt, doc) {
 		that.doc = doc;
+		$scope.pageOffset = $('#pageHolder').offset();
 		$scope.pageWidth = $(window).width() - $scope.editorWidth;
 		that.update();
 	});
@@ -238,8 +243,8 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 		var scrollOffsetLeft = $(iframe.contentWindow).scrollLeft();
 		var scrollOffsetTop = $(iframe.contentWindow).scrollTop();
 		
-		$scope.gridOffsetLeft = -scrollOffsetLeft * $scope.zoomAmount;
-		$scope.gridOffsetTop = -scrollOffsetTop * $scope.zoomAmount;
+		$scope.gridOffsetLeft = -scrollOffsetLeft * $rootScope.zoomAmount;
+		$scope.gridOffsetTop = -scrollOffsetTop * $rootScope.zoomAmount;
 		
 		if (element != undefined) {
 			// local variables
@@ -383,9 +388,9 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 				
 				//console.log(result);
 				var newX = result.e + $scope.offset.left + $scope.transformOrigin.x - scrollOffsetLeft;
-				newX *= $scope.zoomAmount;
+				newX *= $rootScope.zoomAmount;
 				var newY = result.f + $scope.offset.top + $scope.transformOrigin.y - scrollOffsetTop;
-				newY *= $scope.zoomAmount;
+				newY *= $rootScope.zoomAmount;
 				
 				// extract new position
 				newX += iframeOffset.left;

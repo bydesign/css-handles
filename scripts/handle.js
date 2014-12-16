@@ -66,11 +66,13 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			y = event.pageY - startY;
 			x = event.pageX - startX;
 			var gridLineHeight = $rootScope.gridLineHeight * zoomAmt;
-			var snapThreshold = gridLineHeight / 4;
+			//console.log(gridLineHeight);
+			var snapThreshold = gridLineHeight / 3;
 			if (snapThreshold > 10) {
 				snapThreshold = 10;
 			}
-			var globalY = (startSnap + y) * zoomAmt;
+			var globalY = startSnap + y;
+			//console.log(globalY);
 			var denom = globalY % gridLineHeight;
 			//console.log(denom);
 			if (denom <= snapThreshold) {

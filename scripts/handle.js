@@ -22,7 +22,7 @@ angular.module('cssHandles').directive('handle', function($document, DataService
     link: function($scope, element, attr, ctrl) {
 		// track drag-n-drop
 		var startX = 0, startY = 0, x = 0, y = 0, 
-			lastX = 0, lastY = 0, startSnap = 0, zoomAmt = 1,
+			lastX = 0, lastY = 0, startSnap = 0, gridLineHeight = 16,
 			prop = $scope.prop,
 			fn = $scope.fn,
 			valWrapper;
@@ -49,7 +49,8 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			startY = event.pageY;
 			lastX = event.pageX;
 			lastY = event.pageY;
-			zoomAmt = $rootScope.zoomAmount;
+			var zoomAmt = $rootScope.zoomAmount;
+			gridLineHeight = $rootScope.grid.lineHeight * zoomAmt;
 			startSnap = $scope.snapValue * zoomAmt;
 			$document.on('mousemove', mousemove);
 			$document.on('mouseup', mouseup);
@@ -65,21 +66,22 @@ angular.module('cssHandles').directive('handle', function($document, DataService
 			moveX = event.pageX - lastX;
 			y = event.pageY - startY;
 			x = event.pageX - startX;
-			var gridLineHeight = $rootScope.gridLineHeight * zoomAmt;
-			//console.log(gridLineHeight);
-			var snapThreshold = gridLineHeight / 3;
-			if (snapThreshold > 10) {
-				snapThreshold = 10;
-			}
-			var globalY = startSnap + y;
-			//console.log(globalY);
-			var denom = globalY % gridLineHeight;
-			//console.log(denom);
-			if (denom <= snapThreshold) {
-				y -= denom;
-			
-			} else if (denom >= gridLineHeight-snapThreshold) {
-				y += gridLineHeight - denom;
+			console.log($rootScope.grid.snap);
+			if ($rootScope.grid.snap) {
+				var snapThreshold = gridLineHeight / 3;
+				if (snapThreshold > 10) {
+					snapThreshold = 10;
+				} else if (snapThreshold < 5) {
+					snapThreshold = gridLineHeight / 2;
+				}
+				var globalY = startSnap + y;
+				var denom = globalY % gridLineHeight;
+				if (denom <= snapThreshold) {
+					y -= denom;
+				
+				} else if (denom >= gridLineHeight-snapThreshold) {
+					y += gridLineHeight - denom;
+				}
 			}
 			
 			var dir = $scope.dir;

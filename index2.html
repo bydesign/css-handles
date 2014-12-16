@@ -35,7 +35,7 @@
 				</li>
 			</ul>-->
 			
-			<div class="gridSnapControl"><label><input ng-model="gridSnap" type="checkbox"> Grid Snap</label></div>
+			<div class="gridSnapControl"><label><input ng-model="grid.snap" type="checkbox"> Grid Snap</label></div>
 			
 			<ul class="zoomControls">
 				<li ng-click="zoomOut()"><span class="zoomBtn">-</span></li>
@@ -66,7 +66,7 @@
 		<div ng-show="tabId == 1">
 			<handle class="s-resize" prop="padding-top" 
 				ng-class="'handleColor'+getRuleIndex('padding-top')" 
-				dir="vert" 
+				dir="-vert" 
 				unit="px" 
 				allownegative="false" 
 				percentdenom="parentWidth" 
@@ -91,11 +91,12 @@
 			</handle>
 			<handle class="n-resize" prop="padding-bottom" 
 				ng-class="'handleColor'+getRuleIndex('padding-bottom')" 
-				dir="-vert" 
+				dir="vert" 
 				unit="px" 
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
+				snap-value="contentHeight + paddingBottom + borderTop + paddingTop + offset.top"
 				ng-style="transform(
 					contentWidth/2 + handleSize/2 + borderLeft + paddingLeft + offset.left, 
 					contentHeight + borderTop + paddingTop + offset.top
@@ -121,6 +122,7 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
+				snap-value="offset.top"
 				ng-style="transform(
 					contentWidth/2 - handleSize/2 + borderLeft + paddingLeft + offset.left,
 					offset.top - marginTop
@@ -145,6 +147,7 @@
 				allownegative="true" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
+				snap-value="contentHeight + paddingBottom + marginBottom + borderBottom + borderTop + paddingTop + offset.top"
 				ng-style="transform(
 					contentWidth/2 - handleSize/2 + borderLeft + paddingLeft + offset.left, 
 					offset.top + borderTop + paddingTop + height + paddingBottom + borderBottom + marginBottom
@@ -211,6 +214,7 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
+				snap-value="contentHeight + paddingBottom + borderTop + paddingTop + offset.top"
 				ng-style="transform(
 					contentWidth/2 - handleSize + borderLeft + paddingLeft + offset.left,
 					minHeight + offset.top 
@@ -223,6 +227,7 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
+				snap-value="contentHeight + paddingBottom + borderTop + paddingTop + offset.top"
 				ng-style="transform(
 					contentWidth/2 + borderLeft + paddingLeft + offset.left,
 					borderTop+paddingTop+contentHeight+paddingBottom+borderBottom + offset.top
@@ -235,6 +240,7 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="parentFontSize" 
+				snap-value="contentHeight + paddingBottom + borderTop + paddingTop + offset.top"
 				ng-style="transform(
 					contentWidth/2 + handleSize + borderLeft + paddingLeft + offset.left,
 					maxHeight + offset.top
@@ -442,6 +448,7 @@
 				allownegative="false" 
 				percentdenom="parentWidth" 
 				emdenom="fontSize" 
+				snap-value="borderTop + paddingTop + offset.top"
 				ng-style="transform(
 					borderLeft + paddingLeft - handleSize/2 + offset.left, 
 					handleSize*1.5 + fontSize + lineHeight + borderTop + paddingTop + offset.top
@@ -732,14 +739,14 @@
 	></page>
 
 	<div class="dragCover" ng-show="dragging" ng-show="pan"></div>
-	<div class="gridDisplay" ng-show="gridSnap" ng-style="{backgroundImage:'repeating-linear-gradient(90deg, 
+	<div class="gridDisplay" ng-show="grid.snap" ng-style="{backgroundImage:'repeating-linear-gradient(90deg, 
 		'+ gridGradient +'
 	),
 	linear-gradient(0deg,
-			rgba(0,0,0,0.0) '+ (gridLineHeight*zoomAmount-1) +'px, 
-			rgba(0,0,0,0.5) '+ (gridLineHeight*zoomAmount-1) +'px
+			rgba(0,0,0,0.0) '+ (grid.lineHeight*zoomAmount-1) +'px, 
+			rgba(0,0,0,0.75) '+ (grid.lineHeight*zoomAmount-1) +'px
 	)',
-	backgroundSize: gridWidth*zoomAmount+'px 100%, 100% '+ gridLineHeight*zoomAmount +'px',
+	backgroundSize: gridWidth*zoomAmount+'px 100%, 100% '+ grid.lineHeight*zoomAmount +'px',
 	backgroundPosition: '0 ' + gridOffsetTop + 'px',
 	left: gridLeft*zoomAmount+gridOffsetLeft+'px', width:gridWidth*zoomAmount+'px' }"></div>
 	<ul class="domList">

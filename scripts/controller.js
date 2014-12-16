@@ -12,11 +12,15 @@ angular.module('cssHandles').controller('MainCtrl', function($scope, $sce, $root
 	$scope.sheets = [];
 	$scope.editorWidth = 350;
 	$scope.mediaQueries = [];
-	$scope.gridSnap = true;
 	$scope.gridCount = 12;
 	$scope.gridPadding = 12;
 	$rootScope.zoomAmount = 1;
-	$rootScope.gridLineHeight = 16;
+	$rootScope.grid = {
+		snap: true,
+		lineHeight: 16
+	};
+	//$rootScope.gridSnap = true;
+	//$rootScope.gridLineHeight = 16;
 	$scope.gridTargetSelector = '.doc';
 	$scope.gridWidth = $scope.pageWidth;
 	$scope.gridOffsetLeft = 0;
